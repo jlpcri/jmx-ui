@@ -1,0 +1,22 @@
+{
+  "/jmx-ui/api": {
+    "target": "http://localhost:8200",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/jmx-ui/user": {
+    "target": "http://localhost:8200",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/jmx-ui/oauth2": {
+    "target": "http://localhost:8200",
+    "secure": false,
+    "changeOrigin": false
+  },
+  "/jmx-ui/login": {
+    "target": "http://localhost:8200",
+    "secure": false,
+    "changeOrigin": false
+  }
+}

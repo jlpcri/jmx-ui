@@ -1,0 +1,10 @@
+zuul:
+  routes:
+    reports-api:
+      sensitiveHeaders: Cookie,Set-Cookie
+      path: /api/**
+      url: http://${AMV_DATA_API_SERVICE_HOST}:${AMV_DATA_API_SERVICE_PORT}/reports-api
+
+amv-reports:
+  reports-api-username: rptapi
+  reports-api-password: amvtest

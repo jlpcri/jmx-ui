@@ -1,0 +1,7 @@
+zuul:
+  routes:
+    reports-api:
+      sensitiveHeaders: Cookie,Set-Cookie
+      path: /api/**
+      url: http://${REPORTS_API_SERVICE_HOST}:${REPORTS_API_SERVICE_PORT}/reports-api
+

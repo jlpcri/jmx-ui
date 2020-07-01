@@ -1,0 +1,47 @@
+server:
+  tomcat:
+    use-relative-redirects: true
+    internal-proxies: .*
+    protocol-header: x-forwarded-proto
+    remote-ip-header: x-forwarded-for
+  port: 8200
+  servlet:
+    session:
+      timeout: 8h
+    context-path: /jmx-ui
+
+zuul:
+  routes:
+    amv-reports:
+      sensitiveHeaders: Cookie,Set-Cookie
+      path: /api/**
+      url: http://${AMV_DATA_API_SERVICE_HOST}:${AMV_DATA_API_SERVICE_PORT}/amv-data-api
+  host:
+    socket-timeout-millis: 60000
+
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          netflix: trace
+
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          azure:
+            client-id: da8a9282-cddd-45d5-9e9a-72061ed3412b
+            client-secret: Y~O6P0OU59V3MW-2GNdMBjn-B.-sQRdxfs
+
+azure:
+  activedirectory:
+    tenant-id: ffaac3fb-7eb5-4ccd-bd2d-9f03b3f8db3d
+    active-directory-groups: GROUP - Alohma Admin, GROUP - Corporate Office
+    app-id-uri: api://da8a9282-cddd-45d5-9e9a-72061ed3412b
+
+jmx-ui:
+  amv-api-username: amvrpt
+  amv-api-password: password
+
