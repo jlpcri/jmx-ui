@@ -1,5 +1,13 @@
 # See http://help.github.com/ignore-files/ for more about ignoring files.
 
+gradle_cache/*
+!gradle_cache/.tmp
+src/main/resources/static/*
+!src/main/resources/static/login
+out
+build
+.gradle
+
 # compiled output
 /dist
 /tmp
@@ -22,8 +30,6 @@ speed-measure-plugin*.json
 *.launch
 .settings/
 *.sublime-workspace
-out/
-build/
 *.iml
 
 # IDE - VSCode
