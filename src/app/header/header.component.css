@@ -1,0 +1,15 @@
+header {
+  background: #031111;
+  color: #ffffff;
+}
+
+.site-title {
+  font-size: 1.5rem;
+  line-height: 150%;
+  font-weight: 700;
+}
+
+.light,
+.light a {
+  color: #ffffff;
+}
