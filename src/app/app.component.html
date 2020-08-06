@@ -1,6 +1,42 @@
+<header>
+  <div class="container light">
+    <div class="row">
+      <div class="col-md-8 d-flex justify-content-start align-items-center">
+        <a href="#" class="site-title">JMX - Juice App</a>
+      </div>
+      <div class="col-md-4 d-flex justify-content-end align-items-center">
+        <span>Hello, <strong><a href="#">Cam Penner</a></strong></span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- START - How To Use -->
+<div class="container-fluid gray-bg">
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8">
+        <h1>How To Use</h1>
+        <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla purus leo, lobortis sit amet pharetra eget, interdum nec orci. Etiam nec leo ac ex tincidunt congue non quis dolor. Aenean id laoreet ex. Nunc eu nulla luctus, sollicitudin neque rutrum, consectetur tellus. Fusce orci nisl, rutrum in viverra sed, gravida sit amet odio. Aliquam sed metus risus.</p>
+      </div>
+      <div class="col-lg-4">
+        <h2>Steps</h2>
+        <ol>
+          <li>Search for a recipe</li>
+          <li>Select the bottle size and nicotine strength</li>
+          <li>Fill the bottle</li>
+          <li>Print the label</li>
+        </ol>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- END - How To Use -->
+
+<app-recipe-list></app-recipe-list>
+
 <div class="container">
   <br>
-  <h2>AMV JMX (Juice) App</h2>
   <div *ngIf="user" class="row">
     <div class="col-3 align-middle">
       <b>Logged in as: {{user.name}}</b>

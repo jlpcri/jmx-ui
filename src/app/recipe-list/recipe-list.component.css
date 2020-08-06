@@ -1,0 +1,230 @@
+/*** START - Buttons ***/
+button.btn-primary {
+  background: #277C3B;
+  border: 2px solid #309C49;
+  color: #ffffff;
+  border-radius: 4px;
+  font-size: 2rem;
+  letter-spacing: 1.75px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+button.btn-primary:hover,
+.btn-primary:not(:disabled):not(.disabled):active {
+  background: #1D5E2C;
+  border: 2px solid #267D3B;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-primary:focus,
+.btn-primary:not(:disabled):not(.disabled):active:focus {
+  box-shadow: 0 0 0 0.2rem rgba(39,124,59,.5);
+}
+/*** END - Buttons ***/
+
+/*** START - Sections ***/
+.container {
+  padding: 1.5rem 0;
+}
+
+/** search results **/
+.search-results {
+  margin: 0;
+  padding: 1.5rem;
+  border-radius: 4px;
+  background: #031111;
+  color: #ffffff;
+  box-shadow: 0px 4px 8px rgba(0,0,0,0.2);
+}
+/*** END - Sections ***/
+
+/*** START - Forms ***/
+label {
+  color: #000000;
+}
+
+.form-control::placeholder {
+  color: #031111;
+}
+
+.form-control {
+  display: block;
+  width: 100%;
+  padding: 0.375rem 1.5rem 0.375rem 3rem;
+  font-size: 2rem;
+  line-height: 1.5;
+  color: #031111;
+  background-color: #fff;
+  background-clip: padding-box;
+  border: 0px solid #031111;
+  border-bottom: 2px solid #031111;
+  border-radius: 0;
+  transition: all 0.16s ease-in-out;
+}
+
+.form-control:focus {
+  color: #031111;
+  background-color: #fff;
+  border-bottom: 4px solid #277C3B;
+  outline: 0;
+  box-shadow: none;
+}
+
+.input-icons i {
+  position: absolute;
+}
+
+.input-icons {
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+.icon {
+  padding: 1.25rem 0.5rem;
+  font-size: 1.5rem;
+  min-width: 40px;
+  color: #031111;
+}
+
+.icon:focus {
+  color: #277C3B;
+}
+
+.form-check {
+  padding-left: 1.5rem;
+}
+
+.custom-quantity {
+  width: 6rem;
+  padding: 0 1rem;
+  border: 2px solid #031111;
+  border-radius: 0.25rem;
+  font-size: 2rem;
+  text-align: center;
+}
+
+.custom-label-title {
+  font-size: 1rem;
+  font-weight: 500;
+  letter-spacing: -0.5px;
+}
+
+.custom-control-label {
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+.custom-control-label::before {
+  background-color: #ffffff;
+}
+
+/* This is the default state */
+.custom-radio .custom-control-label::before {
+  background-color: #ffffff;
+  border: 2px solid #031111;
+  transition: all 0.16s ease-in-out;
+}
+
+/* This is the checked state */
+.custom-radio .custom-control-input:checked~.custom-control-label::before,
+.custom-radio .custom-control-input:checked~.custom-control-label::after {
+  background-color: #277C3B;  /* green */
+  /* this bg image SVG is just a white circle, you can replace it with any valid SVG code */
+  background-image: none;
+  border-radius: 50%;
+  border: 2px solid #277C3B;
+}
+
+/* active state i.e. displayed while the mouse is being pressed down */
+.custom-radio .custom-control-input:active ~ .custom-control-label::before {
+  color: #184E25;
+  background-color: #184E25;
+}
+
+/* the shadow; displayed while the element is in focus */
+.custom-radio .custom-control-input:focus ~ .custom-control-label::before {
+  box-shadow: none;
+}
+
+/*** END - Forms ***/
+
+/*** START - Juice Bottle ***/
+.juice-bottle {
+  display: flex;
+  margin: 0 auto;
+}
+/*** END - Juice Bottle ***/
+
+/*** START - Table ***/
+.custom-thead {
+  background: #031111;
+  color: #fff;
+}
+
+table.table {
+  margin-bottom: 0;
+}
+
+.table-wrapper {
+  border: 1px solid #031111;
+  border-radius: 4px;
+  margin-bottom: 1.5rem;
+}
+
+table.custom-table {
+  border: 1px solid #031111;
+  border-spacing: 0;
+  border-collapse: collapse;
+  border-style: hidden;
+}
+
+table.table td {
+  border-top: 0px solid #031111;
+}
+
+table.table tr {
+  border-top: 1px solid #031111;
+}
+
+.table-hover tbody tr:hover {
+  background-color: rgba(0,0,0,0.05);
+}
+
+.ing-icon {
+  font-size: 1.5rem;
+  padding: 0 0.5rem 0 0;
+  display: flex;
+}
+
+.test {
+  display: flex;
+}
+.ing-color-1 {
+  color: #02C4CC;
+}
+
+.ing-color-2 {
+  color: #CD4631;
+}
+
+.ing-color-3 {
+  color: #155462;
+}
+
+.ing-color-4 {
+  color: #8DAE32;
+}
+
+.ing-color-5 {
+  color: #C6D2D0;
+}
+
+.ing-color-6 {
+  color: #614870;
+}
+
+.ing-color-nicotine {
+  color: #F2BA02;
+}
+/*** END - Table ***/
