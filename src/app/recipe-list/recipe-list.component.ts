@@ -47,4 +47,13 @@ export class RecipeListComponent implements OnInit {
   ngOnInit(): void {
   }
 
+  getProductIngredients(searchOption, itemName, bottleSize, nicStrength){
+    console.log(searchOption, itemName, bottleSize, nicStrength)
+    this.recipes = [
+      {ingredients: 'Flavor ipsum dolor1', quantity: 0.25, percentage: 0.25, color: "1"},
+      {ingredients: 'Flavor ipsum dolor2', quantity: 0.25, percentage: 0.25, color: "2"},
+      {ingredients: 'Flavor ipsum dolor3', quantity: 0.25, percentage: 0.25, color: "3"},
+    ]
+  }
+
 }

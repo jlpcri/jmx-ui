@@ -13,6 +13,7 @@
           <i class="fas fa-search icon"></i>
           <input class="form-control input-field" type="text" name="searchItem" placeholder="Search for a juice recipe..." [(ngModel)]="searchItem" />
         </div>
+        <button class="btn-info" (click)="getProductIngredients(searchOptionSelected, searchItem, bottleSizeSelected, nicStrengthSelected)">Search</button>
 
       </div>
 
