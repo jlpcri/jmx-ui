@@ -5,8 +5,11 @@
         <a href="#" class="site-title">JMX - Juice App</a>
       </div>
       <div class="col-md-4 d-flex justify-content-end align-items-center">
-        <span>Hello, <strong><a href="#">Cam Penner</a></strong></span>
+        <span>Hello <strong *ngIf="user; else notLogin"><a href="#">{{user.name}}</a></strong></span>
       </div>
+      <ng-template #notLogin>
+        <strong><a href="#">Guest</a></strong>
+      </ng-template>
     </div>
   </div>
 </header>
