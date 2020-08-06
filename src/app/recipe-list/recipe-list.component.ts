@@ -7,9 +7,11 @@ import { Recipe } from  '../recipe';
   styleUrls: ['./recipe-list.component.css']
 })
 export class RecipeListComponent implements OnInit {
-  searchOptionSelected = ''
-  bottleSizeSelected = ''
-  nicStrengthSelected = ''
+
+  searchOptions = [
+    {id: 1, value: 'Recipe'},
+    {id: 2, value: 'Ingredients'}
+  ]
 
   bottleSizes = [
     {id: 1, value: '30mL'},
@@ -24,6 +26,11 @@ export class RecipeListComponent implements OnInit {
     {id: 4, value: '9mg'}
   ]
 
+  searchOptionSelected = this.searchOptions[0].value
+  searchItem = ''
+  bottleSizeSelected = this.bottleSizes[0].value
+  nicStrengthSelected = this.nicStrengths[0].value
+
   //todo: fetch from amv_master
   recipes: Recipe[] = [
     {ingredients: 'Flavor ipsum dolor1', quantity: 0.25, percentage: 0.25, color: "1"},
@@ -34,8 +41,6 @@ export class RecipeListComponent implements OnInit {
     {ingredients: 'Flavor ipsum dolor6', quantity: 0.25, percentage: 0.25, color: "6"},
     {ingredients: 'Nicotine', quantity: 0.25, percentage: 0.25, color: "7"},
   ]
-
-
 
   constructor() { }
 

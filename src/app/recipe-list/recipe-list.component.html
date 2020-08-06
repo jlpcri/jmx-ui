@@ -3,32 +3,31 @@
     <div class="row">
       <div class="col-md-8 form-group">
         <div class="row margin-bottom">
-          <div class="col-4 form-check custom-radio">
-            <input class="form-check-input custom-control-input" type="radio" id="searchNames" name="searchOptions" value="Recipe" [(ngModel)]="searchOptionSelected">
-            <label class="form-check-label custom-control-label" for="searchNames">Search Recipe Names</label>
-          </div>
-          <div class="col form-check custom-radio">
-            <input class="form-check-input custom-control-input" type="radio" id="searchIngredients" name="searchOptions" value="Ingredients" [(ngModel)]="searchOptionSelected">
-            <label class="form-check-label custom-control-label" for="searchIngredients">Search Ingredients</label>
+          <div class="col-4 form-check custom-radio" *ngFor="let each of searchOptions">
+            <input class="form-check-input custom-control-input" type="radio" id="search_{{each.value}}" name="searchOptions" value="{{each.value}}" [(ngModel)]="searchOptionSelected">
+            <label class="form-check-label custom-control-label" for="search_{{each.value}}">{{each.value}} Name</label>
           </div>
         </div>
+
         <div class="input-icons">
           <i class="fas fa-search icon"></i>
-          <input class="form-control input-field" type="text" id="recipeSearch" name="searchResults" placeholder="Search for a juice recipe..." ngModel />
+          <input class="form-control input-field" type="text" name="searchItem" placeholder="Search for a juice recipe..." [(ngModel)]="searchItem" />
         </div>
+
       </div>
+
       <div class="col-md-2 form-group">
         <span class="custom-label-title">Bottle Size</span>
         <div class="form-check custom-radio" *ngFor="let each of bottleSizes">
-          <input class="form-check-input custom-control-input" type="radio" id="size{{each.id}}" name="bottleSize" value="{{each.value}}" [(ngModel)]="bottleSizeSelected" />
-          <label class="form-check-label custom-control-label" for="size{{each.id}}">{{each.value}}</label>
+          <input class="form-check-input custom-control-input" type="radio" id="size_{{each.value}}" name="bottleSize" value="{{each.value}}" [(ngModel)]="bottleSizeSelected" />
+          <label class="form-check-label custom-control-label" for="size_{{each.value}}">{{each.value}}</label>
         </div>
       </div>
       <div class="col-md-2 form-group">
         <span class="custom-label-title">Nicotine Strength</span>
-        <div class="form-check custom-radio" *ngFor="let strength of nicStrengths">
-          <input class="form-check-input custom-control-input" type="radio" id="strength{{strength.id}}" name="nicStrength" value="{{strength.value}}" [(ngModel)]="nicStrengthSelected" />
-          <label class="form-check-label custom-control-label" for="strength{{strength.id}}">{{strength.value}}</label>
+        <div class="form-check custom-radio" *ngFor="let each of nicStrengths">
+          <input class="form-check-input custom-control-input" type="radio" id="strength_{{each.value}}" name="nicStrength" value="{{each.value}}" [(ngModel)]="nicStrengthSelected" />
+          <label class="form-check-label custom-control-label" for="strength_{{each.value}}">{{each.value}}</label>
         </div>
       </div>
     </div>
@@ -39,7 +38,7 @@
   <div class="row search-results">
     <div class="col-md-8">
       <span class="custom-label-title">{{searchOptionSelected}} Name:</span><br>
-      <h2 class="font-weight-bold">Search Results Recipe Name</h2>
+      <h2 class="font-weight-bold">{{searchItem}}</h2>
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Bottle Size:</span><br>
