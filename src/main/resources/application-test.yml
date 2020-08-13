@@ -5,6 +5,6 @@ zuul:
       path: /api/**
       url: http://${AMV_DATA_API_SERVICE_HOST}:${AMV_DATA_API_SERVICE_PORT}/reports-api
 
-amv-reports:
-  reports-api-username: rptapi
-  reports-api-password: amvtest
+jmx-ui:
+  amv-data-api-password: 7fKjoy5xIzi76YiuUndAFHlJebFzBYfHF9X1PhuMR8sQCET8pEnpH5bKFVI=
+

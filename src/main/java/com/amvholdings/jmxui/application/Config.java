@@ -14,4 +14,5 @@ import org.springframework.stereotype.Component;
 public class Config {
     String amvDataApiUsername;
     String amvDataApiPassword;
+    String encryptionKey;
 }

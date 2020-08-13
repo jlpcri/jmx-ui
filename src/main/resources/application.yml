@@ -35,13 +35,17 @@ spring:
             client-id: da8a9282-cddd-45d5-9e9a-72061ed3412b
             client-secret: Y~O6P0OU59V3MW-2GNdMBjn-B.-sQRdxfs
 
+
 azure:
   activedirectory:
     tenant-id: ffaac3fb-7eb5-4ccd-bd2d-9f03b3f8db3d
     active-directory-groups: GROUP - Alohma Admin, GROUP - Corporate Office
     app-id-uri: api://da8a9282-cddd-45d5-9e9a-72061ed3412b
 
+
 jmx-ui:
-  amv-api-username: amvrpt
-  amv-api-password: password
+  encryption-key: T9mDWnPv1iuK5rnF7Mx33A==
+  amv-data-api-username: amvrpt
+  # password = 'password'
+  amv-data-api-password: XsHwXxWp8c+dSDVPTOK4wg0nJXMmuR4U5q2VyEUrnIQYCuiO
 
