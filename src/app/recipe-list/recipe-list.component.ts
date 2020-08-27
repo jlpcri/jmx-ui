@@ -1,5 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+
 import { Recipe } from  '../recipe';
+import { RecipeListModel } from "./shared/recipe-list.model";
+import { RecipeListService } from "./shared/recipe-list.service";
 
 @Component({
   selector: 'app-recipe-list',
@@ -42,13 +45,25 @@ export class RecipeListComponent implements OnInit {
     {ingredients: 'Nicotine', quantity: 0.25, percentage: 0.25, color: "7"},
   ]
 
-  constructor() { }
+  recipeList: RecipeListModel[];
+  constructor(private recipeListService: RecipeListService) { }
 
-  ngOnInit(): void {
+  ngOnInit() {
+    this.recipeList = []
+  }
+
+  updateData(){
+    this.recipeList = null;
+    this.recipeListService.retrieve('5')
+      .subscribe((recipeList) =>{
+        this.recipeList = recipeList;
+      })
+
   }
 
   getProductIngredients(searchOption, itemName, bottleSize, nicStrength){
     console.log(searchOption, itemName, bottleSize, nicStrength)
+    this.updateData();
     this.recipes = [
       {ingredients: 'Flavor ipsum dolor1', quantity: 0.25, percentage: 0.25, color: "1"},
       {ingredients: 'Flavor ipsum dolor2', quantity: 0.25, percentage: 0.25, color: "2"},

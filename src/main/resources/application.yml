@@ -27,6 +27,11 @@ logging:
           netflix: trace
 
 spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/amv_master?serverTimezone=GMT
+    username: amvapi
+    password: XsHwXxWp8c+dSDVPTOK4wg0nJXMmuR4U5q2VyEUrnIQYCuiO
+
   security:
     oauth2:
       client:
@@ -45,6 +50,8 @@ azure:
 
 jmx-ui:
   encryption-key: T9mDWnPv1iuK5rnF7Mx33A==
+  mysql-key-store: classpath:keystore-local.jks
+  mysql-trust-store: classpath:truststore-local.jks
   amv-data-api-username: amvrpt
   # password = 'password'
   amv-data-api-password: XsHwXxWp8c+dSDVPTOK4wg0nJXMmuR4U5q2VyEUrnIQYCuiO
