@@ -15,7 +15,7 @@ zuul:
     amv-reports:
       sensitiveHeaders: Cookie,Set-Cookie
       path: /api/**
-      url: http://${AMV_DATA_API_SERVICE_HOST:localhost}:${AMV_DATA_API_SERVICE_PORT:8200}/amv-data-api
+      url: http://${AMV_DATA_API_SERVICE_HOST}:${AMV_DATA_API_SERVICE_PORT}/amv-data-api
   host:
     socket-timeout-millis: 60000
 
@@ -42,10 +42,13 @@ azure:
     active-directory-groups: GROUP - Alohma Admin, GROUP - Corporate Office
     app-id-uri: api://da8a9282-cddd-45d5-9e9a-72061ed3412b
 
-
 jmx-ui:
+  mysql-trust-store: classpath:truststore-local.jks
+  mysql-key-store: classpath:keystore-local.jks
   encryption-key: T9mDWnPv1iuK5rnF7Mx33A==
+  amv-data-api-url: http://localhost:8080/amv-data-api
   amv-data-api-username: amvrpt
   # password = 'password'
   amv-data-api-password: XsHwXxWp8c+dSDVPTOK4wg0nJXMmuR4U5q2VyEUrnIQYCuiO
+
 

@@ -14,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class Config {
     String mysqlTrustStore;
     String mysqlKeyStore;
+    String amvDataApiUrl;
     String amvDataApiUsername;
     String amvDataApiPassword;
     String encryptionKey;
