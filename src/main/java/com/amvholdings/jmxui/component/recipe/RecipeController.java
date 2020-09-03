@@ -16,7 +16,7 @@ public class RecipeController {
   private final RecipeDomain recipeDomain;
   private static final Integer AMV_RECIPE_SIZE = 100;
 
-  @GetMapping("/jmx-ui/api")
+  @GetMapping("/jmx-ui/api-v2")
   public List<JmxRecipeModel> getJmxRecipes(){
     List<JmxRecipeModel> jmxRecipeList = new ArrayList<>();
     log.info("Retrieving Recipes...");

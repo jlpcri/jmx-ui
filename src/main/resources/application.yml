@@ -12,10 +12,10 @@ server:
 
 zuul:
   routes:
-    amv-reports:
+    amv-data-api:
       sensitiveHeaders: Cookie,Set-Cookie
       path: /api/**
-      url: http://${AMV_DATA_API_SERVICE_HOST}:${AMV_DATA_API_SERVICE_PORT}/amv-data-api
+      url: http://${AMV_DATA_API_SERVICE_HOST:localhost}:${AMV_DATA_API_SERVICE_PORT:8080}/amv-data-api
   host:
     socket-timeout-millis: 60000
 
