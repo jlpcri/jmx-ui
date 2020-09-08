@@ -1,6 +1,5 @@
+import {RecipeContentModel} from "./recipe-content.model";
+
 export class RecipeListModel {
-  sku: string;
-  productName: string;
-  componentName: string;
-  quantity: number;
+  content: RecipeContentModel[];
 }

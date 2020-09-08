@@ -1,8 +1,9 @@
-import { Injectable } from "@angular/core";
-import { Observable, ReplaySubject, Subject } from "rxjs";
-import {HttpClient, HttpHeaders, HttpParams} from "@angular/common/http";
-import { RecipeListModel } from "./recipe-list.model";
-import { IndexedDatabaseService } from "../../shared/indexed-database.service";
+import {Injectable} from "@angular/core";
+import {Observable, of, Subject} from "rxjs";
+import {HttpClient, HttpHeaders} from "@angular/common/http";
+import {RecipeListModel} from "./recipe-list.model";
+import {IndexedDatabaseService} from "../../shared/indexed-database.service";
+import {catchError, tap} from "rxjs/operators";
 
 @Injectable({
   providedIn: 'root'
@@ -13,37 +14,24 @@ export class RecipeListService {
               private idb: IndexedDatabaseService
   ) { }
 
-  retrieve(id: string){
-    let recipeList = new Subject<RecipeListModel[]>();
+  private recipeUrl = '/jmx-ui/api/productComponents?projection=recipeProjection&page=1&size=100';
+  httpOptions = {
+    headers: new HttpHeaders({'Content-Type': 'application/json'}),
+  }
 
-    let httpUrl = '/jmx-ui/api/productComponents/' + id;
-    let httpHeaders = new HttpHeaders()
-      .set('Content-Type', 'application/json')
-      .set('Authorization', 'Basic' + btoa("amvapi:password"))
+  getRecipes(): Observable<RecipeListModel[]>{
+    return this.http.get<RecipeListModel[]>(this.recipeUrl, this.httpOptions)
+      .pipe(
+        tap(_ => console.log('fetched recipes')),
+        catchError(this.handleError<RecipeListModel[]>(`getRecipes`, []))
+      );
+  }
 
-    let httpParams = new HttpParams()
-      .set('projection', 'recipeProjection');
+  private handleError<T>(operation = 'operation', result?: T){
+    return (error: any): Observable<T> => {
+      console.error(error);
 
-    let options = {
-      headers: httpHeaders,
-      params: httpParams,
-      responseType: 'json'
-    };
-
-    console.log(httpParams.toString())
-    console.log(httpHeaders)
-
-    this.http.get<RecipeListModel[]>(httpUrl, {
-      headers: httpHeaders,
-      params: httpParams,
-      responseType: 'json'
-    }).subscribe(
-      resp => {
-        recipeList.next(resp);
-      }
-    );
-
-    console.log(recipeList)
-    return recipeList;
+      return of(result as T);
+    }
   }
 }

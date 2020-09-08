@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnDestroy, OnInit} from '@angular/core';
 
 import { Recipe } from  '../recipe';
 import { RecipeListModel } from "./shared/recipe-list.model";
@@ -9,7 +9,7 @@ import { RecipeListService } from "./shared/recipe-list.service";
   templateUrl: './recipe-list.component.html',
   styleUrls: ['./recipe-list.component.css']
 })
-export class RecipeListComponent implements OnInit {
+export class RecipeListComponent implements OnInit, OnDestroy {
 
   searchOptions = [
     {id: 1, value: 'Recipe'},
@@ -48,22 +48,28 @@ export class RecipeListComponent implements OnInit {
   recipeList: RecipeListModel[];
   constructor(private recipeListService: RecipeListService) { }
 
-  ngOnInit() {
+  ngOnInit(): void {
     this.recipeList = []
   }
 
-  updateData(){
-    this.recipeList = null;
-    this.recipeListService.retrieve('5')
-      .subscribe((recipeList) =>{
-        this.recipeList = recipeList;
-      })
+  ngOnDestroy(): void {
+  }
 
+  getRecipes(): void{
+    try {
+      this.recipeListService.getRecipes()
+        .subscribe(recipes => {
+          this.recipeList = recipes;
+          console.log(this.recipeList)
+        });
+    } catch (e){
+      console.log(e.message)
+    }
   }
 
   getProductIngredients(searchOption, itemName, bottleSize, nicStrength){
-    console.log(searchOption, itemName, bottleSize, nicStrength)
-    this.updateData();
+    // console.log(searchOption, itemName, bottleSize, nicStrength)
+    this.getRecipes();
     this.recipes = [
       {ingredients: 'Flavor ipsum dolor1', quantity: 0.25, percentage: 0.25, color: "1"},
       {ingredients: 'Flavor ipsum dolor2', quantity: 0.25, percentage: 0.25, color: "2"},
