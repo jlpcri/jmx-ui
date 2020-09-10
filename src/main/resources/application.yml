@@ -43,8 +43,6 @@ azure:
     app-id-uri: api://da8a9282-cddd-45d5-9e9a-72061ed3412b
 
 jmx-ui:
-  mysql-trust-store: classpath:truststore-local.jks
-  mysql-key-store: classpath:keystore-local.jks
   encryption-key: T9mDWnPv1iuK5rnF7Mx33A==
   amv-data-api-url: http://localhost:8080/amv-data-api
   amv-data-api-username: amvrpt

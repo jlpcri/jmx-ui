@@ -1,8 +1,8 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 
-import { Recipe } from  '../recipe';
-import { RecipeListModel } from "./shared/recipe-list.model";
-import { RecipeListService } from "./shared/recipe-list.service";
+import {Recipe} from '../recipe';
+import {RecipeListModel} from "./shared/recipe-list.model";
+import {RecipeListService} from "./shared/recipe-list.service";
 
 @Component({
   selector: 'app-recipe-list',
@@ -46,25 +46,18 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   ]
 
   recipeList: RecipeListModel[];
+  lastPage: number;
   constructor(private recipeListService: RecipeListService) { }
 
   ngOnInit(): void {
-    this.recipeList = []
+    this.recipeList = [];
   }
 
   ngOnDestroy(): void {
   }
 
   getRecipes(): void{
-    try {
-      this.recipeListService.getRecipes()
-        .subscribe(recipes => {
-          this.recipeList = recipes;
-          console.log(this.recipeList)
-        });
-    } catch (e){
-      console.log(e.message)
-    }
+    this.recipeListService.getRecipesAll();
   }
 
   getProductIngredients(searchOption, itemName, bottleSize, nicStrength){

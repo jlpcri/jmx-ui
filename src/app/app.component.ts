@@ -1,4 +1,5 @@
 import {Component, OnInit} from '@angular/core';
+import {IndexedDatabaseService} from "./shared/indexed-database.service";
 
 @Component({
   selector: 'app-root',
@@ -6,9 +7,11 @@ import {Component, OnInit} from '@angular/core';
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
+  title = 'jmx-ui'
 
-  constructor() { }
+  constructor(private indexedDatabaseService: IndexedDatabaseService) { }
 
   ngOnInit(): void {
+    this.indexedDatabaseService.init();
   }
 }
