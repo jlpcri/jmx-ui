@@ -34,9 +34,36 @@ export class IndexedDatabaseService {
     request.onupgradeneeded = (event: any) => {
       let db = event.target.result;
       let objectStore = db.createObjectStore("recipes", {keyPath: "sku"});
-      objectStore.createIndex("product-name", "productName", {unique: false});
-      objectStore.createIndex("component-name", "componentName", {unique: false});
-      objectStore.createIndex("quantity", "quantity", {unique: false});
+      objectStore.createIndex("sku", "sku", {unique: true});
+      objectStore.createIndex("name", "productName", {unique: false});
+    }
+  }
+
+  syncRecipes(data){
+
+    console.log('idb: ', data)
+
+    for (let i = 0; i < data.length; i++){
+      this.addRecipe(data[i].sku, data[i].productName, data[i].componentName, data[i].quantity)
+    }
+  }
+
+  addRecipe(sku: string, productName: string, componentName: string, quantity: number){
+    let tx = this.db.transaction(['recipes'], 'readwrite')
+    let store = tx.objectStore('recipes')
+    let tmp = {
+      sku: sku,
+      name: productName,
+      recipes: [{
+        componentName: componentName,
+        quantity: quantity
+      }]
+    }
+    store.add(tmp)
+
+    tx.oncomplete = function (){}
+    tx.onerror = function (){
+      console.error('Error add data to indexedDB')
     }
   }
 

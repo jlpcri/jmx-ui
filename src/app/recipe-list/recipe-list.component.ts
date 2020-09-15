@@ -3,6 +3,7 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Recipe} from '../recipe';
 import {RecipeListModel} from "./shared/recipe-list.model";
 import {RecipeListService} from "./shared/recipe-list.service";
+import {IndexedDatabaseService} from "../shared/indexed-database.service";
 
 @Component({
   selector: 'app-recipe-list',
@@ -47,7 +48,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   recipeList: RecipeListModel[];
   lastPage: number;
-  constructor(private recipeListService: RecipeListService) { }
+  constructor(private recipeListService: RecipeListService,
+              private idbService: IndexedDatabaseService) { }
 
   ngOnInit(): void {
     this.recipeList = [];
@@ -57,7 +59,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   getRecipes(): void{
-    this.recipeListService.getRecipesAll();
+    this.idbService.syncRecipes(this.recipeListService.retrieveAll());
   }
 
   getProductIngredients(searchOption, itemName, bottleSize, nicStrength){

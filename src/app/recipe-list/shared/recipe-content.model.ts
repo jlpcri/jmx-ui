@@ -4,3 +4,7 @@ export class RecipeContentModel {
   componentName: string;
   quantity: number;
 }
+
+export class RecipePageModel {
+  totalPages: number;
+}

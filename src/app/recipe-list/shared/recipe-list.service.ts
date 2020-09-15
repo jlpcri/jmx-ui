@@ -1,7 +1,8 @@
 import {Injectable, OnInit} from "@angular/core";
-import {Observable, of} from "rxjs";
 import {HttpClient} from "@angular/common/http";
 import {IndexedDatabaseService} from "../../shared/indexed-database.service";
+import {RecipeListModel} from "./recipe-list.model";
+import {from, Subject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -10,48 +11,62 @@ import {IndexedDatabaseService} from "../../shared/indexed-database.service";
 export class RecipeListService implements OnInit{
 
   constructor(private http: HttpClient,
-              private idb: IndexedDatabaseService
+              private idbService: IndexedDatabaseService
   ) { }
 
   ngOnInit() {
   }
 
   private size: string = '100'
-  //Todo:  if first_page is 0, it will throw HttpErrorResponse
-  private first_page: number = 1
+  private page: number = 0
+  private total_page: number = 5
+  private get_total_page_flag = true
   private recipeUrl = `/jmx-ui/api/productComponents?projection=recipeProjection&size=${this.size}&page=`;
 
-  getRecipesPerPage(page: number){
-    return this.http.get(this.recipeUrl + page.toString()).toPromise();
+  retrieveAll(){
+    const recipes: any[] = [];
+
+    // this.progressService.progressMessage = 'Loading Recipes ...';
+    // this.progressService.loading = false;
+
+    const retrieveNextPage = () => {
+      this.http.get<RecipeListModel>(this.recipeUrl + this.page.toString()).subscribe(
+        resp => {
+          recipes.push(resp.content);
+          // console.log(this.page)
+          if (! this.get_total_page_flag){
+            this.total_page = resp.page.totalPages;
+            console.log('Total Page: ', this.total_page)
+            this.get_total_page_flag = true
+          }
+          if (this.page <= this.total_page){
+            this.page++;
+            retrieveNextPage();
+          } else {
+            // this.progressService.progressPercent = 100;
+            console.log("Fetched job done")
+            // this.progressService.loading = false;
+          }
+        },
+        error => {
+          RecipeListService.handleError('Fetched API: ', error)
+          this.page++;
+          retrieveNextPage()
+          // this.progressService.loading = false;
+        }
+      );
+
+    };
+
+    retrieveNextPage();
+    // console.log(recipes)
+    return recipes;
+
   }
 
-  async getRecipesAll(){
-    let result = [];
 
-    result[0] = await this.getRecipesPerPage(this.first_page)
-    let lastHref = result[0]['links'][4]['href']
-    let lastPage = this.getLastPageIndex(lastHref)
-    console.log(lastPage)
-
-    // Todo: need find the approach to fetch more than 3400 async requests
-    for (let i = this.first_page; i < 100; i++){
-      result[i] = await this.getRecipesPerPage(i);
-    }
-
-    console.log(result[99])
+  private static handleError<T>(operation = 'operation', error){
+      console.error(operation, error);
   }
 
-  getLastPageIndex(href: string){
-    const left = "page=";
-    const right = "&size";
-    return parseInt(href.slice(href.indexOf(left) + left.length, href.indexOf(right)));
-  }
-
-  private handleError<T>(operation = 'operation', result?: T){
-    return (error: any): Observable<T> => {
-      console.error(error);
-
-      return of(result as T);
-    }
-  }
 }
