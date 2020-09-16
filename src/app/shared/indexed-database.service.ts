@@ -34,14 +34,14 @@ export class IndexedDatabaseService {
     request.onupgradeneeded = (event: any) => {
       let db = event.target.result;
       let objectStore = db.createObjectStore("recipes", {keyPath: "sku"});
-      objectStore.createIndex("sku", "sku", {unique: true});
+      objectStore.createIndex("sku", "sku", {unique: false});
       objectStore.createIndex("name", "productName", {unique: false});
     }
   }
 
   syncRecipes(data){
 
-    console.log('idb: ', data)
+    // console.log('idb: ', data)
 
     for (let i = 0; i < data.length; i++){
       this.addRecipe(data[i].sku, data[i].productName, data[i].componentName, data[i].quantity)
@@ -61,9 +61,21 @@ export class IndexedDatabaseService {
     }
     store.add(tmp)
 
+    let req = store.get(sku)
+    req.onsuccess = function (event){
+      let content = event.target.result;
+      content.recipes.push(tmp.recipes[0])
+      store.put(content)
+    }
+
+    req.onerror = function (){
+      store.add(tmp)
+    }
+
+
     tx.oncomplete = function (){}
-    tx.onerror = function (){
-      console.error('Error add data to indexedDB')
+    tx.onerror = function (error){
+      console.error('Error add data to indexedDB ', error )
     }
   }
 

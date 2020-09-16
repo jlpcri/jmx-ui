@@ -46,8 +46,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     {ingredients: 'Nicotine', quantity: 0.25, percentage: 0.25, color: "7"},
   ]
 
-  recipeList: RecipeListModel[];
-  lastPage: number;
+  recipeList: any[];
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService) { }
 
@@ -59,7 +58,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   getRecipes(): void{
-    this.idbService.syncRecipes(this.recipeListService.retrieveAll());
+    this.recipeList = this.recipeListService.retrieveAll();
+    // console.log(this.recipeList)
+
+    // this.idbService.syncRecipes(this.recipeList)
   }
 
   getProductIngredients(searchOption, itemName, bottleSize, nicStrength){
