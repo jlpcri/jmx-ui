@@ -46,27 +46,31 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     {ingredients: 'Nicotine', quantity: 0.25, percentage: 0.25, color: "7"},
   ]
 
-  recipeList: any[];
+  productNameList: any[];
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService) { }
 
   ngOnInit(): void {
-    this.recipeList = [];
+    this.productNameList = [];
   }
 
   ngOnDestroy(): void {
   }
 
-  getRecipes(): void{
-    this.recipeList = this.recipeListService.retrieveAll();
+  saveRecipesToIdb(): void{
+    this.recipeListService.retrieveAll();
     // console.log(this.recipeList)
 
     // this.idbService.syncRecipes(this.recipeList)
   }
 
+  getProductList():void {
+    this.productNameList = this.idbService.getProductNameList();
+  }
+
   getProductIngredients(searchOption, itemName, bottleSize, nicStrength){
     // console.log(searchOption, itemName, bottleSize, nicStrength)
-    this.getRecipes();
+    this.saveRecipesToIdb();
     this.recipes = [
       {ingredients: 'Flavor ipsum dolor1', quantity: 0.25, percentage: 0.25, color: "1"},
       {ingredients: 'Flavor ipsum dolor2', quantity: 0.25, percentage: 0.25, color: "2"},

@@ -1,4 +1,6 @@
 import { Component, OnInit } from '@angular/core';
+import {RecipeListService} from "../recipe-list/shared/recipe-list.service";
+import {IndexedDatabaseService} from "../shared/indexed-database.service";
 
 @Component({
   selector: 'app-guide',
@@ -7,9 +9,17 @@ import { Component, OnInit } from '@angular/core';
 })
 export class GuideComponent implements OnInit {
 
-  constructor() { }
+  constructor(private recipeListService: RecipeListService,
+              private idbService: IndexedDatabaseService) { }
 
   ngOnInit(): void {
   }
 
+  loadRecipes(){
+    this.recipeListService.retrieveAll();
+  }
+
+  getProductNameList(){
+    console.log(this.idbService.getProductNameList());
+  }
 }

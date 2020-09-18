@@ -33,9 +33,10 @@ export class IndexedDatabaseService {
 
     request.onupgradeneeded = (event: any) => {
       let db = event.target.result;
-      let objectStore = db.createObjectStore("recipes", {keyPath: "sku"});
-      objectStore.createIndex("sku", "sku", {unique: false});
-      objectStore.createIndex("name", "productName", {unique: false});
+      let objectStore = db.createObjectStore("recipes", {keyPath: "id", autoIncrement: true});
+      objectStore.createIndex("product", "productName", {unique: false});
+      objectStore.createIndex("component", "componentName", {unique: false});
+
     }
   }
 
@@ -53,30 +54,40 @@ export class IndexedDatabaseService {
     let store = tx.objectStore('recipes')
     let tmp = {
       sku: sku,
-      name: productName,
-      recipes: [{
-        componentName: componentName,
-        quantity: quantity
-      }]
+      productName: productName,
+      componentName: componentName,
+      quantity: quantity
     }
-    store.add(tmp)
-
-    let req = store.get(sku)
-    req.onsuccess = function (event){
-      let content = event.target.result;
-      content.recipes.push(tmp.recipes[0])
-      store.put(content)
-    }
-
-    req.onerror = function (){
-      store.add(tmp)
-    }
-
+    store.put(tmp)
 
     tx.oncomplete = function (){}
     tx.onerror = function (error){
       console.error('Error add data to indexedDB ', error )
     }
+  }
+
+  getProductNameList(){
+    let result = [];
+    let tx = this.db.transaction(['recipes'], 'readonly');
+    let store = tx.objectStore('recipes');
+    let index = store.index('product');
+    let name = ''
+
+    index.openCursor().onsuccess = function (event){
+      let cursor = event.target.result;
+      if (cursor) {
+        name = cursor.value.productName;
+        if (!(result.indexOf(name) >= 0)) {
+          result.push(name)
+        }
+
+        cursor.continue();
+      } else {
+        console.log('Job getProductNameList done.')
+      }
+    }
+
+    return result;
   }
 
   maxValue(storeName: string, indexName: string, field: string): Observable<any>{

@@ -20,7 +20,7 @@ export class RecipeListService implements OnInit{
   private size: string = '100'
   private page: number = 0
   private total_page: number = 5
-  private get_total_page_flag = false
+  private get_total_page_flag = true
   private recipeUrl = `/jmx-ui/api/productComponents?projection=recipeProjection&size=${this.size}&page=`;
 
   retrieveAll(){
