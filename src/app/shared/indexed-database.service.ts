@@ -14,6 +14,8 @@ export class IndexedDatabaseService {
   }
 
   init(){
+    // this.version++;
+    // console.log('idb version: ', this.version)
     let request = indexedDB.open("AmvRecipesDatabase", this.version);
 
     request.onerror = (event: any) => {
@@ -73,21 +75,28 @@ export class IndexedDatabaseService {
     let index = store.index('product');
     let name = ''
 
-    index.openCursor().onsuccess = function (event){
-      let cursor = event.target.result;
-      if (cursor) {
-        name = cursor.value.productName;
+    index.getAll().onsuccess = function (event){
+      let raw_data = event.target.result;
+      for (let i = 0; i < raw_data.length; i++){
+        name = raw_data[i].productName;
         if (!(result.indexOf(name) >= 0)) {
           result.push(name)
         }
-
-        cursor.continue();
-      } else {
-        console.log('Job getProductNameList done.')
       }
     }
 
+    console.log('Job getProductNameList done.')
     return result;
+  }
+
+  clearData(){
+    let tx = this.db.transaction(['recipes'], 'readwrite');
+    let objectstore = tx.objectStore('recipes')
+    let objectStoreReq = objectstore.clear()
+
+    objectStoreReq.onsuccess = function (event){
+      console.log('IDb cleared.')
+    }
   }
 
   maxValue(storeName: string, indexName: string, field: string): Observable<any>{

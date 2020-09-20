@@ -52,6 +52,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     this.productNameList = [];
+    this.saveRecipesToIdb();
   }
 
   ngOnDestroy(): void {
@@ -59,18 +60,19 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   saveRecipesToIdb(): void{
     this.recipeListService.retrieveAll();
-    // console.log(this.recipeList)
-
-    // this.idbService.syncRecipes(this.recipeList)
   }
 
   getProductList():void {
     this.productNameList = this.idbService.getProductNameList();
   }
 
+  emptyIdbData(): void {
+    this.recipeListService.emptyIdbData();
+  }
+
   getProductIngredients(searchOption, itemName, bottleSize, nicStrength){
     // console.log(searchOption, itemName, bottleSize, nicStrength)
-    this.saveRecipesToIdb();
+    this.emptyIdbData();
     this.recipes = [
       {ingredients: 'Flavor ipsum dolor1', quantity: 0.25, percentage: 0.25, color: "1"},
       {ingredients: 'Flavor ipsum dolor2', quantity: 0.25, percentage: 0.25, color: "2"},

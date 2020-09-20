@@ -22,4 +22,8 @@ export class GuideComponent implements OnInit {
   getProductNameList(){
     console.log(this.idbService.getProductNameList());
   }
+
+  emptyIdbData(){
+    this.recipeListService.emptyIdbData();
+  }
 }
