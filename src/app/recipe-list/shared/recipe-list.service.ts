@@ -53,7 +53,7 @@ export class RecipeListService implements OnInit{
             }
           },
           error => {
-            RecipeListService.handleError('Fetched API: ', error)
+            RecipeListService.handleError('Fetched API: ', error.message)
             this.page++;
             retrieveNextPage()
             // this.progressService.loading = false;

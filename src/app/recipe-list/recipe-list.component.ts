@@ -31,7 +31,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   ]
 
   searchOptionSelected = this.searchOptions[0].value
-  searchItem = ''
+  searchItem: any = ''
   bottleSizeSelected = this.bottleSizes[0].value
   nicStrengthSelected = this.nicStrengths[0].value
 
@@ -47,6 +47,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   ]
 
   productNameList: any[];
+  productNameListKey = 'name'
+  productNameListLoaded = false;
+  isLoadingProductNameList: boolean;
+
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService) { }
 
@@ -58,21 +62,34 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
   }
 
+  selectEvent(item){
+    console.log('Selected: ', item);
+  }
+
+  onChangeSearch(search: string){
+    // fetch remote data from here
+    // And reassign the 'data' which is binded to 'data'
+    // console.log('onChanged: ', search)
+  }
+
+  onFocused(event){
+    //do sth
+    if (!this.productNameListLoaded) {
+      this.isLoadingProductNameList = true
+      this.productNameList = this.idbService.getProductNameList();
+      this.productNameListLoaded = true;
+    }
+
+    this.isLoadingProductNameList = false
+  }
+
+
   saveRecipesToIdb(): void{
     this.recipeListService.retrieveAll();
   }
 
-  getProductList():void {
-    this.productNameList = this.idbService.getProductNameList();
-  }
-
-  emptyIdbData(): void {
-    this.recipeListService.emptyIdbData();
-  }
-
   getProductIngredients(searchOption, itemName, bottleSize, nicStrength){
-    // console.log(searchOption, itemName, bottleSize, nicStrength)
-    this.emptyIdbData();
+    console.log(searchOption, itemName, bottleSize, nicStrength)
     this.recipes = [
       {ingredients: 'Flavor ipsum dolor1', quantity: 0.25, percentage: 0.25, color: "1"},
       {ingredients: 'Flavor ipsum dolor2', quantity: 0.25, percentage: 0.25, color: "2"},

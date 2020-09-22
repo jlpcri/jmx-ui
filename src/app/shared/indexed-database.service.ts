@@ -77,10 +77,15 @@ export class IndexedDatabaseService {
 
     index.getAll().onsuccess = function (event){
       let raw_data = event.target.result;
+      let idx: number = 0;
       for (let i = 0; i < raw_data.length; i++){
         name = raw_data[i].productName;
-        if (!(result.indexOf(name) >= 0)) {
-          result.push(name)
+        if (!(result.some(e => e.name === name))) {
+          result.push({
+            id: idx,
+            name: name
+          })
+          idx++;
         }
       }
     }
@@ -91,8 +96,8 @@ export class IndexedDatabaseService {
 
   clearData(){
     let tx = this.db.transaction(['recipes'], 'readwrite');
-    let objectstore = tx.objectStore('recipes')
-    let objectStoreReq = objectstore.clear()
+    let objectStore = tx.objectStore('recipes')
+    let objectStoreReq = objectStore.clear()
 
     objectStoreReq.onsuccess = function (event){
       console.log('IDb cleared.')
