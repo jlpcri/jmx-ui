@@ -1,6 +1,5 @@
-import { Injectable} from "@angular/core";
+import {Injectable} from "@angular/core";
 import {MessageService} from "./message.service";
-import { Observable, Subject } from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -9,14 +8,14 @@ import { Observable, Subject } from "rxjs";
 export class IndexedDatabaseService {
   public db;
   private version = 1;
+  private db_name = 'AmvRecipesDatabase'
+  private objectStore_name = 'recipes'
 
   constructor(private messageService: MessageService) {
   }
 
   init(){
-    // this.version++;
-    // console.log('idb version: ', this.version)
-    let request = indexedDB.open("AmvRecipesDatabase", this.version);
+    let request = indexedDB.open(this.db_name, this.version);
 
     request.onerror = (event: any) => {
       this.messageService.error(
@@ -35,7 +34,7 @@ export class IndexedDatabaseService {
 
     request.onupgradeneeded = (event: any) => {
       let db = event.target.result;
-      let objectStore = db.createObjectStore("recipes", {keyPath: "id", autoIncrement: true});
+      let objectStore = db.createObjectStore(this.objectStore_name, {keyPath: "id", autoIncrement: true});
       objectStore.createIndex("product", "productName", {unique: false});
       objectStore.createIndex("component", "componentName", {unique: false});
 
@@ -43,17 +42,14 @@ export class IndexedDatabaseService {
   }
 
   syncRecipes(data){
-
-    // console.log('idb: ', data)
-
     for (let i = 0; i < data.length; i++){
       this.addRecipe(data[i].sku, data[i].productName, data[i].componentName, data[i].quantity)
     }
   }
 
   addRecipe(sku: string, productName: string, componentName: string, quantity: number){
-    let tx = this.db.transaction(['recipes'], 'readwrite')
-    let store = tx.objectStore('recipes')
+    let tx = this.db.transaction([this.objectStore_name], 'readwrite')
+    let store = tx.objectStore(this.objectStore_name)
     let tmp = {
       sku: sku,
       productName: productName,
@@ -70,8 +66,8 @@ export class IndexedDatabaseService {
 
   getProductNameList(){
     let result = [];
-    let tx = this.db.transaction(['recipes'], 'readonly');
-    let store = tx.objectStore('recipes');
+    let tx = this.db.transaction([this.objectStore_name], 'readonly');
+    let store = tx.objectStore(this.objectStore_name);
     let index = store.index('product');
     let name = ''
     let name_arr = []
@@ -99,8 +95,8 @@ export class IndexedDatabaseService {
   }
 
   clearData(){
-    let tx = this.db.transaction(['recipes'], 'readwrite');
-    let objectStore = tx.objectStore('recipes')
+    let tx = this.db.transaction([this.objectStore_name], 'readwrite');
+    let objectStore = tx.objectStore(this.objectStore_name)
     let objectStoreReq = objectStore.clear()
 
     objectStoreReq.onsuccess = function (event){
@@ -108,33 +104,15 @@ export class IndexedDatabaseService {
     }
   }
 
-  maxValue(storeName: string, indexName: string, field: string): Observable<any>{
-    let subject = new Subject<any>();
-    let cursor = this.db
-      .transaction(storeName, 'readonly')
-      .objectStore(storeName)
-      .index(indexName)
-      .openCursor(null, 'prev');
-
-    cursor.onsuccess = (event) => {
-      if (event.target.result){
-        subject.next(event.target.result.value[field]);
-      } else {
-        subject.next(null);
-      }
-    };
-
-    return subject;
-  }
-
   getRecipesFromIdb(indexName: string, key: string){
     let result = [];
     let color_idx: number = 1;
+    let color_total: number = 7;
     let quantity_sum: number = 0;
 
     let index = this.db
-      .transaction(['recipes'], 'readonly')
-      .objectStore('recipes')
+      .transaction([this.objectStore_name], 'readonly')
+      .objectStore(this.objectStore_name)
       .index(indexName)
 
     index.openCursor().onsuccess = function (event){
@@ -143,19 +121,20 @@ export class IndexedDatabaseService {
         if (cursor.value.productName === key){
           result.push({
             ingredients: cursor.value.componentName,
-            quantity: cursor.value.quantity,
+            quantity: (cursor.value.quantity).toFixed(2),
             percentage: 0,
-            color: color_idx.toString(),
-            quantity_total: quantity_sum + parseFloat(cursor.value.quantity)
+            color: (color_idx % color_total).toString(),
           })
           quantity_sum += parseFloat(cursor.value.quantity)
           color_idx++;
         }
         cursor.continue();
+      } else {
+        for (let i = 0; i < result.length; i++){
+          result[i].percentage = (result[i].quantity / quantity_sum).toFixed(2)
+        }
       }
     }
-
-    console.log(result)
 
     return result
   }

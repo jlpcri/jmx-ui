@@ -15,7 +15,7 @@
                            [data]="productNameList"
                            [searchKeyword]="productNameListKey"
                            placeHolder="Search Juice Recipe"
-                           (selected)="selectEvent($event)"
+                           (selected)="selectEvent($event, searchOptionSelected)"
                            (inputChanged)="onChangeSearch($event)"
                            (inputFocused)="onFocused($event)"
                            historyIdentifier="productNameList"
@@ -33,7 +33,6 @@
             <div [innerHTML]="notFound"></div>
           </ng-template>
         </div>
-        <button class="btn-info" (click)="getProductIngredients(searchOptionSelected, searchItem)">Search</button>
 
       </div>
 
@@ -50,7 +49,7 @@
   </div>
 </div>
 
-<div class="container">
+<div class="container" *ngIf="recipes.length > 0">
   <div class="row search-results">
     <div class="col-md-8">
       <span class="custom-label-title">{{searchOptionSelected}} Name:</span><br>
@@ -68,7 +67,7 @@
 </div>
 
 <!-- START - Recipe Display -->
-<div class="container">
+<div class="container" *ngIf="recipes.length > 0">
   <div class="row">
     <div class="col-md-4 align-items-start">
       <!-- Juice Bottle -->
@@ -105,14 +104,14 @@
             <thead class="custom-thead">
             <tr>
               <th scope="col">Ingredients</th>
-              <th scope="col">mL</th>
+              <th scope="col">Quantity</th>
               <th scope="col">Percentage</th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let recipe of recipes">
               <td class="d-flex"><i class="fas fa-circle ing-icon ing-color-{{recipe.color}}"></i> <span class="d-flex">{{recipe.ingredients}}</span></td>
-              <td>{{recipe.quantity}}mL</td>
+              <td>{{recipe.quantity}} mL</td>
               <td>{{recipe.percentage * 100}}%</td>
             </tr>
             </tbody>
