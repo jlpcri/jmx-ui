@@ -74,6 +74,7 @@ export class IndexedDatabaseService {
     let store = tx.objectStore('recipes');
     let index = store.index('product');
     let name = ''
+    let name_arr = []
 
     index.getAll().onsuccess = function (event){
       let raw_data = event.target.result;
@@ -81,9 +82,12 @@ export class IndexedDatabaseService {
       for (let i = 0; i < raw_data.length; i++){
         name = raw_data[i].productName;
         if (!(result.some(e => e.name === name))) {
+          name_arr = name.split(/[\s,]+/)
           result.push({
             id: idx,
-            name: name
+            name: name,
+            size: name_arr[name_arr.length - 2],
+            strength: name_arr[name_arr.length - 1]
           })
           idx++;
         }
@@ -121,6 +125,39 @@ export class IndexedDatabaseService {
     };
 
     return subject;
+  }
+
+  getRecipesFromIdb(indexName: string, key: string){
+    let result = [];
+    let color_idx: number = 1;
+    let quantity_sum: number = 0;
+
+    let index = this.db
+      .transaction(['recipes'], 'readonly')
+      .objectStore('recipes')
+      .index(indexName)
+
+    index.openCursor().onsuccess = function (event){
+      let cursor = event.target.result;
+      if(cursor){
+        if (cursor.value.productName === key){
+          result.push({
+            ingredients: cursor.value.componentName,
+            quantity: cursor.value.quantity,
+            percentage: 0,
+            color: color_idx.toString(),
+            quantity_total: quantity_sum + parseFloat(cursor.value.quantity)
+          })
+          quantity_sum += parseFloat(cursor.value.quantity)
+          color_idx++;
+        }
+        cursor.continue();
+      }
+    }
+
+    console.log(result)
+
+    return result
   }
 
 }

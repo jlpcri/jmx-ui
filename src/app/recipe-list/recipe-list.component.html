@@ -33,23 +33,18 @@
             <div [innerHTML]="notFound"></div>
           </ng-template>
         </div>
-        <button class="btn-info" (click)="getProductIngredients(searchOptionSelected, searchItem, bottleSizeSelected, nicStrengthSelected)">Search</button>
+        <button class="btn-info" (click)="getProductIngredients(searchOptionSelected, searchItem)">Search</button>
 
       </div>
 
       <div class="col-md-2 form-group">
-        <span class="custom-label-title">Bottle Size</span>
-        <div class="form-check custom-radio" *ngFor="let each of bottleSizes">
-          <input class="form-check-input custom-control-input" type="radio" id="size_{{each.value}}" name="bottleSize" value="{{each.value}}" [(ngModel)]="bottleSizeSelected" />
-          <label class="form-check-label custom-control-label" for="size_{{each.value}}">{{each.value}}</label>
-        </div>
+        <button class="btn-info" (click)="saveRecipesToIdb()">LoadRecipes</button>
+        <br><br>
+        <button class="btn-info" (click)="emptyIdbData()">ClearIDB</button>
       </div>
+
       <div class="col-md-2 form-group">
-        <span class="custom-label-title">Nicotine Strength</span>
-        <div class="form-check custom-radio" *ngFor="let each of nicStrengths">
-          <input class="form-check-input custom-control-input" type="radio" id="strength_{{each.value}}" name="nicStrength" value="{{each.value}}" [(ngModel)]="nicStrengthSelected" />
-          <label class="form-check-label custom-control-label" for="strength_{{each.value}}">{{each.value}}</label>
-        </div>
+        <button class="btn-info" (click)="getProductNameList()">ProductNames</button>
       </div>
     </div>
   </div>
@@ -63,11 +58,11 @@
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Bottle Size:</span><br>
-      <h2 class="font-weight-bold">{{bottleSizeSelected}}</h2>
+      <h2 class="font-weight-bold">{{searchItem.size}}</h2>
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Nicotine Strength:</span><br>
-      <h2 class="font-weight-bold">{{nicStrengthSelected}}</h2>
+      <h2 class="font-weight-bold">{{searchItem.strength}}</h2>
     </div>
   </div>
 </div>

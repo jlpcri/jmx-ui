@@ -1,7 +1,6 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 
 import {Recipe} from '../recipe';
-import {RecipeListModel} from "./shared/recipe-list.model";
 import {RecipeListService} from "./shared/recipe-list.service";
 import {IndexedDatabaseService} from "../shared/indexed-database.service";
 
@@ -17,23 +16,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     {id: 2, value: 'Ingredients'}
   ]
 
-  bottleSizes = [
-    {id: 1, value: '30mL'},
-    {id: 2, value: '60mL'},
-    {id: 3, value: '120mL'}
-  ]
-
-  nicStrengths = [
-    {id: 1, value: '0mg'},
-    {id: 2, value: '3mg'},
-    {id: 3, value: '6mg'},
-    {id: 4, value: '9mg'}
-  ]
-
   searchOptionSelected = this.searchOptions[0].value
   searchItem: any = ''
-  bottleSizeSelected = this.bottleSizes[0].value
-  nicStrengthSelected = this.nicStrengths[0].value
 
   //todo: fetch from amv_master
   recipes: Recipe[] = [
@@ -63,7 +47,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   selectEvent(item){
-    console.log('Selected: ', item);
+    // console.log('Selected: ', item);
+    this.recipes = this.idbService.getRecipesFromIdb('product', item.name);
+    // console.log(data.IDBRequest)
   }
 
   onChangeSearch(search: string){
@@ -73,7 +59,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   onFocused(event){
-    //do sth
+    // Get productNameList
     if (!this.productNameListLoaded) {
       this.isLoadingProductNameList = true
       this.productNameList = this.idbService.getProductNameList();
@@ -88,13 +74,23 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.recipeListService.retrieveAll();
   }
 
-  getProductIngredients(searchOption, itemName, bottleSize, nicStrength){
-    console.log(searchOption, itemName, bottleSize, nicStrength)
+  getProductIngredients(searchOption, itemName){
+    console.log(searchOption, itemName)
     this.recipes = [
       {ingredients: 'Flavor ipsum dolor1', quantity: 0.25, percentage: 0.25, color: "1"},
       {ingredients: 'Flavor ipsum dolor2', quantity: 0.25, percentage: 0.25, color: "2"},
       {ingredients: 'Flavor ipsum dolor3', quantity: 0.25, percentage: 0.25, color: "3"},
     ]
   }
+
+
+  getProductNameList(){
+    console.log(this.productNameList);
+  }
+
+  emptyIdbData(){
+    this.recipeListService.emptyIdbData();
+  }
+
 
 }
