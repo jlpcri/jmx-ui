@@ -18,33 +18,59 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   searchOptionSelected = this.searchOptions[0].value
   searchItem: any = ''
+  searchItemSecond: any = ''
 
   //todo: fetch from amv_master
   recipes: Recipe[] = []
 
+  firstNameList: any[];
+  secondNameList: any[];
   productNameList: any[];
-  productNameListKey = 'name'
+  componentNameList: any[];
+  nameListKey = 'name'
+
   productNameListLoaded = false;
-  isLoadingProductNameList: boolean;
+  componentNameListLoaded = false;
+  secondNameListLoaded = false;
+  isLoadingNameListFirst: boolean;
+  isLoadingNameListSecond: boolean;
 
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService) { }
 
   ngOnInit(): void {
+    this.firstNameList = [];
     this.productNameList = [];
+    this.componentNameList = [];
     // this.saveRecipesToIdb();
   }
 
   ngOnDestroy(): void {
   }
 
+  onChangeSelectOption(event){
+    console.log(event.target.id)
+    this.recipes = []
+    this.secondNameList = []
+    if (event.target.id === 'search_Ingredients'){
+      this.firstNameList = this.componentNameList
+      this.searchItemSecond = ''
+    } else {
+      this.firstNameList = this.productNameList
+      this.searchItem = ''
+    }
+    // this.productNameListLoaded = false
+    // this.componentNameListLoaded = false
+  }
+
   selectEvent(item, option){
     // console.log('Selected: ', item);
-    let indexName = 'product';
-    if (option === 'Ingredients') {
-      indexName = 'component';
+    if (option === 'Recipe') {
+      let indexName = 'product';
+      this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
+    } else {
+      this.secondNameListLoaded = false;
     }
-    this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
   }
 
   onChangeSearch(search: string){
@@ -52,15 +78,49 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     // And reassign the 'data' which is bind to 'data'
   }
 
-  onFocused(event){
-    // Get productNameList
-    if (!this.productNameListLoaded) {
-      this.isLoadingProductNameList = true
-      this.productNameList = this.idbService.getProductNameList();
-      this.productNameListLoaded = true;
+  onFocused(event, option){
+    // Get productName or componentName List
+    if (option === 'Recipe'){
+      if (!this.productNameListLoaded){
+        this.isLoadingNameListFirst = true;
+        this.productNameList = this.idbService.getProductNameList();
+        this.productNameListLoaded = true;
+      }
+      this.isLoadingNameListFirst = false
+      this.firstNameList = this.productNameList
+
+    }else if (option === 'Ingredients'){
+      if (!this.componentNameListLoaded){
+        this.isLoadingNameListFirst = true;
+        this.componentNameList = this.idbService.getComponentNameList(null);
+        this.componentNameListLoaded = true;
+      }
+      this.isLoadingNameListFirst = false;
+      this.firstNameList = this.componentNameList;
+    }
+  }
+
+  selectEventSecond(item){
+    // console.log('Selected: ', item);
+    let indexName = 'product';
+    this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
+  }
+
+  onChangeSearchSecond(search: string){
+    // fetch remote data from here
+    // And reassign the 'data' which is bind to 'data'
+  }
+
+  onFocusedSecond(event, item){
+    // Get productName List
+    if (!this.secondNameListLoaded) {
+      this.isLoadingNameListSecond = true
+      this.productNameList = this.idbService.getComponentNameList(item.name);
+      this.secondNameListLoaded = true;
     }
 
-    this.isLoadingProductNameList = false
+    this.isLoadingNameListSecond = false;
+    this.secondNameList = this.productNameList;
   }
 
 
@@ -69,7 +129,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   getProductNameList(){
-    console.log(this.productNameList);
+    console.log(this.firstNameList);
   }
 
   emptyIdbData(){

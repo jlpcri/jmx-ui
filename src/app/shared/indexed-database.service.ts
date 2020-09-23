@@ -89,8 +89,51 @@ export class IndexedDatabaseService {
         }
       }
     }
-
     console.log('Job getProductNameList done.')
+    return result;
+  }
+
+  getComponentNameList(ingredients){
+    let result = []
+    let tx = this.db.transaction([this.objectStore_name], 'readonly');
+    let store = tx.objectStore(this.objectStore_name);
+    let index = store.index('component');
+    let name = '';
+    let name_arr = [];
+    let componentName = '';
+
+    index.getAll().onsuccess = function (event){
+      let raw_data = event.target.result;
+      let idx: number = 0;
+      if (ingredients === null) {
+        for (let i = 0; i < raw_data.length; i++) {
+          name = raw_data[i].componentName;
+          if (!(result.some(e => e.name === name))) {
+            result.push({
+              id: idx,
+              name: name
+            });
+            idx++;
+          }
+        }
+        // console.log('Job getComponentNameList done.')
+      } else {
+        for (let i = 0; i < raw_data.length; i++){
+          name = raw_data[i].productName;
+          componentName = raw_data[i].componentName;
+          if ((componentName === ingredients) && (!(result.some(e => e.name === name)))){
+            result.push({
+              id: idx,
+              name: name
+            });
+            idx++;
+          }
+        }
+        // console.log('Job getProductNameList by componentName done.')
+      }
+    }
+
+    // console.log(result)
     return result;
   }
 

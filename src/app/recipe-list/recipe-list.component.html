@@ -4,7 +4,11 @@
       <div class="col-md-8 form-group">
         <div class="row margin-bottom">
           <div class="col-4 form-check custom-radio" *ngFor="let each of searchOptions">
-            <input class="form-check-input custom-control-input" type="radio" id="search_{{each.value}}" name="searchOptions" value="{{each.value}}" [(ngModel)]="searchOptionSelected">
+            <input class="form-check-input custom-control-input"
+                   type="radio" id="search_{{each.value}}"
+                   name="searchOptions"
+                   (change)="onChangeSelectOption($event)"
+                   value="{{each.value}}" [(ngModel)]="searchOptionSelected">
             <label class="form-check-label custom-control-label" for="search_{{each.value}}">{{each.value}} Name</label>
           </div>
         </div>
@@ -12,19 +16,17 @@
         <div class="input-icons">
           <i class="fas fa-search icon"></i>
           <ng-autocomplete class="form-control input-field"
-                           [data]="productNameList"
-                           [searchKeyword]="productNameListKey"
-                           placeHolder="Search Juice Recipe"
+                           [data]="firstNameList"
+                           [searchKeyword]="nameListKey"
+                           [placeHolder]=" searchOptionSelected === 'Recipe' ? 'Search Recipe(Product) Name': 'Search Ingredients(Component) Name' "
                            (selected)="selectEvent($event, searchOptionSelected)"
                            (inputChanged)="onChangeSearch($event)"
-                           (inputFocused)="onFocused($event)"
-                           historyIdentifier="productNameList"
+                           (inputFocused)="onFocused($event, searchOptionSelected)"
                            [debounceTime]="400"
-                           [isLoading]="isLoadingProductNameList"
+                           [isLoading]="isLoadingNameListFirst"
                            [itemTemplate]="itemTemplate"
                            [notFoundTemplate]="notFoundTemplate"
-                           [(ngModel)]="searchItem"
-          >
+                           [(ngModel)]="searchItem">
           </ng-autocomplete>
           <ng-template #itemTemplate let-item>
             <a [innerHTML]="item.name"></a>
@@ -49,7 +51,7 @@
   </div>
 </div>
 
-<div class="container" *ngIf="recipes.length > 0">
+<div class="container" *ngIf="searchOptionSelected === 'Recipe'">
   <div class="row search-results">
     <div class="col-md-8">
       <span class="custom-label-title">{{searchOptionSelected}} Name:</span><br>
@@ -64,6 +66,58 @@
       <h2 class="font-weight-bold">{{searchItem.strength}}</h2>
     </div>
   </div>
+</div>
+
+<div class="container" *ngIf="searchOptionSelected === 'Ingredients'">
+  <div class="row">
+    <div class="col-md-8 form-group">
+      <div class="input-icons">
+        <i class="fas fa-search icon"></i>
+        <ng-autocomplete class="form-control input-field"
+                         [data]="secondNameList"
+                         [searchKeyword]="nameListKey"
+                         placeHolder="Search Recipe(Product) Name"
+                         (selected)="selectEventSecond($event)"
+                         (inputChanged)="onChangeSearchSecond($event)"
+                         (inputFocused)="onFocusedSecond($event, searchItem)"
+                         historyIdentifier="secondNameList"
+                         [debounceTime]="400"
+                         [isLoading]="isLoadingNameListSecond"
+                         [itemTemplate]="itemTemplateSecond"
+                         [notFoundTemplate]="notFoundTemplateSecond"
+                         [(ngModel)]="searchItemSecond">
+        </ng-autocomplete>
+        <ng-template #itemTemplateSecond let-item>
+          <a [innerHTML]="item.name"></a>
+        </ng-template>
+        <ng-template #notFoundTemplateSecond let-notFound>
+          <div [innerHTML]="notFound"></div>
+        </ng-template>
+      </div>
+
+    </div>
+
+    <div class="col-md-4 form-group">
+    </div>
+  </div>
+
+  <div class="container">
+    <div class="row search-results">
+      <div class="col-md-8">
+        <span class="custom-label-title">Recipe Name:</span><br>
+        <h2 class="font-weight-bold">{{searchItemSecond.name}}</h2>
+      </div>
+      <div class="col-md-2">
+        <span class="custom-label-title">Bottle Size:</span><br>
+        <h2 class="font-weight-bold">{{searchItemSecond.size}}</h2>
+      </div>
+      <div class="col-md-2">
+        <span class="custom-label-title">Nicotine Strength:</span><br>
+        <h2 class="font-weight-bold">{{searchItemSecond.strength}}</h2>
+      </div>
+    </div>
+  </div>
+
 </div>
 
 <!-- START - Recipe Display -->
