@@ -3,6 +3,8 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Recipe} from '../recipe';
 import {RecipeListService} from "./shared/recipe-list.service";
 import {IndexedDatabaseService} from "../shared/indexed-database.service";
+import {User} from "../shared/user.model";
+import {AuthService} from "../auth.service";
 
 @Component({
   selector: 'app-recipe-list',
@@ -10,6 +12,7 @@ import {IndexedDatabaseService} from "../shared/indexed-database.service";
   styleUrls: ['./recipe-list.component.css']
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
+  user: User = new User();
 
   searchOptions = [
     {id: 1, value: 'Recipe'},
@@ -36,9 +39,13 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   isLoadingNameListSecond: boolean;
 
   constructor(private recipeListService: RecipeListService,
-              private idbService: IndexedDatabaseService) { }
+              private idbService: IndexedDatabaseService,
+              private auth: AuthService) { }
 
   ngOnInit(): void {
+    this.auth.authorized().subscribe(
+      user => { this.user = user; }
+    )
     this.firstNameList = [];
     this.productNameList = [];
     this.componentNameList = [];
