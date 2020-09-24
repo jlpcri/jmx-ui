@@ -8,13 +8,15 @@ import { FormsModule } from "@angular/forms";
 import { HeaderComponent } from './header/header.component';
 import { GuideComponent } from './guide/guide.component';
 import { AutocompleteLibModule } from "angular-ng-autocomplete";
+import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 
 @NgModule({
   declarations: [
     AppComponent,
     RecipeListComponent,
     HeaderComponent,
-    GuideComponent
+    GuideComponent,
+    ProgressBarComponent
   ],
   imports: [
     BrowserModule,

@@ -116,16 +116,19 @@ export class IndexedDatabaseService {
             idx++;
           }
         }
-        // console.log('Job getComponentNameList done.')
+        console.log('Job getComponentNameList done.')
       } else {
         for (let i = 0; i < raw_data.length; i++){
           name = raw_data[i].productName;
           componentName = raw_data[i].componentName;
           if ((componentName === ingredients) && (!(result.some(e => e.name === name)))){
+            name_arr = name.split(/[\s,]+/)
             result.push({
               id: idx,
-              name: name
-            });
+              name: name,
+              size: name_arr[name_arr.length - 2],
+              strength: name_arr[name_arr.length - 1]
+            })
             idx++;
           }
         }

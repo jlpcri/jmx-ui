@@ -56,7 +56,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   onChangeSelectOption(event){
-    console.log(event.target.id)
+    // console.log(event.target.id)
     this.recipes = []
     this.secondNameList = []
     if (event.target.id === 'search_Ingredients'){
@@ -66,8 +66,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       this.firstNameList = this.productNameList
       this.searchItem = ''
     }
-    // this.productNameListLoaded = false
-    // this.componentNameListLoaded = false
+
   }
 
   selectEvent(item, option){
@@ -87,6 +86,26 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   onFocused(event, option){
     // Get productName or componentName List
+    this.getProductOrIngredientList(option);
+  }
+
+  selectEventSecond(item){
+    // console.log('Selected: ', item);
+    let indexName = 'product';
+    this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
+  }
+
+  onChangeSearchSecond(search: string){
+    // fetch remote data from here
+    // And reassign the 'data' which is bind to 'data'
+  }
+
+  onFocusedSecond(event, item){
+    // Get productName List
+    this.getProductListByComponent(item)
+  }
+
+  getProductOrIngredientList(option){
     if (option === 'Recipe'){
       if (!this.productNameListLoaded){
         this.isLoadingNameListFirst = true;
@@ -107,19 +126,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     }
   }
 
-  selectEventSecond(item){
-    // console.log('Selected: ', item);
-    let indexName = 'product';
-    this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
-  }
-
-  onChangeSearchSecond(search: string){
-    // fetch remote data from here
-    // And reassign the 'data' which is bind to 'data'
-  }
-
-  onFocusedSecond(event, item){
-    // Get productName List
+  getProductListByComponent(item){
     if (!this.secondNameListLoaded) {
       this.isLoadingNameListSecond = true
       this.productNameList = this.idbService.getComponentNameList(item.name);
@@ -130,13 +137,13 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.secondNameList = this.productNameList;
   }
 
-
   saveRecipesToIdb(): void{
     this.recipeListService.retrieveAll();
   }
 
   getProductNameList(){
-    console.log(this.firstNameList);
+    console.log(this.productNameList);
+    console.log(this.componentNameList)
   }
 
   emptyIdbData(){

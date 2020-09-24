@@ -2,7 +2,7 @@ import {Injectable, OnInit} from "@angular/core";
 import {HttpClient} from "@angular/common/http";
 import {IndexedDatabaseService} from "../../shared/indexed-database.service";
 import {RecipeListModel} from "./recipe-list.model";
-import {from, Subject} from "rxjs";
+import {ProgressService} from "../../progress-bar/shared/progress.service";
 
 @Injectable({
   providedIn: 'root'
@@ -11,8 +11,8 @@ import {from, Subject} from "rxjs";
 export class RecipeListService implements OnInit{
 
   constructor(private http: HttpClient,
-              private idbService: IndexedDatabaseService
-  ) { }
+              private idbService: IndexedDatabaseService,
+              private progressService: ProgressService) { }
 
   ngOnInit() {
   }
@@ -28,8 +28,8 @@ export class RecipeListService implements OnInit{
 
 
     if (!this.retrieveFlag) {
-      // this.progressService.progressMessage = 'Loading Recipes ...';
-      // this.progressService.loading = false;
+      this.progressService.progressMessage = 'Loading Recipes ...';
+      this.progressService.loading = true;
 
       const retrieveNextPage = () => {
         this.http.get<RecipeListModel>(this.recipeUrl + this.page.toString()).subscribe(
@@ -44,12 +44,13 @@ export class RecipeListService implements OnInit{
             }
             if (this.page <= this.total_page) {
               this.page++;
+              this.progressService.progressPercent = (this.page / this.total_page * 100)
               retrieveNextPage();
             } else {
-              // this.progressService.progressPercent = 100;
               console.log("Fetched job done")
               this.retrieveFlag = true
-              // this.progressService.loading = false;
+              this.progressService.progressPercent = 100;
+              this.progressService.loading = false;
             }
           },
           error => {
