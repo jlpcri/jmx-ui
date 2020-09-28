@@ -1,5 +1,6 @@
 import {Injectable} from "@angular/core";
 import {MessageService} from "./message.service";
+import {Observable, Subject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -64,80 +65,39 @@ export class IndexedDatabaseService {
     }
   }
 
-  getProductNameList(){
-    let result = [];
+  getProductNameListByComponent(ingredients){
+    let subject = new Subject<any>();
     let tx = this.db.transaction([this.objectStore_name], 'readonly');
     let store = tx.objectStore(this.objectStore_name);
-    let index = store.index('product');
-    let name = ''
-    let name_arr = []
+    let index = store.index('component');
+    let myCursor = index.openCursor(null, 'nextunique')
 
-    index.getAll().onsuccess = function (event){
-      let raw_data = event.target.result;
-      let idx: number = 0;
-      for (let i = 0; i < raw_data.length; i++){
-        name = raw_data[i].productName;
-        if (!(result.some(e => e.name === name))) {
+    let name = '';
+    let name_arr = [];
+    let componentName = '';
+    let idx: number = 0;
+
+    myCursor.onsuccess = function (event){
+      let cursor = event.target.result
+      if (cursor){
+        componentName = cursor.value.componentName
+        name = cursor.value.productName
+
+        if (componentName === ingredients){
           name_arr = name.split(/[\s,]+/)
-          result.push({
+          subject.next({
             id: idx,
             name: name,
             size: name_arr[name_arr.length - 2],
             strength: name_arr[name_arr.length - 1]
-          })
+          });
           idx++;
         }
-      }
-    }
-    console.log('Job getProductNameList done.')
-    return result;
-  }
-
-  getComponentNameList(ingredients){
-    let result = []
-    let tx = this.db.transaction([this.objectStore_name], 'readonly');
-    let store = tx.objectStore(this.objectStore_name);
-    let index = store.index('component');
-    let name = '';
-    let name_arr = [];
-    let componentName = '';
-
-    index.getAll().onsuccess = function (event){
-      let raw_data = event.target.result;
-      let idx: number = 0;
-      if (ingredients === null) {
-        for (let i = 0; i < raw_data.length; i++) {
-          name = raw_data[i].componentName;
-          if (!(result.some(e => e.name === name))) {
-            result.push({
-              id: idx,
-              name: name
-            });
-            idx++;
-          }
-        }
-        console.log('Job getComponentNameList done.')
-      } else {
-        for (let i = 0; i < raw_data.length; i++){
-          name = raw_data[i].productName;
-          componentName = raw_data[i].componentName;
-          if ((componentName === ingredients) && (!(result.some(e => e.name === name)))){
-            name_arr = name.split(/[\s,]+/)
-            result.push({
-              id: idx,
-              name: name,
-              size: name_arr[name_arr.length - 2],
-              strength: name_arr[name_arr.length - 1]
-            })
-            idx++;
-          }
-        }
-        // console.log('Job getProductNameList by componentName done.')
+        cursor.continue();
       }
     }
 
-    // console.log(result)
-    return result;
+    return subject;
   }
 
   clearData(){
@@ -183,6 +143,64 @@ export class IndexedDatabaseService {
     }
 
     return result
+  }
+
+  getProdComponentNames(indexName, search){
+    let subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStore_name], 'readonly');
+    const store = tx.objectStore(this.objectStore_name);
+    const index = store.index(indexName);
+    const myCursor = index.openCursor(null, 'nextunique')
+
+    let name = ''
+    let name_arr = []
+    let idx: number = 0;
+
+    if (indexName === 'product') {
+      myCursor.onsuccess = function (event) {
+        let cursor = event.target.result;
+
+        if (cursor) {
+          name = cursor.value.productName;
+          if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0) {
+            name_arr = name.split(/[\s,]+/)
+            subject.next({
+              id: idx,
+              name: name,
+              size: name_arr[name_arr.length - 2],
+              strength: name_arr[name_arr.length - 1]
+            });
+            idx++;
+          }
+          cursor.continue();
+        } else {
+          console.log('ProductName Index to the end.')
+        }
+      }
+    } else {
+      // get componentNameList
+      myCursor.onsuccess = function (event){
+        let cursor = event.target.result;
+
+        if (cursor){
+          name = cursor.value.componentName;
+          if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0){
+            subject.next({
+              id: idx,
+              name: name
+            });
+            idx++;
+          }
+          cursor.continue()
+        } else {
+          console.log('ComponentName Index to the end.')
+        }
+      }
+    }
+
+    return subject;
+
   }
 
 }

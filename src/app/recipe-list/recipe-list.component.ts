@@ -28,13 +28,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   firstNameList: any[];
   secondNameList: any[];
-  productNameList: any[];
-  componentNameList: any[];
   nameListKey = 'name'
 
-  productNameListLoaded = false;
-  componentNameListLoaded = false;
-  secondNameListLoaded = false;
   isLoadingNameListFirst: boolean;
   isLoadingNameListSecond: boolean;
 
@@ -47,8 +42,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       user => { this.user = user; }
     )
     this.firstNameList = [];
-    this.productNameList = [];
-    this.componentNameList = [];
     // this.saveRecipesToIdb();
   }
 
@@ -58,12 +51,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   onChangeSelectOption(event){
     // console.log(event.target.id)
     this.recipes = []
+    this.firstNameList = []
     this.secondNameList = []
     if (event.target.id === 'search_Ingredients'){
-      this.firstNameList = this.componentNameList
+      this.searchItem = ''
       this.searchItemSecond = ''
     } else {
-      this.firstNameList = this.productNameList
       this.searchItem = ''
     }
 
@@ -75,18 +68,63 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       let indexName = 'product';
       this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
     } else {
-      this.secondNameListLoaded = false;
+      this.isLoadingNameListSecond = true
+      this.idbService.getProductNameListByComponent(item.name)
+        .subscribe(
+          nameList => {
+            this.secondNameList.push({
+              id: nameList.id,
+              name: nameList.name
+            });
+            this.isLoadingNameListSecond = false
+          });
+
+      console.log(this.secondNameList)
     }
   }
 
-  onChangeSearch(search: string){
-    // fetch remote data from here
-    // And reassign the 'data' which is bind to 'data'
+  onChangeSearch(event, option){
+    // fetch data from idb
+
+    let indexName: string;
+    // console.log(option)
+
+    this.isLoadingNameListFirst = true;
+    this.firstNameList = [];
+
+    if (option === 'Recipe') {
+      indexName = 'product'
+      this.idbService.getProdComponentNames(indexName, event)
+        .subscribe(
+          nameList => {
+            this.firstNameList.push({
+              id: nameList.id,
+              name: nameList.name,
+              size: nameList.size,
+              strength: nameList.strength
+            });
+            this.isLoadingNameListFirst = false;
+          });
+    } else {
+      indexName = 'component'
+      this.idbService.getProdComponentNames(indexName, event)
+        .subscribe(
+          nameList => {
+            this.firstNameList.push({
+              id: nameList.id,
+              name: nameList.name
+            });
+            this.isLoadingNameListFirst = false;
+          });
+    }
+
+    console.log(this.firstNameList)
+
   }
 
-  onFocused(event, option){
+  onFocused(event){
     // Get productName or componentName List
-    this.getProductOrIngredientList(option);
+    // this.getProductOrIngredientList(option);
   }
 
   selectEventSecond(item){
@@ -100,41 +138,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     // And reassign the 'data' which is bind to 'data'
   }
 
-  onFocusedSecond(event, item){
+  onFocusedSecond(event){
     // Get productName List
-    this.getProductListByComponent(item)
-  }
-
-  getProductOrIngredientList(option){
-    if (option === 'Recipe'){
-      if (!this.productNameListLoaded){
-        this.isLoadingNameListFirst = true;
-        this.productNameList = this.idbService.getProductNameList();
-        this.productNameListLoaded = true;
-      }
-      this.isLoadingNameListFirst = false
-      this.firstNameList = this.productNameList
-
-    }else if (option === 'Ingredients'){
-      if (!this.componentNameListLoaded){
-        this.isLoadingNameListFirst = true;
-        this.componentNameList = this.idbService.getComponentNameList(null);
-        this.componentNameListLoaded = true;
-      }
-      this.isLoadingNameListFirst = false;
-      this.firstNameList = this.componentNameList;
-    }
-  }
-
-  getProductListByComponent(item){
-    if (!this.secondNameListLoaded) {
-      this.isLoadingNameListSecond = true
-      this.productNameList = this.idbService.getComponentNameList(item.name);
-      this.secondNameListLoaded = true;
-    }
-
-    this.isLoadingNameListSecond = false;
-    this.secondNameList = this.productNameList;
+    // this.getProductListByComponent(item)
   }
 
   saveRecipesToIdb(): void{
@@ -142,8 +148,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   getProductNameList(){
-    console.log(this.productNameList);
-    console.log(this.componentNameList)
+    console.log(this.firstNameList);
+    console.log(this.secondNameList)
   }
 
   emptyIdbData(){
