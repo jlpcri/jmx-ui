@@ -20,12 +20,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     {id: 2, value: 'Ingredients'}
   ]
 
-  searchOptionSelected = this.searchOptions[0].value
+  searchOptionSelected: string
   searchItem: any = ''
   searchItemSecond: any = ''
 
-  //todo: fetch from amv_master
   recipes: Recipe[] = []
+  printCount: number = 1;
 
   firstNameList: any[];
   secondNameList: any[];
@@ -44,7 +44,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.auth.authorized().subscribe(
       user => { this.user = user; }
     )
-    this.firstNameList = [];
+    this.searchOptionSelected = this.searchOptions[0].value
+    this.firstNameList = [GlobalConstants.nameListInitial]
     this.firstNameListHistory = '';
     this.secondNameListHistory = ''
     // this.saveRecipesToIdb();
@@ -53,10 +54,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
   }
 
-  onChangeSelectOption(event: { target: { id: string; }; }){
+  onChangeSelectOption(event){
     // console.log(event.target.id)
     this.recipes = []
-    this.firstNameList = []
+    this.firstNameList = [GlobalConstants.nameListInitial]
     this.secondNameList = []
     if (event.target.id === 'search_Ingredients'){
       this.searchItem = ''
@@ -84,7 +85,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
             this.isLoadingNameListSecond = false
           });
 
-      console.log(this.secondNameList)
+      // console.log(this.secondNameList)
     }
   }
 
@@ -92,7 +93,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     // fetch data from idb
 
     let indexName: string;
-    // console.log(option)
 
     this.isLoadingNameListFirst = true;
     this.firstNameList = [];
@@ -132,6 +132,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
                 });
                 this.isLoadingNameListFirst = false;
               }
+            },
+            error => {
+              console.log(error)
             });
       }
     } else {
@@ -148,7 +151,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   onFocused(event){
     // Get productName or componentName List
-    // this.getProductOrIngredientList(option);
   }
 
   selectEventSecond(item: { name: string; }){
@@ -164,7 +166,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   onFocusedSecond(event){
     // Get productName List
-    // this.getProductListByComponent(item)
+  }
+
+  printRecipes(count){
+    console.log(this.recipes, count)
   }
 
   saveRecipesToIdb(): void{
@@ -172,8 +177,11 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   getProductNameList(){
-    console.log(this.firstNameList);
-    console.log(this.secondNameList)
+    if (this.searchOptionSelected === 'Recipe') {
+      console.log(this.firstNameList);
+    } else {
+      console.log(this.secondNameList)
+    }
   }
 
   emptyIdbData(){
