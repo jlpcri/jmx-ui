@@ -25,7 +25,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   searchItemSecond: any = ''
 
   recipes: Recipe[] = []
-  printCount: number = 1;
+  productNamePrint = ''
 
   firstNameList: any[];
   secondNameList: any[];
@@ -73,6 +73,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     if (option === 'Recipe') {
       let indexName = GlobalConstants.indexProduct;
       this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
+      this.productNamePrint = item.name
     } else {
       this.isLoadingNameListSecond = true
       this.idbService.getProductNameListByComponent(item.name)
@@ -157,6 +158,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     // console.log('Selected: ', item);
     let indexName = GlobalConstants.indexProduct;
     this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
+    this.productNamePrint = item.name
   }
 
   onChangeSearchSecond(search: string){
@@ -166,10 +168,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   onFocusedSecond(event){
     // Get productName List
-  }
-
-  printRecipes(count){
-    console.log(this.recipes, count)
   }
 
   saveRecipesToIdb(): void{
