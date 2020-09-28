@@ -1,6 +1,7 @@
 import {Injectable} from "@angular/core";
 import {MessageService} from "./message.service";
-import {Observable, Subject} from "rxjs";
+import {Subject} from "rxjs";
+import {GlobalConstants} from "./GlobalConstants";
 
 @Injectable({
   providedIn: 'root'
@@ -36,8 +37,8 @@ export class IndexedDatabaseService {
     request.onupgradeneeded = (event: any) => {
       let db = event.target.result;
       let objectStore = db.createObjectStore(this.objectStore_name, {keyPath: "id", autoIncrement: true});
-      objectStore.createIndex("product", "productName", {unique: false});
-      objectStore.createIndex("component", "componentName", {unique: false});
+      objectStore.createIndex(GlobalConstants.indexProduct, "productName", {unique: false});
+      objectStore.createIndex(GlobalConstants.indexComponent, "componentName", {unique: false});
 
     }
   }
@@ -49,7 +50,7 @@ export class IndexedDatabaseService {
   }
 
   addRecipe(sku: string, productName: string, componentName: string, quantity: number){
-    let tx = this.db.transaction([this.objectStore_name], 'readwrite')
+    let tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadWrite)
     let store = tx.objectStore(this.objectStore_name)
     let tmp = {
       sku: sku,
@@ -67,10 +68,10 @@ export class IndexedDatabaseService {
 
   getProductNameListByComponent(ingredients){
     let subject = new Subject<any>();
-    let tx = this.db.transaction([this.objectStore_name], 'readonly');
+    let tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadOnly);
     let store = tx.objectStore(this.objectStore_name);
-    let index = store.index('component');
-    let myCursor = index.openCursor(null, 'nextunique')
+    let index = store.index(GlobalConstants.indexComponent);
+    let myCursor = index.openCursor()
 
     let name = '';
     let name_arr = [];
@@ -101,7 +102,7 @@ export class IndexedDatabaseService {
   }
 
   clearData(){
-    let tx = this.db.transaction([this.objectStore_name], 'readwrite');
+    let tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadWrite);
     let objectStore = tx.objectStore(this.objectStore_name)
     let objectStoreReq = objectStore.clear()
 
@@ -117,7 +118,7 @@ export class IndexedDatabaseService {
     let quantity_sum: number = 0;
 
     let index = this.db
-      .transaction([this.objectStore_name], 'readonly')
+      .transaction([this.objectStore_name], GlobalConstants.idbReadOnly)
       .objectStore(this.objectStore_name)
       .index(indexName)
 
@@ -148,22 +149,26 @@ export class IndexedDatabaseService {
   getProdComponentNames(indexName, search){
     let subject = new Subject<any>();
 
-    const tx = this.db.transaction([this.objectStore_name], 'readonly');
+    const tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadOnly);
     const store = tx.objectStore(this.objectStore_name);
     const index = store.index(indexName);
     const myCursor = index.openCursor(null, 'nextunique')
 
+    let found = false;
     let name = ''
     let name_arr = []
     let idx: number = 0;
 
-    if (indexName === 'product') {
+    if (indexName === GlobalConstants.indexProduct) {
       myCursor.onsuccess = function (event) {
         let cursor = event.target.result;
 
         if (cursor) {
           name = cursor.value.productName;
           if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0) {
+            if (!found){
+              found = true
+            }
             name_arr = name.split(/[\s,]+/)
             subject.next({
               id: idx,
@@ -175,7 +180,12 @@ export class IndexedDatabaseService {
           }
           cursor.continue();
         } else {
-          console.log('ProductName Index to the end.')
+          if (!found){
+            subject.next({
+              'error': 'not found'
+            })
+          }
+          // console.log('ProductName Index to the end.')
         }
       }
     } else {
@@ -186,6 +196,9 @@ export class IndexedDatabaseService {
         if (cursor){
           name = cursor.value.componentName;
           if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0){
+            if (!found){
+              found = true
+            }
             subject.next({
               id: idx,
               name: name
@@ -194,7 +207,12 @@ export class IndexedDatabaseService {
           }
           cursor.continue()
         } else {
-          console.log('ComponentName Index to the end.')
+          if (!found){
+            subject.next({
+              'error': 'not found'
+            })
+          }
+          // console.log('ComponentName Index to the end.')
         }
       }
     }

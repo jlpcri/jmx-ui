@@ -5,6 +5,7 @@ import {RecipeListService} from "./shared/recipe-list.service";
 import {IndexedDatabaseService} from "../shared/indexed-database.service";
 import {User} from "../shared/user.model";
 import {AuthService} from "../auth.service";
+import {GlobalConstants} from "../shared/GlobalConstants";
 
 @Component({
   selector: 'app-recipe-list',
@@ -29,6 +30,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   firstNameList: any[];
   secondNameList: any[];
   nameListKey = 'name'
+  firstNameListHistory: string;
+  secondNameListHistory: string;
 
   isLoadingNameListFirst: boolean;
   isLoadingNameListSecond: boolean;
@@ -42,13 +45,15 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       user => { this.user = user; }
     )
     this.firstNameList = [];
+    this.firstNameListHistory = '';
+    this.secondNameListHistory = ''
     // this.saveRecipesToIdb();
   }
 
   ngOnDestroy(): void {
   }
 
-  onChangeSelectOption(event){
+  onChangeSelectOption(event: { target: { id: string; }; }){
     // console.log(event.target.id)
     this.recipes = []
     this.firstNameList = []
@@ -62,10 +67,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   }
 
-  selectEvent(item, option){
+  selectEvent(item: { name: string; }, option: string){
     // console.log('Selected: ', item);
     if (option === 'Recipe') {
-      let indexName = 'product';
+      let indexName = GlobalConstants.indexProduct;
       this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
     } else {
       this.isLoadingNameListSecond = true
@@ -83,7 +88,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     }
   }
 
-  onChangeSearch(event, option){
+  onChangeSearch(search: string, option: string){
     // fetch data from idb
 
     let indexName: string;
@@ -92,34 +97,53 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.isLoadingNameListFirst = true;
     this.firstNameList = [];
 
-    if (option === 'Recipe') {
-      indexName = 'product'
-      this.idbService.getProdComponentNames(indexName, event)
-        .subscribe(
-          nameList => {
-            this.firstNameList.push({
-              id: nameList.id,
-              name: nameList.name,
-              size: nameList.size,
-              strength: nameList.strength
+    if (search.length > 0) {
+      if (option === 'Recipe') {
+        indexName = GlobalConstants.indexProduct
+        this.idbService.getProdComponentNames(indexName, search)
+          .subscribe(
+            nameList => {
+              if ('error' in nameList){
+                this.isLoadingNameListFirst = false;
+              } else {
+                this.firstNameList.push({
+                  id: nameList.id,
+                  name: nameList.name,
+                  size: nameList.size,
+                  strength: nameList.strength
+                });
+                this.isLoadingNameListFirst = false;
+              }
+            },
+            error => {
+              console.log(error)
             });
-            this.isLoadingNameListFirst = false;
-          });
+      } else {
+        indexName = GlobalConstants.indexComponent
+        this.idbService.getProdComponentNames(indexName, search)
+          .subscribe(
+            nameList => {
+              if ('error' in nameList){
+                this.isLoadingNameListFirst = false;
+              } else {
+                this.firstNameList.push({
+                  id: nameList.id,
+                  name: nameList.name
+                });
+                this.isLoadingNameListFirst = false;
+              }
+            });
+      }
     } else {
-      indexName = 'component'
-      this.idbService.getProdComponentNames(indexName, event)
-        .subscribe(
-          nameList => {
-            this.firstNameList.push({
-              id: nameList.id,
-              name: nameList.name
-            });
-            this.isLoadingNameListFirst = false;
-          });
+      this.isLoadingNameListFirst = false
     }
 
-    console.log(this.firstNameList)
+    // console.log(this.firstNameList)
 
+  }
+
+  onSearchCleared(){
+    this.firstNameList = []
   }
 
   onFocused(event){
@@ -127,9 +151,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     // this.getProductOrIngredientList(option);
   }
 
-  selectEventSecond(item){
+  selectEventSecond(item: { name: string; }){
     // console.log('Selected: ', item);
-    let indexName = 'product';
+    let indexName = GlobalConstants.indexProduct;
     this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
   }
 

@@ -21,8 +21,9 @@
                            [placeHolder]=" searchOptionSelected === 'Recipe' ? 'Search Recipe(Product) Name': 'Search Ingredients(Component) Name' "
                            (selected)="selectEvent($event, searchOptionSelected)"
                            (inputChanged)="onChangeSearch($event, searchOptionSelected)"
+                           (inputCleared)="onSearchCleared()"
                            (inputFocused)="onFocused($event)"
-                           historyIdentifier="firstNameList"
+                           [historyIdentifier]="firstNameListHistory"
                            [debounceTime]="400"
                            [isLoading]="isLoadingNameListFirst"
                            [minQueryLength]="5"
@@ -77,23 +78,17 @@
         <ng-autocomplete class="form-control input-field"
                          [data]="secondNameList"
                          [searchKeyword]="nameListKey"
-                         placeHolder="Search Recipe(Product) Name"
+                         [placeHolder]="'Search Recipe(Product) Name'"
                          (selected)="selectEventSecond($event)"
                          (inputChanged)="onChangeSearchSecond($event)"
                          (inputFocused)="onFocusedSecond($event)"
-                         historyIdentifier="secondNameList"
+                         [historyIdentifier]="secondNameListHistory"
                          [debounceTime]="400"
                          [isLoading]="isLoadingNameListSecond"
-                         [itemTemplate]="itemTemplateSecond"
-                         [notFoundTemplate]="notFoundTemplateSecond"
+                         [itemTemplate]="itemTemplate"
+                         [notFoundTemplate]="notFoundTemplate"
                          [(ngModel)]="searchItemSecond">
         </ng-autocomplete>
-        <ng-template #itemTemplateSecond let-item>
-          <a [innerHTML]="item.name"></a>
-        </ng-template>
-        <ng-template #notFoundTemplateSecond let-notFound>
-          <div [innerHTML]="notFound"></div>
-        </ng-template>
       </div>
 
     </div>
