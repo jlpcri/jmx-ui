@@ -1,6 +1,6 @@
 export interface Recipe {
-  ingredients: string
-  quantity: number
-  color: string
-  percentage: number
+  ingredients: string;
+  quantity: number;
+  color: string;
+  percentage: number;
 }

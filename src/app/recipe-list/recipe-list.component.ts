@@ -1,11 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
 
 import {Recipe} from '../recipe';
-import {RecipeListService} from "./shared/recipe-list.service";
-import {IndexedDatabaseService} from "../shared/indexed-database.service";
-import {User} from "../shared/user.model";
-import {AuthService} from "../auth.service";
-import {GlobalConstants} from "../shared/GlobalConstants";
+import {RecipeListService} from './shared/recipe-list.service';
+import {IndexedDatabaseService} from '../shared/indexed-database.service';
+import {User} from '../shared/user.model';
+import {AuthService} from '../auth.service';
+import {GlobalConstants} from '../shared/GlobalConstants';
 
 @Component({
   selector: 'app-recipe-list',
@@ -18,18 +18,18 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   searchOptions = [
     {id: 1, value: 'Recipe'},
     {id: 2, value: 'Ingredients'}
-  ]
+  ];
 
-  searchOptionSelected: string
-  searchItem: any = ''
-  searchItemSecond: any = ''
+  searchOptionSelected: string;
+  searchItem: any = '';
+  searchItemSecond: any = '';
 
-  recipes: Recipe[] = []
-  productNamePrint = ''
+  recipes: Recipe[] = [];
+  productNamePrint = '';
 
   firstNameList: any[];
   secondNameList: any[];
-  nameListKey = 'name'
+  nameListKey = 'name';
   firstNameListHistory: string;
   secondNameListHistory: string;
 
@@ -43,39 +43,39 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   ngOnInit(): void {
     this.auth.authorized().subscribe(
       user => { this.user = user; }
-    )
-    this.searchOptionSelected = this.searchOptions[0].value
-    this.firstNameList = [GlobalConstants.nameListInitial]
+    );
+    this.searchOptionSelected = this.searchOptions[0].value;
+    this.firstNameList = [GlobalConstants.nameListInitial];
     this.firstNameListHistory = '';
-    this.secondNameListHistory = ''
+    this.secondNameListHistory = '';
     // this.saveRecipesToIdb();
   }
 
   ngOnDestroy(): void {
   }
 
-  onChangeSelectOption(event){
+  onChangeSelectOption(event) {
     // console.log(event.target.id)
-    this.recipes = []
-    this.firstNameList = [GlobalConstants.nameListInitial]
-    this.secondNameList = []
-    if (event.target.id === 'search_Ingredients'){
-      this.searchItem = ''
-      this.searchItemSecond = ''
+    this.recipes = [];
+    this.firstNameList = [GlobalConstants.nameListInitial];
+    this.secondNameList = [];
+    if (event.target.id === 'search_Ingredients') {
+      this.searchItem = '';
+      this.searchItemSecond = '';
     } else {
-      this.searchItem = ''
+      this.searchItem = '';
     }
 
   }
 
-  selectEvent(item: { name: string; }, option: string){
+  selectEvent(item: { name: string; }, option: string) {
     // console.log('Selected: ', item);
     if (option === 'Recipe') {
-      let indexName = GlobalConstants.indexProduct;
-      this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
-      this.productNamePrint = item.name
+      const indexName = GlobalConstants.indexProduct;
+      this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
+      this.productNamePrint = item.name;
     } else {
-      this.isLoadingNameListSecond = true
+      this.isLoadingNameListSecond = true;
       this.idbService.getProductNameListByComponent(item.name)
         .subscribe(
           nameList => {
@@ -83,14 +83,14 @@ export class RecipeListComponent implements OnInit, OnDestroy {
               id: nameList.id,
               name: nameList.name
             });
-            this.isLoadingNameListSecond = false
+            this.isLoadingNameListSecond = false;
           });
 
       // console.log(this.secondNameList)
     }
   }
 
-  onChangeSearch(search: string, option: string){
+  onChangeSearch(search: string, option: string) {
     // fetch data from idb
 
     let indexName: string;
@@ -100,11 +100,11 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
     if (search.length > 0) {
       if (option === 'Recipe') {
-        indexName = GlobalConstants.indexProduct
+        indexName = GlobalConstants.indexProduct;
         this.idbService.getProdComponentNames(indexName, search)
           .subscribe(
             nameList => {
-              if ('error' in nameList){
+              if ('error' in nameList) {
                 this.isLoadingNameListFirst = false;
               } else {
                 this.firstNameList.push({
@@ -117,14 +117,14 @@ export class RecipeListComponent implements OnInit, OnDestroy {
               }
             },
             error => {
-              console.log(error)
+              console.log(error);
             });
       } else {
-        indexName = GlobalConstants.indexComponent
+        indexName = GlobalConstants.indexComponent;
         this.idbService.getProdComponentNames(indexName, search)
           .subscribe(
             nameList => {
-              if ('error' in nameList){
+              if ('error' in nameList) {
                 this.isLoadingNameListFirst = false;
               } else {
                 this.firstNameList.push({
@@ -135,54 +135,54 @@ export class RecipeListComponent implements OnInit, OnDestroy {
               }
             },
             error => {
-              console.log(error)
+              console.log(error);
             });
       }
     } else {
-      this.isLoadingNameListFirst = false
+      this.isLoadingNameListFirst = false;
     }
 
     // console.log(this.firstNameList)
 
   }
 
-  onSearchCleared(){
-    this.firstNameList = []
+  onSearchCleared() {
+    this.firstNameList = [];
   }
 
-  onFocused(event){
+  onFocused(event) {
     // Get productName or componentName List
   }
 
-  selectEventSecond(item: { name: string; }){
+  selectEventSecond(item: { name: string; }) {
     // console.log('Selected: ', item);
-    let indexName = GlobalConstants.indexProduct;
-    this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name)
-    this.productNamePrint = item.name
+    const indexName = GlobalConstants.indexProduct;
+    this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
+    this.productNamePrint = item.name;
   }
 
-  onChangeSearchSecond(search: string){
+  onChangeSearchSecond(search: string) {
     // fetch remote data from here
     // And reassign the 'data' which is bind to 'data'
   }
 
-  onFocusedSecond(event){
+  onFocusedSecond(event) {
     // Get productName List
   }
 
-  saveRecipesToIdb(): void{
+  saveRecipesToIdb(): void {
     this.recipeListService.retrieveAll();
   }
 
-  getProductNameList(){
+  getProductNameList() {
     if (this.searchOptionSelected === 'Recipe') {
       console.log(this.firstNameList);
     } else {
-      console.log(this.secondNameList)
+      console.log(this.secondNameList);
     }
   }
 
-  emptyIdbData(){
+  emptyIdbData() {
     this.recipeListService.emptyIdbData();
   }
 

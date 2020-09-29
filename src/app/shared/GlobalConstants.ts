@@ -1,11 +1,11 @@
-export class GlobalConstants{
-  public static indexProduct: string = 'product';
-  public static indexComponent: string = 'component';
-  public static nextUnique: string = 'nextunique';
-  public static idbReadOnly: string = 'readonly';
-  public static idbReadWrite: string = 'readwrite'
+export class GlobalConstants {
+  public static indexProduct = 'product';
+  public static indexComponent = 'component';
+  public static nextUnique = 'nextunique';
+  public static idbReadOnly = 'readonly';
+  public static idbReadWrite = 'readwrite';
   public static nameListInitial = {
     id: 0,
     name: '',
-  }
+  };
 }
