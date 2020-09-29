@@ -1,0 +1,15 @@
+<header>
+  <div class="container light">
+    <div class="row">
+      <div class="col-md-8 d-flex justify-content-start align-items-center">
+        <a href="#" class="site-title">JMX - Juice App</a>
+      </div>
+      <div class="col-md-4 d-flex justify-content-end align-items-center">
+        <span>Hello <strong *ngIf="user; else notLogin"><a href="#">{{user.name}}</a></strong></span>
+      </div>
+      <ng-template #notLogin>
+        <strong><a href="#">Guest</a></strong>
+      </ng-template>
+    </div>
+  </div>
+</header>

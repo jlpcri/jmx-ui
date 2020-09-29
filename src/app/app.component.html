@@ -1,23 +1,9 @@
-<div class="container">
-  <div class="row">
-    <div class="col">
-      <h2>AMV JMX (Juice) App</h2>
-      <div *ngIf="user" class="row">
-        <div class="col-3 align-middle">
-          <b>Logged in as: {{user.name}}</b>
-        </div>
-      </div>
-    </div>
-  </div>
-  <div class="row"><div class="col">&nbsp;</div></div>
-  <div class="row">
-    <div class="col">
-      <div class="form-group">
-        <label>
-          Search:
-          <input type="text" class="form-control" [formControl]="search">
-        </label>
-      </div>
-    </div>
-  </div>
-</div>
+<app-header></app-header>
+
+<app-guide></app-guide>
+
+<app-progress-bar></app-progress-bar>
+
+<app-recipe-list></app-recipe-list>
+
+

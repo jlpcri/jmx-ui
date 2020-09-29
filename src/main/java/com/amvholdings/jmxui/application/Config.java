@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 @Configuration
 @ConfigurationProperties(prefix = "jmx-ui")
 public class Config {
+    String amvDataApiUrl;
     String amvDataApiUsername;
     String amvDataApiPassword;
     String encryptionKey;

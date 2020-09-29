@@ -1,7 +1,5 @@
 import {Component, OnInit} from '@angular/core';
-import {User} from "./shared/user.model";
-import {AuthService} from "./auth.service";
-import {FormControl} from "@angular/forms";
+import {IndexedDatabaseService} from "./shared/indexed-database.service";
 
 @Component({
   selector: 'app-root',
@@ -9,14 +7,11 @@ import {FormControl} from "@angular/forms";
   styleUrls: ['./app.component.css']
 })
 export class AppComponent implements OnInit {
-  user: User;
-  search = new FormControl('');
+  title = 'jmx-ui'
 
-  constructor(private auth: AuthService) { }
+  constructor(private indexedDatabaseService: IndexedDatabaseService) { }
 
   ngOnInit(): void {
-    this.auth.authorized().subscribe(
-      user => { this.user = user; }
-    )
+    this.indexedDatabaseService.init();
   }
 }

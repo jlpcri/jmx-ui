@@ -34,7 +34,7 @@ public class BasicAuthFilter extends ZuulFilter {
     public Object run() {
         RequestContext ctx = RequestContext.getCurrentContext();
         ctx.getRequest().getRequestURL();
-        String auth = config.amvDataApiUsername + ":" + cryptoDomain.decryptString(config.amvDataApiUsername);
+        String auth = config.amvDataApiUsername + ":" + cryptoDomain.decryptString(config.amvDataApiPassword);
         String b64Auth = "Basic " + new String(Base64.getEncoder().encode(auth.getBytes()));
         ctx.addZuulRequestHeader("Authorization", b64Auth);
         return null;
