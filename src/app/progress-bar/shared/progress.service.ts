@@ -6,20 +6,20 @@ import { Injectable } from '@angular/core';
 export class ProgressService {
 
   public loading = false;
-  public _progressPercent: number = 0;
-  public progressMessage: string = "Loading";
-  public progressWidth = "0px";
+  public progressValue = 0;
+  public progressMessage = 'Loading';
+  public progressWidth = '0px';
 
   constructor() { }
 
   set progressPercent(percent) {
-    this._progressPercent = percent;
-    this.progressWidth = Math.floor(percent * 3) + "px";
+    this.progressValue = percent;
+    this.progressWidth = Math.floor(percent * 3) + 'px';
     // console.log(this.progressWidth);
   }
 
   get progressPercent() {
-    return this._progressPercent;
+    return this.progressValue;
   }
 
 }

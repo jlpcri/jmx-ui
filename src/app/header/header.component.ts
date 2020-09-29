@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { User } from '../shared/user.model';
-import { AuthService} from "../auth.service";
+import { AuthService} from '../auth.service';
 
 @Component({
   selector: 'app-header',
@@ -14,7 +14,7 @@ export class HeaderComponent implements OnInit {
   ngOnInit(): void {
     this.auth.authorized().subscribe(
       user => { this.user = user; }
-    )
+    );
   }
 
 }

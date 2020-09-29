@@ -1,7 +1,7 @@
-import {Injectable} from "@angular/core";
-import {MessageService} from "./message.service";
-import {Subject} from "rxjs";
-import {GlobalConstants} from "./GlobalConstants";
+import {Injectable} from '@angular/core';
+import {MessageService} from './message.service';
+import {Subject} from 'rxjs';
+import {GlobalConstants} from './GlobalConstants';
 
 @Injectable({
   providedIn: 'root'
@@ -10,211 +10,213 @@ import {GlobalConstants} from "./GlobalConstants";
 export class IndexedDatabaseService {
   public db;
   private version = 1;
-  private db_name = 'AmvRecipesDatabase'
-  private objectStore_name = 'recipes'
+  private dbName = 'AmvRecipesDatabase';
+  private objectStoreName = 'recipes';
 
   constructor(private messageService: MessageService) {
   }
 
-  init(){
-    let request = indexedDB.open(this.db_name, this.version);
+  init() {
+    const request = indexedDB.open(this.dbName, this.version);
 
     request.onerror = (event: any) => {
       this.messageService.error(
-        "Could not open browser database",
+        'Could not open browser database',
         JSON.stringify(event, null, 2));
     };
 
     request.onsuccess = (event: any) => {
       this.db = event.target.result;
-      this.db.onerror = (event: any) => {
+      this.db.onerror = () => {
         this.messageService.error(
-          "Database Error",
+          'Database Error',
           JSON.stringify(event, null, 2));
-      }
+      };
     };
 
     request.onupgradeneeded = (event: any) => {
-      let db = event.target.result;
-      let objectStore = db.createObjectStore(this.objectStore_name, {keyPath: "id", autoIncrement: true});
-      objectStore.createIndex(GlobalConstants.indexProduct, "productName", {unique: false});
-      objectStore.createIndex(GlobalConstants.indexComponent, "componentName", {unique: false});
+      const db = event.target.result;
+      const objectStore = db.createObjectStore(this.objectStoreName, {keyPath: 'id', autoIncrement: true});
+      objectStore.createIndex(GlobalConstants.indexProduct, 'productName', {unique: false});
+      objectStore.createIndex(GlobalConstants.indexComponent, 'componentName', {unique: false});
 
+    };
+  }
+
+  syncRecipes(data) {
+    for (const item of data) {
+      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity);
     }
   }
 
-  syncRecipes(data){
-    for (let i = 0; i < data.length; i++){
-      this.addRecipe(data[i].sku, data[i].productName, data[i].componentName, data[i].quantity)
+  addRecipe(sku: string, productName: string, componentName: string, quantity: number) {
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreName);
+    const tmp = {
+      sku,
+      productName,
+      componentName,
+      quantity
+    };
+    store.put(tmp);
+
+    tx.oncomplete = () => {};
+    tx.onerror = onerror;
+
+    function onerror(error) {
+      console.error('Error add data to indexedDB ', error);
     }
   }
 
-  addRecipe(sku: string, productName: string, componentName: string, quantity: number){
-    let tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadWrite)
-    let store = tx.objectStore(this.objectStore_name)
-    let tmp = {
-      sku: sku,
-      productName: productName,
-      componentName: componentName,
-      quantity: quantity
-    }
-    store.put(tmp)
-
-    tx.oncomplete = function (){}
-    tx.onerror = function (error){
-      console.error('Error add data to indexedDB ', error )
-    }
-  }
-
-  getProductNameListByComponent(ingredients){
-    let subject = new Subject<any>();
-    let tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadOnly);
-    let store = tx.objectStore(this.objectStore_name);
-    let index = store.index(GlobalConstants.indexComponent);
-    let myCursor = index.openCursor()
+  getProductNameListByComponent(ingredients) {
+    const subject = new Subject<any>();
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
+    const index = store.index(GlobalConstants.indexComponent);
+    const myCursor = index.openCursor();
 
     let name = '';
-    let name_arr = [];
+    let nameArray = [];
     let componentName = '';
-    let idx: number = 0;
+    let idx = 0;
 
-    myCursor.onsuccess = function (event){
-      let cursor = event.target.result
-      if (cursor){
-        componentName = cursor.value.componentName
-        name = cursor.value.productName
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+      if (cursor) {
+        componentName = cursor.value.componentName;
+        name = cursor.value.productName;
 
-        if (componentName === ingredients){
-          name_arr = name.split(/[\s,]+/)
+        if (componentName === ingredients) {
+          nameArray = name.split(/[\s,]+/);
           subject.next({
             id: idx,
-            name: name,
-            size: name_arr[name_arr.length - 2],
-            strength: name_arr[name_arr.length - 1]
+            name,
+            size: nameArray[nameArray.length - 2],
+            strength: nameArray[nameArray.length - 1]
           });
           idx++;
         }
         cursor.continue();
       }
-    }
+    };
 
     return subject;
   }
 
-  clearData(){
-    let tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadWrite);
-    let objectStore = tx.objectStore(this.objectStore_name)
-    let objectStoreReq = objectStore.clear()
+  clearData() {
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
+    const objectStore = tx.objectStore(this.objectStoreName);
+    const objectStoreReq = objectStore.clear();
 
-    objectStoreReq.onsuccess = function (event){
-      console.log('IDb cleared.')
-    }
+    objectStoreReq.onsuccess = () => {
+      console.log('IDb cleared.');
+    };
   }
 
-  getRecipesFromIdb(indexName: string, key: string){
-    let result = [];
-    let color_idx: number = 1;
-    let color_total: number = 7;
-    let quantity_sum: number = 0;
+  getRecipesFromIdb(indexName: string, key: string) {
+    const result = [];
+    let colorIdx = 1;
+    const colorTotal = 7;
+    let quantitySum = 0;
 
-    let index = this.db
-      .transaction([this.objectStore_name], GlobalConstants.idbReadOnly)
-      .objectStore(this.objectStore_name)
-      .index(indexName)
+    const index = this.db
+      .transaction([this.objectStoreName], GlobalConstants.idbReadOnly)
+      .objectStore(this.objectStoreName)
+      .index(indexName);
 
-    index.openCursor().onsuccess = function (event){
-      let cursor = event.target.result;
-      if(cursor){
-        if (cursor.value.productName === key){
+    index.openCursor().onsuccess = event => {
+      const cursor = event.target.result;
+      if (cursor) {
+        if (cursor.value.productName === key) {
           result.push({
             ingredients: cursor.value.componentName,
             quantity: (cursor.value.quantity).toFixed(2),
             percentage: 0,
-            color: (color_idx % color_total).toString(),
-          })
-          quantity_sum += parseFloat(cursor.value.quantity)
-          color_idx++;
+            color: (colorIdx % colorTotal).toString(),
+          });
+          quantitySum += parseFloat(cursor.value.quantity);
+          colorIdx++;
         }
         cursor.continue();
       } else {
-        for (let i = 0; i < result.length; i++){
-          result[i].percentage = (result[i].quantity / quantity_sum).toFixed(2)
+        for (const item of result) {
+          item.percentage = (item.quantity / quantitySum).toFixed(2);
         }
       }
-    }
+    };
 
-    return result
+    return result;
   }
 
-  getProdComponentNames(indexName, search){
-    let subject = new Subject<any>();
+  getProdComponentNames(indexName, search) {
+    const subject = new Subject<any>();
 
-    const tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadOnly);
-    const store = tx.objectStore(this.objectStore_name);
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
     const index = store.index(indexName);
-    const myCursor = index.openCursor(null, 'nextunique')
+    const myCursor = index.openCursor(null, GlobalConstants.nextUnique);
 
     let found = false;
-    let name = ''
-    let name_arr = []
-    let idx: number = 0;
+    let name = '';
+    let nameArr = [];
+    let idx = 0;
 
     if (indexName === GlobalConstants.indexProduct) {
-      myCursor.onsuccess = function (event) {
-        let cursor = event.target.result;
+      myCursor.onsuccess = event => {
+        const cursor = event.target.result;
 
         if (cursor) {
           name = cursor.value.productName;
           if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0) {
-            if (!found){
-              found = true
+            if (!found) {
+              found = true;
             }
-            name_arr = name.split(/[\s,]+/)
+            nameArr = name.split(/[\s,]+/);
             subject.next({
               id: idx,
-              name: name,
-              size: name_arr[name_arr.length - 2],
-              strength: name_arr[name_arr.length - 1]
+              name,
+              size: nameArr[nameArr.length - 2],
+              strength: nameArr[nameArr.length - 1]
             });
             idx++;
           }
           cursor.continue();
         } else {
-          if (!found){
+          if (!found) {
             subject.next({
-              'error': 'not found'
-            })
+              error: 'not found'
+            });
           }
           // console.log('ProductName Index to the end.')
         }
-      }
+      };
     } else {
       // get componentNameList
-      myCursor.onsuccess = function (event){
-        let cursor = event.target.result;
+      myCursor.onsuccess = event => {
+        const cursor = event.target.result;
 
-        if (cursor){
+        if (cursor) {
           name = cursor.value.componentName;
-          if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0){
-            if (!found){
-              found = true
+          if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0) {
+            if (!found) {
+              found = true;
             }
             subject.next({
               id: idx,
-              name: name
+              name
             });
             idx++;
           }
-          cursor.continue()
+          cursor.continue();
         } else {
-          if (!found){
+          if (!found) {
             subject.next({
-              'error': 'not found'
-            })
+              error: 'not found'
+            });
           }
           // console.log('ComponentName Index to the end.')
         }
-      }
+      };
     }
 
     return subject;
