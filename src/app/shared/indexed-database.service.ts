@@ -10,14 +10,14 @@ import {GlobalConstants} from './GlobalConstants';
 export class IndexedDatabaseService {
   public db;
   private version = 1;
-  private db_name = 'AmvRecipesDatabase';
-  private objectStore_name = 'recipes';
+  private dbName = 'AmvRecipesDatabase';
+  private objectStoreName = 'recipes';
 
   constructor(private messageService: MessageService) {
   }
 
   init() {
-    const request = indexedDB.open(this.db_name, this.version);
+    const request = indexedDB.open(this.dbName, this.version);
 
     request.onerror = (event: any) => {
       this.messageService.error(
@@ -27,7 +27,7 @@ export class IndexedDatabaseService {
 
     request.onsuccess = (event: any) => {
       this.db = event.target.result;
-      this.db.onerror = (event: any) => {
+      this.db.onerror = () => {
         this.messageService.error(
           'Database Error',
           JSON.stringify(event, null, 2));
@@ -36,7 +36,7 @@ export class IndexedDatabaseService {
 
     request.onupgradeneeded = (event: any) => {
       const db = event.target.result;
-      const objectStore = db.createObjectStore(this.objectStore_name, {keyPath: 'id', autoIncrement: true});
+      const objectStore = db.createObjectStore(this.objectStoreName, {keyPath: 'id', autoIncrement: true});
       objectStore.createIndex(GlobalConstants.indexProduct, 'productName', {unique: false});
       objectStore.createIndex(GlobalConstants.indexComponent, 'componentName', {unique: false});
 
@@ -44,14 +44,14 @@ export class IndexedDatabaseService {
   }
 
   syncRecipes(data) {
-    for (let i = 0; i < data.length; i++) {
-      this.addRecipe(data[i].sku, data[i].productName, data[i].componentName, data[i].quantity);
+    for (const item of data) {
+      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity);
     }
   }
 
   addRecipe(sku: string, productName: string, componentName: string, quantity: number) {
-    const tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadWrite);
-    const store = tx.objectStore(this.objectStore_name);
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreName);
     const tmp = {
       sku,
       productName,
@@ -60,37 +60,39 @@ export class IndexedDatabaseService {
     };
     store.put(tmp);
 
-    tx.oncomplete = function() {};
-    tx.onerror = function(error) {
-      console.error('Error add data to indexedDB ', error );
-    };
+    tx.oncomplete = () => {};
+    tx.onerror = onerror;
+
+    function onerror(error) {
+      console.error('Error add data to indexedDB ', error);
+    }
   }
 
   getProductNameListByComponent(ingredients) {
     const subject = new Subject<any>();
-    const tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadOnly);
-    const store = tx.objectStore(this.objectStore_name);
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
     const index = store.index(GlobalConstants.indexComponent);
     const myCursor = index.openCursor();
 
     let name = '';
-    let name_arr = [];
+    let nameArray = [];
     let componentName = '';
     let idx = 0;
 
-    myCursor.onsuccess = function(event) {
+    myCursor.onsuccess = event => {
       const cursor = event.target.result;
       if (cursor) {
         componentName = cursor.value.componentName;
         name = cursor.value.productName;
 
         if (componentName === ingredients) {
-          name_arr = name.split(/[\s,]+/);
+          nameArray = name.split(/[\s,]+/);
           subject.next({
             id: idx,
             name,
-            size: name_arr[name_arr.length - 2],
-            strength: name_arr[name_arr.length - 1]
+            size: nameArray[nameArray.length - 2],
+            strength: nameArray[nameArray.length - 1]
           });
           idx++;
         }
@@ -102,27 +104,27 @@ export class IndexedDatabaseService {
   }
 
   clearData() {
-    const tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadWrite);
-    const objectStore = tx.objectStore(this.objectStore_name);
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
+    const objectStore = tx.objectStore(this.objectStoreName);
     const objectStoreReq = objectStore.clear();
 
-    objectStoreReq.onsuccess = function(event) {
+    objectStoreReq.onsuccess = () => {
       console.log('IDb cleared.');
     };
   }
 
   getRecipesFromIdb(indexName: string, key: string) {
     const result = [];
-    let color_idx = 1;
-    const color_total = 7;
-    let quantity_sum = 0;
+    let colorIdx = 1;
+    const colorTotal = 7;
+    let quantitySum = 0;
 
     const index = this.db
-      .transaction([this.objectStore_name], GlobalConstants.idbReadOnly)
-      .objectStore(this.objectStore_name)
+      .transaction([this.objectStoreName], GlobalConstants.idbReadOnly)
+      .objectStore(this.objectStoreName)
       .index(indexName);
 
-    index.openCursor().onsuccess = function(event) {
+    index.openCursor().onsuccess = event => {
       const cursor = event.target.result;
       if (cursor) {
         if (cursor.value.productName === key) {
@@ -130,15 +132,15 @@ export class IndexedDatabaseService {
             ingredients: cursor.value.componentName,
             quantity: (cursor.value.quantity).toFixed(2),
             percentage: 0,
-            color: (color_idx % color_total).toString(),
+            color: (colorIdx % colorTotal).toString(),
           });
-          quantity_sum += parseFloat(cursor.value.quantity);
-          color_idx++;
+          quantitySum += parseFloat(cursor.value.quantity);
+          colorIdx++;
         }
         cursor.continue();
       } else {
-        for (let i = 0; i < result.length; i++) {
-          result[i].percentage = (result[i].quantity / quantity_sum).toFixed(2);
+        for (const item of result) {
+          item.percentage = (item.quantity / quantitySum).toFixed(2);
         }
       }
     };
@@ -149,18 +151,18 @@ export class IndexedDatabaseService {
   getProdComponentNames(indexName, search) {
     const subject = new Subject<any>();
 
-    const tx = this.db.transaction([this.objectStore_name], GlobalConstants.idbReadOnly);
-    const store = tx.objectStore(this.objectStore_name);
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
     const index = store.index(indexName);
-    const myCursor = index.openCursor(null, 'nextunique');
+    const myCursor = index.openCursor(null, GlobalConstants.nextUnique);
 
     let found = false;
     let name = '';
-    let name_arr = [];
+    let nameArr = [];
     let idx = 0;
 
     if (indexName === GlobalConstants.indexProduct) {
-      myCursor.onsuccess = function(event) {
+      myCursor.onsuccess = event => {
         const cursor = event.target.result;
 
         if (cursor) {
@@ -169,12 +171,12 @@ export class IndexedDatabaseService {
             if (!found) {
               found = true;
             }
-            name_arr = name.split(/[\s,]+/);
+            nameArr = name.split(/[\s,]+/);
             subject.next({
               id: idx,
               name,
-              size: name_arr[name_arr.length - 2],
-              strength: name_arr[name_arr.length - 1]
+              size: nameArr[nameArr.length - 2],
+              strength: nameArr[nameArr.length - 1]
             });
             idx++;
           }
@@ -190,7 +192,7 @@ export class IndexedDatabaseService {
       };
     } else {
       // get componentNameList
-      myCursor.onsuccess = function(event) {
+      myCursor.onsuccess = event => {
         const cursor = event.target.result;
 
         if (cursor) {

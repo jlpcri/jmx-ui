@@ -48,7 +48,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.firstNameList = [GlobalConstants.nameListInitial];
     this.firstNameListHistory = '';
     this.secondNameListHistory = '';
-    // this.saveRecipesToIdb();
+    this.saveRecipesToIdb();
   }
 
   ngOnDestroy(): void {
@@ -150,7 +150,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.firstNameList = [];
   }
 
-  onFocused(event) {
+  onFocused() {
     // Get productName or componentName List
   }
 
@@ -161,12 +161,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.productNamePrint = item.name;
   }
 
-  onChangeSearchSecond(search: string) {
+  onChangeSearchSecond() {
     // fetch remote data from here
     // And reassign the 'data' which is bind to 'data'
   }
 
-  onFocusedSecond(event) {
+  onFocusedSecond() {
     // Get productName List
   }
 

@@ -1,4 +1,4 @@
-import {Injectable, OnInit} from '@angular/core';
+import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {IndexedDatabaseService} from '../../shared/indexed-database.service';
 import {RecipeListModel} from './recipe-list.model';
@@ -8,7 +8,7 @@ import {ProgressService} from '../../progress-bar/shared/progress.service';
   providedIn: 'root'
 })
 
-export class RecipeListService implements OnInit {
+export class RecipeListService {
 
   constructor(private http: HttpClient,
               private idbService: IndexedDatabaseService,
@@ -17,14 +17,11 @@ export class RecipeListService implements OnInit {
   private retrieveFlag = false;
   private size = '100';
   private page = 0;
-  private total_page = 5;
-  private get_total_page_flag = true;
+  private totalPage = 5;
+  private getTotalPageFlag = false;
   private recipeUrl = `/jmx-ui/api/productComponents?projection=recipeProjection&size=${this.size}&page=`;
   private static handleError<T>(operation = 'operation', error) {
       console.error(operation, error);
-  }
-
-  ngOnInit() {
   }
 
   retrieveAll(): void {
@@ -40,14 +37,14 @@ export class RecipeListService implements OnInit {
             this.idbService.syncRecipes(resp.content);
 
             // console.log(this.page)
-            if (!this.get_total_page_flag) {
-              this.total_page = resp.page.totalPages;
-              console.log('Total Page: ', this.total_page);
-              this.get_total_page_flag = true;
+            if (!this.getTotalPageFlag) {
+              this.totalPage = resp.page.totalPages;
+              console.log('Total Page: ', this.totalPage);
+              this.getTotalPageFlag = true;
             }
-            if (this.page <= this.total_page) {
+            if (this.page <= this.totalPage) {
               this.page++;
-              this.progressService.progressPercent = (this.page / this.total_page * 100);
+              this.progressService.progressPercent = (this.page / this.totalPage * 100);
               retrieveNextPage();
             } else {
               console.log('Fetched job done');

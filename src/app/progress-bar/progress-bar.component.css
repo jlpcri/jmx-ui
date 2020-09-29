@@ -16,7 +16,7 @@
 
 .progress-status {
   display: inline-block;
-  color: var(--amv-fg-color);
+  color: #155462;
   text-align: center;
   width: fit-content;
   line-height: 3rem;
