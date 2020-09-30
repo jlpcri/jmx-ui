@@ -69,7 +69,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   selectEvent(item: { name: string; }, option: string) {
-    // console.log('Selected: ', item);
     if (option === 'Recipe') {
       const indexName = GlobalConstants.indexProduct;
       this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
@@ -81,12 +80,13 @@ export class RecipeListComponent implements OnInit, OnDestroy {
           nameList => {
             this.secondNameList.push({
               id: nameList.id,
-              name: nameList.name
+              name: nameList.name,
+              size: nameList.size,
+              strength: nameList.strength
             });
             this.isLoadingNameListSecond = false;
           });
 
-      // console.log(this.secondNameList)
     }
   }
 
@@ -141,8 +141,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     } else {
       this.isLoadingNameListFirst = false;
     }
-
-    // console.log(this.firstNameList)
 
   }
 

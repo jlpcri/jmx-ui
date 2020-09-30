@@ -187,7 +187,6 @@ export class IndexedDatabaseService {
               error: 'not found'
             });
           }
-          // console.log('ProductName Index to the end.')
         }
       };
     } else {
@@ -214,7 +213,6 @@ export class IndexedDatabaseService {
               error: 'not found'
             });
           }
-          // console.log('ComponentName Index to the end.')
         }
       };
     }

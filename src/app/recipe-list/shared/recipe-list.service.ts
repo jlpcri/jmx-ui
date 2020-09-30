@@ -18,7 +18,7 @@ export class RecipeListService {
   private size = '100';
   private page: number;
   private totalPage: number;
-  private getTotalPageFlag = true;
+  private getTotalPageFlag = false;
   private recipeUrl = `/jmx-ui/api/productComponents?projection=recipeProjection&size=${this.size}&page=`;
   private static handleError<T>(operation = 'operation', error) {
       console.error(operation, error);
@@ -26,10 +26,9 @@ export class RecipeListService {
 
   retrieveAll(): void {
     this.page = 0;
-    this.totalPage = 100;
+    this.totalPage = 10;
 
     if (!this.retrieveFlag) {
-      // this.progressService.progressMessage = 'Loading Recipes ...';
       this.progressService.loading = true;
 
       const retrieveNextPage = () => {
@@ -37,7 +36,6 @@ export class RecipeListService {
           resp => {
             this.idbService.syncRecipes(resp.content);
 
-            // console.log(this.page)
             if (!this.getTotalPageFlag) {
               this.totalPage = resp.page.totalPages;
               console.log('Total Page: ', this.totalPage);
@@ -58,7 +56,6 @@ export class RecipeListService {
             RecipeListService.handleError('Fetched API: ', error.message);
             this.page++;
             retrieveNextPage();
-            // this.progressService.loading = false;
           }
         );
 
