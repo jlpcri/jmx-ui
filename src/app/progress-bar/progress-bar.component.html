@@ -1,12 +1,14 @@
 <div class="progress-bar" *ngIf="progressService.loading">
   <div class="progress-bar-content">
     <div class="progress-status">
-      {{progressService.progressMessage}}
+      <h1>{{progressService.progressMessage}}</h1>
       <br>
-      <div class="lds-spinner"><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div><div></div></div>
       <br>
       <div class="progress-percent-bg">
-        <div class="progress-percent" [ngStyle]="{ 'width': progressService.progressWidth }"></div>
+        <ngb-progressbar type="info"
+                         [value]="progressService.progressValue"
+                         [height]="progressService.height"
+                         [showValue]="true"></ngb-progressbar>
       </div>
     </div>
   </div>

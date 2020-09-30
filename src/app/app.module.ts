@@ -11,6 +11,7 @@ import { NgxPrintModule } from 'ngx-print';
 import { HeaderComponent } from './header/header.component';
 import { GuideComponent } from './guide/guide.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
+import { NgbProgressbarModule } from '@ng-bootstrap/ng-bootstrap';
 
 @NgModule({
   declarations: [
@@ -20,13 +21,14 @@ import { ProgressBarComponent } from './progress-bar/progress-bar.component';
     GuideComponent,
     ProgressBarComponent
   ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    AutocompleteLibModule,
-    NgxPrintModule
-  ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        FormsModule,
+        AutocompleteLibModule,
+        NgxPrintModule,
+        NgbProgressbarModule
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })

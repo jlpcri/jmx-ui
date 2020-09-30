@@ -16,19 +16,20 @@ export class RecipeListService {
 
   private retrieveFlag = false;
   private size = '100';
-  private page = 0;
-  private totalPage = 5;
-  private getTotalPageFlag = false;
+  private page: number;
+  private totalPage: number;
+  private getTotalPageFlag = true;
   private recipeUrl = `/jmx-ui/api/productComponents?projection=recipeProjection&size=${this.size}&page=`;
   private static handleError<T>(operation = 'operation', error) {
       console.error(operation, error);
   }
 
   retrieveAll(): void {
-
+    this.page = 0;
+    this.totalPage = 100;
 
     if (!this.retrieveFlag) {
-      this.progressService.progressMessage = 'Loading Recipes ...';
+      // this.progressService.progressMessage = 'Loading Recipes ...';
       this.progressService.loading = true;
 
       const retrieveNextPage = () => {
