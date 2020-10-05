@@ -34,7 +34,7 @@ node {
 }
 
 task npmBuild(type: NpmTask) {
-    args = ['run', 'build', '--production', '--base-href=/jmx-ui/']
+    args = ['run', 'build', '--production', '--base-href=/jmx-ui/', '--code-coverage']
 }
 
 compileJava.dependsOn(npmBuild)
