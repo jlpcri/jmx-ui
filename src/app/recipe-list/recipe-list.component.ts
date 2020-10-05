@@ -4,7 +4,6 @@ import {Recipe} from '../recipe';
 import {RecipeListService} from './shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
 import {User} from '../shared/user.model';
-import {AuthService} from '../auth.service';
 import {GlobalConstants} from '../shared/GlobalConstants';
 
 @Component({
@@ -37,13 +36,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   isLoadingNameListSecond: boolean;
 
   constructor(private recipeListService: RecipeListService,
-              private idbService: IndexedDatabaseService,
-              private auth: AuthService) { }
+              private idbService: IndexedDatabaseService
+              ) { }
 
   ngOnInit(): void {
-    this.auth.authorized().subscribe(
-      user => { this.user = user; }
-    );
     this.searchOptionSelected = this.searchOptions[0].value;
     this.firstNameList = [GlobalConstants.nameListInitial];
     this.firstNameListHistory = '';
@@ -183,7 +179,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   emptyIdbData() {
-    this.recipeListService.emptyIdbData();
+    this.idbService.clearData();
   }
 
 
