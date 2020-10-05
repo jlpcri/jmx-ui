@@ -24,7 +24,7 @@ public class Security extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user/user-info")
                 .authenticated()
                 .antMatchers("/api/**")
-                .hasAnyRole("GROUP - Alohma Admin", "GROUP - Corporate Office")
+                .authenticated()
                 .and()
                 .oauth2Login()
                 .loginPage("/login/login.html")

@@ -45,7 +45,7 @@ azure:
 jmx-ui:
   encryption-key: T9mDWnPv1iuK5rnF7Mx33A==
   amv-data-api-url: http://localhost:8080/amv-data-api
-  amv-data-api-username: amvrpt
+  amv-data-api-username: jmx-ui
   # password = 'password'
   amv-data-api-password: XsHwXxWp8c+dSDVPTOK4wg0nJXMmuR4U5q2VyEUrnIQYCuiO
 

@@ -1,0 +1,26 @@
+substitutions:
+  _APP_NAME: jmx-ui
+
+steps:
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['-m', 'rsync', '-d', '-r', 'gs://${PROJECT_ID}_cloudbuild/${_APP_NAME}/gradle_cache', './gradle_cache']
+
+  - name: gcr.io/cloud-builders/gradle
+    args: ['-i','-g','./gradle_cache','--no-daemon','--stacktrace', 'build']
+
+  - name: gcr.io/cloud-builders/gsutil
+    args: ['-m', 'rsync', '-d', '-r', './gradle_cache', 'gs://${PROJECT_ID}_cloudbuild/${_APP_NAME}/gradle_cache']
+
+  - name: alpine
+    args: ['./test-gcp.sh']
+
+  - name: emeraldsquad/sonar-scanner:latest
+    entrypoint: 'sonar-scanner'
+
+  - name: gcr.io/cloud-builders/docker
+    args: ['build', '-t', 'gcr.io/$PROJECT_ID/${_APP_NAME}:${TAG_NAME}', '-t', 'gcr.io/$PROJECT_ID/${_APP_NAME}:latest', '.']
+
+images:
+  - 'gcr.io/$PROJECT_ID/${_APP_NAME}:${TAG_NAME}'
+  - 'gcr.io/$PROJECT_ID/${_APP_NAME}:latest'
+

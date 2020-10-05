@@ -6,5 +6,5 @@ zuul:
       url: http://${AMV_DATA_API_SERVICE_HOST}:${AMV_DATA_API_SERVICE_PORT}/reports-api
 
 jmx-ui:
-  amv-data-api-password: 7fKjoy5xIzi76YiuUndAFHlJebFzBYfHF9X1PhuMR8sQCET8pEnpH5bKFVI=
+  amv-data-api-password: pYP8pydhqRWcGJwXWfmRlmgMNN+nPVSrqCRgU2gidDaWNpOo5J7KKZxKOgxgUYK/
 

@@ -179,7 +179,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   emptyIdbData() {
-    this.recipeListService.emptyIdbData();
+    this.idbService.clearData();
   }
 
 

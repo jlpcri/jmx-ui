@@ -2,8 +2,7 @@
 
 gradle_cache/*
 !gradle_cache/.tmp
-src/main/resources/static/*
-!src/main/resources/static/login
+src/main/resources/static
 out
 build
 .gradle
@@ -49,6 +48,7 @@ npm-debug.log
 yarn-error.log
 testem.log
 /typings
+.scannerwork/
 
 # System Files
 .DS_Store
