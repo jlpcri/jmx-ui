@@ -37,7 +37,7 @@ export class HeaderComponent implements OnInit {
     } else if (this.user.roles === undefined || this.user.roles.length === 0) {
       return false;
     } else {
-      return this.user.roles.indexOf('GROUP - Alohma Admin') > 0;
+      return this.user.roles.indexOf('GROUP - Alohma Admin') >= 0;
     }
   }
 }
