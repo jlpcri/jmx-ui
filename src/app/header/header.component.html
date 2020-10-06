@@ -9,12 +9,12 @@
           <button type="button" class="btn btn-secondary" *ngIf="user; else notLogin">{{user.name}}</button>
           <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
             <button class="btn btn-secondary dropdown-toggle-split" ngbDropdownToggle></button>
-            <div class="dropdown-menu" ngbDropdownMenu *ngIf="isDeveloper(); else notDeveloper">
+            <div class="dropdown-menu" ngbDropdownMenu *ngIf="isAdmin(); else notAdmin">
               <button ngbDropdownItem (click)="logout()">Logout</button>
               <button ngbDropdownItem (click)="saveRecipesToIdb()">LoadRecipes</button>
               <button ngbDropdownItem (click)="emptyIdbData()">CleanDB</button>
             </div>
-            <ng-template #notDeveloper>
+            <ng-template #notAdmin>
               <div class="dropdown-menu" ngbDropdownMenu >
                 <button ngbDropdownItem (click)="logout()">Logout</button>
               </div>
