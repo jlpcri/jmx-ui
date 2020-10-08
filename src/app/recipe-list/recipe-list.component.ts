@@ -3,7 +3,6 @@ import {Component, OnDestroy, OnInit} from '@angular/core';
 import {Recipe} from '../recipe';
 import {RecipeListService} from './shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
-import {User} from '../shared/user.model';
 import {GlobalConstants} from '../shared/GlobalConstants';
 
 @Component({
@@ -12,7 +11,6 @@ import {GlobalConstants} from '../shared/GlobalConstants';
   styleUrls: ['./recipe-list.component.css']
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
-  user: User = new User();
 
   searchOptions = [
     {id: 1, value: 'Recipe'},
@@ -65,7 +63,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   selectEvent(item: { name: string; }, option: string) {
-    // console.log('Selected: ', item);
     if (option === 'Recipe') {
       const indexName = GlobalConstants.indexProduct;
       this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
@@ -77,12 +74,13 @@ export class RecipeListComponent implements OnInit, OnDestroy {
           nameList => {
             this.secondNameList.push({
               id: nameList.id,
-              name: nameList.name
+              name: nameList.name,
+              size: nameList.size,
+              strength: nameList.strength
             });
             this.isLoadingNameListSecond = false;
           });
 
-      // console.log(this.secondNameList)
     }
   }
 
@@ -138,8 +136,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       this.isLoadingNameListFirst = false;
     }
 
-    // console.log(this.firstNameList)
-
   }
 
   onSearchCleared() {
@@ -169,18 +165,5 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   saveRecipesToIdb(): void {
     this.recipeListService.retrieveAll();
   }
-
-  getProductNameList() {
-    if (this.searchOptionSelected === 'Recipe') {
-      console.log(this.firstNameList);
-    } else {
-      console.log(this.secondNameList);
-    }
-  }
-
-  emptyIdbData() {
-    this.idbService.clearData();
-  }
-
 
 }

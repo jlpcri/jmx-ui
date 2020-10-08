@@ -68,4 +68,9 @@ export class RecipeListService {
       console.log('Fetched job no need.');
     }
   }
+
+  emptyIdbData() {
+    this.idbService.clearData();
+    this.retrieveFlag = false;
+  }
 }
