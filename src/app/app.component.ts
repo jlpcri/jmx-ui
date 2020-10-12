@@ -9,9 +9,8 @@ import {IndexedDatabaseService} from './shared/indexed-database.service';
 export class AppComponent implements OnInit {
   title = 'jmx-ui';
 
-  constructor(private indexedDatabaseService: IndexedDatabaseService) { }
+  constructor() { }
 
   ngOnInit(): void {
-    this.indexedDatabaseService.init();
   }
 }

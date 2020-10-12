@@ -42,7 +42,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.firstNameList = [GlobalConstants.nameListInitial];
     this.firstNameListHistory = '';
     this.secondNameListHistory = '';
-    this.saveRecipesToIdb();
+    this.idbService.init(dbExisted => {
+      if (!dbExisted) {
+        this.saveRecipesToIdb();
+      }
+    });
+
   }
 
   ngOnDestroy(): void {

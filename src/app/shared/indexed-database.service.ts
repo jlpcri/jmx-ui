@@ -16,8 +16,9 @@ export class IndexedDatabaseService {
   constructor(private messageService: MessageService) {
   }
 
-  init() {
+  init(callback) {
     const request = indexedDB.open(this.dbName, this.version);
+    let dbExisted = true;
 
     request.onerror = (event: any) => {
       this.messageService.error(
@@ -32,6 +33,7 @@ export class IndexedDatabaseService {
           'Database Error',
           JSON.stringify(event, null, 2));
       };
+      callback(dbExisted);
     };
 
     request.onupgradeneeded = (event: any) => {
@@ -39,6 +41,7 @@ export class IndexedDatabaseService {
       const objectStore = db.createObjectStore(this.objectStoreName, {keyPath: 'id', autoIncrement: true});
       objectStore.createIndex(GlobalConstants.indexProduct, 'productName', {unique: false});
       objectStore.createIndex(GlobalConstants.indexComponent, 'componentName', {unique: false});
+      dbExisted = false;
 
     };
   }
