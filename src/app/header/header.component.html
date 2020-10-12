@@ -12,7 +12,7 @@
             <div class="dropdown-menu" ngbDropdownMenu *ngIf="isAdmin(); else notAdmin">
               <button ngbDropdownItem (click)="logout()">Logout</button>
               <button ngbDropdownItem (click)="saveRecipesToIdb()">LoadRecipes</button>
-              <button ngbDropdownItem (click)="emptyIdbData()">CleanDB</button>
+              <button ngbDropdownItem (click)="eraseIdbData()">EraseDB</button>
             </div>
             <ng-template #notAdmin>
               <div class="dropdown-menu" ngbDropdownMenu >

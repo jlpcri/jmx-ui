@@ -106,13 +106,19 @@ export class IndexedDatabaseService {
     return subject;
   }
 
-  clearData() {
-    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
-    const objectStore = tx.objectStore(this.objectStoreName);
-    const objectStoreReq = objectStore.clear();
+  eraseIdbData() {
+    const idbDeleteRequest = indexedDB.deleteDatabase(this.dbName);
+    idbDeleteRequest.onerror = event => {
+      console.log('Error deleting database');
+    };
 
-    objectStoreReq.onsuccess = () => {
-      console.log('IDb cleared.');
+    idbDeleteRequest.onblocked = event => {
+      console.log('Blocked: ', event);
+      this.db.close();
+    };
+
+    idbDeleteRequest.onsuccess = event => {
+      console.log('Database deleted successfully');
     };
   }
 
