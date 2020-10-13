@@ -13,7 +13,7 @@
           </div>
         </div>
 
-        <div class="input-icons">
+        <div class="row input-icons">
           <i class="fas fa-search icon"></i>
           <ng-autocomplete class="form-control input-field"
                            [data]="firstNameList"
@@ -26,7 +26,7 @@
                            [historyIdentifier]="firstNameListHistory"
                            [debounceTime]="400"
                            [isLoading]="isLoadingNameListFirst"
-                           [minQueryLength]="5"
+                           [minQueryLength]=""
                            [itemTemplate]="itemTemplate"
                            [notFoundTemplate]="notFoundTemplate"
                            [(ngModel)]="searchItem">
@@ -42,7 +42,32 @@
       </div>
 
       <div class="col-md-2 form-group">
+        <span class="custom-label-title">Bottle Size</span>
+        <div class="form-check custom-radio" *ngFor="let each of sizeRadioButtons">
+          <input class="form-check-input custom-control-input"
+                 type="radio"
+                 id="size{{each}}"
+                 name="bottleSize"
+                 value="{{each}}"
+                 [(ngModel)]="bottleSizeSelected"
+                 (ngModelChange)="changeSize($event)" />
+          <label class="form-check-label custom-control-label" for="size{{each}}">{{each}}</label>
+        </div>
       </div>
+      <div class="col-md-2 form-group">
+        <span class="custom-label-title">Nicotine Strength</span>
+        <div class="form-check custom-radio" *ngFor="let strength of strengthRadioButtons">
+          <input class="form-check-input custom-control-input"
+                 type="radio"
+                 id="strength{{strength}}"
+                 name="nicStrength"
+                 value="{{strength}}"
+                 [(ngModel)]="nicStrengthSelected"
+                 (ngModelChange)="changeStrength($event)" />
+          <label class="form-check-label custom-control-label" for="strength{{strength}}">{{strength}}</label>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -55,11 +80,11 @@
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Bottle Size:</span><br>
-      <h2 class="font-weight-bold">{{searchItem.size}}</h2>
+      <h2 class="font-weight-bold">{{bottleSizeSelected}}</h2>
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Nicotine Strength:</span><br>
-      <h2 class="font-weight-bold">{{searchItem.strength}}</h2>
+      <h2 class="font-weight-bold">{{nicStrengthSelected}}</h2>
     </div>
   </div>
 </div>
@@ -67,7 +92,7 @@
 <div class="container" *ngIf="searchOptionSelected === 'Ingredients'">
   <div class="row">
     <div class="col-md-8 form-group">
-      <div class="input-icons">
+      <div class="row input-icons">
         <i class="fas fa-search icon"></i>
         <ng-autocomplete class="form-control input-field"
                          [data]="secondNameList"
@@ -111,7 +136,7 @@
 </div>
 
 <!-- START - Recipe Display -->
-<div class="container" *ngIf="recipes.length > 0" id="print-section">
+<div class="container"  id="print-section">
   <div class="row">
     <div class="col-md-4 align-items-start">
       <!-- Juice Bottle -->
@@ -166,7 +191,7 @@
   </div>
 </div>
 
-<div class="container" *ngIf="recipes.length > 0">
+<div class="container">
   <div class="row">
     <div class="col-sm-10"></div>
     <div class="col-sm-2">

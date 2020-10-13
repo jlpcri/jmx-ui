@@ -170,6 +170,11 @@ export class IndexedDatabaseService {
     let nameArr = [];
     let idx = 0;
 
+    let tmpName = '';
+    let tmpSize = '';
+    let tmpStrength = '';
+    let tmpCommaCounts = '';
+
     if (indexName === GlobalConstants.indexProduct) {
       myCursor.onsuccess = event => {
         const cursor = event.target.result;
@@ -181,11 +186,28 @@ export class IndexedDatabaseService {
               found = true;
             }
             nameArr = name.split(/[\s,]+/);
+            if ((nameArr[nameArr.length - 2].toLowerCase().indexOf('ml') < 0)
+              || (nameArr[nameArr.length - 1].toLowerCase().indexOf('mg')) < 0) {
+              tmpName = name;
+              tmpSize = '';
+              tmpStrength = '';
+            } else {
+              tmpName = nameArr.slice(0, nameArr.length - 2).join(' ');
+              tmpSize = nameArr[nameArr.length - 2];
+              tmpStrength = nameArr[nameArr.length - 1];
+              if ((name.match(/,/g) || []).length > 1 ) {
+                tmpCommaCounts = '2';
+              } else {
+                tmpCommaCounts = '1';
+              }
+            }
             subject.next({
               id: idx,
-              name,
-              size: nameArr[nameArr.length - 2],
-              strength: nameArr[nameArr.length - 1]
+              name: tmpName,
+              // name,
+              commaCount: tmpCommaCounts,
+              size: tmpSize,
+              strength: tmpStrength
             });
             idx++;
           }
