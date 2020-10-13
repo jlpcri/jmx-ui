@@ -21,7 +21,7 @@
                            [placeHolder]=" searchOptionSelected === 'Recipe' ? 'Search Recipe(Product) Name': 'Search Ingredients(Component) Name' "
                            (selected)="selectEvent($event, searchOptionSelected)"
                            (inputChanged)="onChangeSearch($event, searchOptionSelected)"
-                           (inputCleared)="onSearchCleared()"
+                           (inputCleared)="onInputCleared()"
                            (inputFocused)="onFocused()"
                            [historyIdentifier]="firstNameListHistory"
                            [debounceTime]="400"
@@ -41,7 +41,7 @@
 
       </div>
 
-      <div class="col-md-2 form-group">
+      <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
         <span class="custom-label-title">Bottle Size</span>
         <div class="form-check custom-radio" *ngFor="let each of sizeRadioButtons">
           <input class="form-check-input custom-control-input"
@@ -54,7 +54,7 @@
           <label class="form-check-label custom-control-label" for="size{{each}}">{{each}}</label>
         </div>
       </div>
-      <div class="col-md-2 form-group">
+      <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
         <span class="custom-label-title">Nicotine Strength</span>
         <div class="form-check custom-radio" *ngFor="let strength of strengthRadioButtons">
           <input class="form-check-input custom-control-input"
@@ -101,6 +101,7 @@
                          (selected)="selectEventSecond($event)"
                          (inputChanged)="onChangeSearchSecond()"
                          (inputFocused)="onFocusedSecond()"
+                         (inputCleared)="onInputClearedSecond()"
                          [historyIdentifier]="secondNameListHistory"
                          [debounceTime]="400"
                          [isLoading]="isLoadingNameListSecond"
@@ -112,8 +113,33 @@
 
     </div>
 
-    <div class="col-md-4 form-group">
+    <div class="col-md-2 form-group">
+      <span class="custom-label-title">Bottle Size</span>
+      <div class="form-check custom-radio" *ngFor="let each of sizeRadioButtonsSecond">
+        <input class="form-check-input custom-control-input"
+               type="radio"
+               id="size2nd{{each}}"
+               name="bottleSize2nd"
+               value="{{each}}"
+               [(ngModel)]="bottleSizeSelectedSecond"
+               (ngModelChange)="changeSizeSecond($event)" />
+        <label class="form-check-label custom-control-label" for="size2nd{{each}}">{{each}}</label>
+      </div>
     </div>
+    <div class="col-md-2 form-group">
+      <span class="custom-label-title">Nicotine Strength</span>
+      <div class="form-check custom-radio" *ngFor="let strength of strengthRadioButtonsSecond">
+        <input class="form-check-input custom-control-input"
+               type="radio"
+               id="strength2nd{{strength}}"
+               name="nicStrength2nd"
+               value="{{strength}}"
+               [(ngModel)]="nicStrengthSelectedSecond"
+               (ngModelChange)="changeStrengthSecond($event)" />
+        <label class="form-check-label custom-control-label" for="strength2nd{{strength}}">{{strength}}</label>
+      </div>
+    </div>
+
   </div>
 
   <div class="container">
@@ -124,11 +150,11 @@
       </div>
       <div class="col-md-2">
         <span class="custom-label-title">Bottle Size:</span><br>
-        <h2 class="font-weight-bold">{{searchItemSecond.size}}</h2>
+        <h2 class="font-weight-bold">{{bottleSizeSelectedSecond}}</h2>
       </div>
       <div class="col-md-2">
         <span class="custom-label-title">Nicotine Strength:</span><br>
-        <h2 class="font-weight-bold">{{searchItemSecond.strength}}</h2>
+        <h2 class="font-weight-bold">{{nicStrengthSelectedSecond}}</h2>
       </div>
     </div>
   </div>

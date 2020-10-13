@@ -79,9 +79,7 @@ export class IndexedDatabaseService {
     const myCursor = index.openCursor();
 
     let name = '';
-    let nameArray = [];
     let componentName = '';
-    let idx = 0;
 
     myCursor.onsuccess = event => {
       const cursor = event.target.result;
@@ -90,14 +88,7 @@ export class IndexedDatabaseService {
         name = cursor.value.productName;
 
         if (componentName === ingredients) {
-          nameArray = name.split(/[\s,]+/);
-          subject.next({
-            id: idx,
-            name,
-            size: nameArray[nameArray.length - 2],
-            strength: nameArray[nameArray.length - 1]
-          });
-          idx++;
+          subject.next(this.getProductDetailFromName(name));
         }
         cursor.continue();
       }
@@ -126,6 +117,7 @@ export class IndexedDatabaseService {
     const result = [];
     let colorIdx = 1;
     const colorTotal = 7;
+    let tmpColor = '';
     let quantitySum = 0;
 
     const index = this.db
@@ -137,11 +129,16 @@ export class IndexedDatabaseService {
       const cursor = event.target.result;
       if (cursor) {
         if (cursor.value.productName === key) {
+          if (cursor.value.componentName.toLowerCase().indexOf('nicotine') >= 0) {
+            tmpColor = 'nicotine';
+          } else {
+            tmpColor = (colorIdx % colorTotal).toString();
+          }
           result.push({
             ingredients: cursor.value.componentName,
             quantity: (cursor.value.quantity).toFixed(2),
             percentage: 0,
-            color: (colorIdx % colorTotal).toString(),
+            color: tmpColor,
           });
           quantitySum += parseFloat(cursor.value.quantity);
           colorIdx++;
@@ -167,13 +164,7 @@ export class IndexedDatabaseService {
 
     let found = false;
     let name = '';
-    let nameArr = [];
     let idx = 0;
-
-    let tmpName = '';
-    let tmpSize = '';
-    let tmpStrength = '';
-    let tmpCommaCounts = '';
 
     if (indexName === GlobalConstants.indexProduct) {
       myCursor.onsuccess = event => {
@@ -185,31 +176,7 @@ export class IndexedDatabaseService {
             if (!found) {
               found = true;
             }
-            nameArr = name.split(/[\s,]+/);
-            if ((nameArr[nameArr.length - 2].toLowerCase().indexOf('ml') < 0)
-              || (nameArr[nameArr.length - 1].toLowerCase().indexOf('mg')) < 0) {
-              tmpName = name;
-              tmpSize = '';
-              tmpStrength = '';
-            } else {
-              tmpName = nameArr.slice(0, nameArr.length - 2).join(' ');
-              tmpSize = nameArr[nameArr.length - 2];
-              tmpStrength = nameArr[nameArr.length - 1];
-              if ((name.match(/,/g) || []).length > 1 ) {
-                tmpCommaCounts = '2';
-              } else {
-                tmpCommaCounts = '1';
-              }
-            }
-            subject.next({
-              id: idx,
-              name: tmpName,
-              // name,
-              commaCount: tmpCommaCounts,
-              size: tmpSize,
-              strength: tmpStrength
-            });
-            idx++;
+            subject.next(this.getProductDetailFromName(name));
           }
           cursor.continue();
         } else {
@@ -250,6 +217,38 @@ export class IndexedDatabaseService {
 
     return subject;
 
+  }
+
+  getProductDetailFromName(name: string) {
+    let nameArr = [];
+    let tmpName = '';
+    let tmpSize = '';
+    let tmpStrength = '';
+    let tmpCommaCounts = '';
+
+    nameArr = name.split(/[\s,]+/);
+    if ((nameArr[nameArr.length - 2].toLowerCase().indexOf('ml') < 0)
+      || (nameArr[nameArr.length - 1].toLowerCase().indexOf('mg')) < 0) {
+      tmpName = name;
+      tmpSize = '';
+      tmpStrength = '';
+    } else {
+      tmpName = nameArr.slice(0, nameArr.length - 2).join(' ');
+      tmpSize = nameArr[nameArr.length - 2];
+      tmpStrength = nameArr[nameArr.length - 1];
+      if ((name.match(/,/g) || []).length > 1 ) {
+        tmpCommaCounts = '2';
+      } else {
+        tmpCommaCounts = '1';
+      }
+    }
+
+    return {
+      name: tmpName,
+      commaCount: tmpCommaCounts,
+      size: tmpSize,
+      strength: tmpStrength
+    };
   }
 
 }
