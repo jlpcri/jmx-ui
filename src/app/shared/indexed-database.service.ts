@@ -116,7 +116,7 @@ export class IndexedDatabaseService {
   getRecipesFromIdb(indexName: string, key: string) {
     const result = [];
     let colorIdx = 1;
-    const colorTotal = 7;
+    const colorTotal = 20;
     let tmpColor = '';
     let quantitySum = 0;
 
@@ -144,10 +144,9 @@ export class IndexedDatabaseService {
           colorIdx++;
         }
         cursor.continue();
-      } else {
-        for (const item of result) {
-          item.percentage = (item.quantity / quantitySum).toFixed(2);
-        }
+      }
+      for (const item of result) {
+        item.percentage = (item.quantity / quantitySum).toFixed(2);
       }
     };
 

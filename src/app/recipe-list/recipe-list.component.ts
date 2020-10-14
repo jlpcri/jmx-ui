@@ -8,7 +8,7 @@ import {GlobalConstants} from '../shared/GlobalConstants';
 @Component({
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
-  styleUrls: ['./recipe-list.component.css']
+  styleUrls: ['./recipe-list.component.scss']
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
 
@@ -78,7 +78,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   selectEvent(item: { name: string; }, option: string) {
     if (option === 'Recipe') {
       const tmpProduct = this.existInArray(this.firstNameList, 'name', item.name);
-      if (tmpProduct.size.length > 1) {
+      if (tmpProduct.size.length > 0 || tmpProduct.strength.length > 0) {
         this.getSizeStrengthRadioButtons(tmpProduct, option);
       } else {
         const indexName = GlobalConstants.indexProduct;
@@ -158,7 +158,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   selectEventSecond(item: { name: string; }) {
     // console.log('Selected: ', item);
     const tmpProduct = this.existInArray(this.secondNameList, 'name', item.name);
-    if (tmpProduct.size.length > 0) {
+    if (tmpProduct.size.length > 0 || tmpProduct.strength.length > 0 ) {
       this.getSizeStrengthRadioButtons(tmpProduct, 'Ingredients');
     } else {
       const indexName = GlobalConstants.indexProduct;
@@ -249,8 +249,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.nicStrengthSelectedSecond = '';
     this.sizeRadioButtonsSecond = [];
     this.strengthRadioButtonsSecond = [];
-
-    // this.recipes = [];
   }
 
   getSizeStrengthRadioButtons(tmpProduct, option: string) {
