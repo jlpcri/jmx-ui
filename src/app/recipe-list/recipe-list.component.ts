@@ -225,7 +225,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   getRecipeContents(name: string, commaCount: string, size: string, strength: string) {
-    let searchName = '';
+    let searchName: string;
     if (commaCount === '2') {
       searchName = name + ', ' + size + ', ' + strength;
     } else {

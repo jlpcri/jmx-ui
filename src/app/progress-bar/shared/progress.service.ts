@@ -16,9 +16,4 @@ export class ProgressService {
     this.progressValue = percent;
     // console.log(this.progressWidth);
   }
-
-  get progressPercent() {
-    return this.progressValue;
-  }
-
 }

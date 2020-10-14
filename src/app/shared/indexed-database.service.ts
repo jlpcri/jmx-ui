@@ -47,21 +47,12 @@ export class IndexedDatabaseService {
   }
 
   syncRecipes(data) {
-    for (const item of data) {
-      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity);
-    }
-  }
-
-  addRecipe(sku: string, productName: string, componentName: string, quantity: number) {
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
     const store = tx.objectStore(this.objectStoreName);
-    const tmp = {
-      sku,
-      productName,
-      componentName,
-      quantity
-    };
-    store.put(tmp);
+
+    for (const item of data) {
+      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity, store);
+    }
 
     tx.oncomplete = () => {};
     tx.onerror = onerror;
@@ -69,6 +60,16 @@ export class IndexedDatabaseService {
     function onerror(error) {
       console.error('Error add data to indexedDB ', error);
     }
+  }
+
+  addRecipe(sku: string, productName: string, componentName: string, quantity: number, store) {
+    const tmp = {
+      sku,
+      productName,
+      componentName,
+      quantity
+    };
+    store.put(tmp);
   }
 
   getProductNameListByComponent(ingredients) {
@@ -100,7 +101,7 @@ export class IndexedDatabaseService {
   eraseIdbData() {
     const idbDeleteRequest = indexedDB.deleteDatabase(this.dbName);
     idbDeleteRequest.onerror = event => {
-      console.log('Error deleting database');
+      console.log('Error deleting database', event);
     };
 
     idbDeleteRequest.onblocked = event => {
@@ -109,7 +110,7 @@ export class IndexedDatabaseService {
     };
 
     idbDeleteRequest.onsuccess = event => {
-      console.log('Database deleted successfully');
+      console.log('Database deleted successfully', event);
     };
   }
 
@@ -219,10 +220,10 @@ export class IndexedDatabaseService {
   }
 
   getProductDetailFromName(name: string) {
-    let nameArr = [];
-    let tmpName = '';
-    let tmpSize = '';
-    let tmpStrength = '';
+    let nameArr: any[];
+    let tmpName: string;
+    let tmpSize: string;
+    let tmpStrength: string;
     let tmpCommaCounts = '';
 
     nameArr = name.split(/[\s,]+/);
