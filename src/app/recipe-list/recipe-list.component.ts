@@ -261,15 +261,18 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
       this.strengthRadioButtons = strengthButtons;
       this.nicStrengthSelected = strengthButtons[0];
+
+      this.getRecipeContents(tmpProduct.name, tmpProduct.commaCount, this.bottleSizeSelected, this.nicStrengthSelected);
     } else {
       this.sizeRadioButtonsSecond = sizeButtons;
       this.bottleSizeSelectedSecond = sizeButtons[0];
 
       this.strengthRadioButtonsSecond = strengthButtons;
       this.nicStrengthSelectedSecond = strengthButtons[0];
+
+      this.getRecipeContents(tmpProduct.name, tmpProduct.commaCount, this.bottleSizeSelectedSecond, this.nicStrengthSelectedSecond);
     }
 
-    this.getRecipeContents(tmpProduct.name, tmpProduct.commaCount, this.bottleSizeSelected, this.nicStrengthSelected);
   }
 
 }
