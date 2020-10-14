@@ -78,7 +78,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   selectEvent(item: { name: string; }, option: string) {
     if (option === 'Recipe') {
       const tmpProduct = this.existInArray(this.firstNameList, 'name', item.name);
-      if (tmpProduct.size.length > 0 || tmpProduct.strength.length > 0) {
+      if (tmpProduct.size.length > 0 && tmpProduct.size[0] !== '') {
         this.getSizeStrengthRadioButtons(tmpProduct, option);
       } else {
         const indexName = GlobalConstants.indexProduct;
@@ -158,7 +158,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   selectEventSecond(item: { name: string; }) {
     // console.log('Selected: ', item);
     const tmpProduct = this.existInArray(this.secondNameList, 'name', item.name);
-    if (tmpProduct.size.length > 0 || tmpProduct.strength.length > 0 ) {
+    if (tmpProduct.size.length > 0 && tmpProduct.size[0] !== '' ) {
       this.getSizeStrengthRadioButtons(tmpProduct, 'Ingredients');
     } else {
       const indexName = GlobalConstants.indexProduct;

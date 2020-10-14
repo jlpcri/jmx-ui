@@ -226,6 +226,7 @@ export class IndexedDatabaseService {
     let tmpCommaCounts = '';
 
     nameArr = name.split(/[\s,]+/);
+    // todo: size with ohm, strength with pack
     if ((nameArr[nameArr.length - 2].toLowerCase().indexOf('ml') < 0)
       || (nameArr[nameArr.length - 1].toLowerCase().indexOf('mg')) < 0) {
       tmpName = name;
@@ -236,6 +237,7 @@ export class IndexedDatabaseService {
       tmpSize = nameArr[nameArr.length - 2];
       tmpStrength = nameArr[nameArr.length - 1];
       if ((name.match(/,/g) || []).length > 1 ) {
+        // todo: need check different locations of comma
         tmpCommaCounts = '2';
       } else {
         tmpCommaCounts = '1';
