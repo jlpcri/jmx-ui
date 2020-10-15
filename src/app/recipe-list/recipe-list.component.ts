@@ -78,12 +78,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   selectEvent(item: { name: string; }, option: string) {
     if (option === 'Recipe') {
       const tmpProduct = this.existInArray(this.firstNameList, 'name', item.name);
-      if (tmpProduct.size.length > 0 && tmpProduct.size[0] !== '') {
-        this.getSizeStrengthRadioButtons(tmpProduct, option);
-      } else {
+      if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
         const indexName = GlobalConstants.indexProduct;
         this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
         this.productNamePrint = item.name;
+      } else {
+        this.getSizeStrengthRadioButtons(tmpProduct, option);
       }
     } else {
       this.isLoadingNameListSecond = true;
@@ -158,12 +158,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   selectEventSecond(item: { name: string; }) {
     // console.log('Selected: ', item);
     const tmpProduct = this.existInArray(this.secondNameList, 'name', item.name);
-    if (tmpProduct.size.length > 0 && tmpProduct.size[0] !== '' ) {
-      this.getSizeStrengthRadioButtons(tmpProduct, 'Ingredients');
-    } else {
+    if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
       const indexName = GlobalConstants.indexProduct;
       this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
       this.productNamePrint = item.name;
+    } else {
+      this.getSizeStrengthRadioButtons(tmpProduct, 'Ingredients');
     }
   }
 
@@ -188,18 +188,22 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   getProductNameListWithSizeStrength(resultList, nameList) {
     const tmpProduct = this.existInArray(resultList, 'name', nameList.name);
     if (!tmpProduct ) {
+      const objAttributes = {};
+      if (nameList.size !== '') {
+        objAttributes[nameList.size] = [nameList.strength];
+      }
       resultList.push({
         name: nameList.name,
         commaCount: nameList.commaCount,
-        size: [nameList.size],
-        strength: [nameList.strength]
+        attributes: objAttributes
       });
     } else {
-      if (tmpProduct.size.indexOf(nameList.size) < 0) {
-        tmpProduct.size.push(nameList.size);
-      }
-      if (tmpProduct.strength.indexOf(nameList.strength) < 0) {
-        tmpProduct.strength.push(nameList.strength);
+      if (nameList.size in tmpProduct.attributes) {
+        if (tmpProduct.attributes[nameList.size].indexOf(nameList.strength) < 0) {
+          tmpProduct.attributes[nameList.size].push(nameList.strength);
+        }
+      } else {
+        tmpProduct.attributes[nameList.size] = [nameList.strength];
       }
     }
   }
@@ -209,6 +213,13 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   changeSize(size: string) {
+    const tmpProduct = this.existInArray(this.firstNameList, 'name', this.searchItem.name);
+    const strengthButtons = tmpProduct.attributes[size]
+      .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
+
+    this.strengthRadioButtons = strengthButtons;
+    this.nicStrengthSelected = strengthButtons[0];
+
     this.getRecipeContents(this.searchItem.name, this.searchItem.commaCount, size, this.nicStrengthSelected);
   }
 
@@ -217,6 +228,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   changeSizeSecond(size: string) {
+    const tmpProduct = this.existInArray(this.secondNameList, 'name', this.searchItemSecond.name);
+    const strengthButtons = tmpProduct.attributes[size]
+      .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
+
+    this.strengthRadioButtonsSecond = strengthButtons;
+    this.nicStrengthSelectedSecond = strengthButtons[0];
     this.getRecipeContents(this.searchItemSecond.name, this.searchItemSecond.commaCount, size, this.nicStrengthSelectedSecond);
   }
 
@@ -252,8 +269,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   getSizeStrengthRadioButtons(tmpProduct, option: string) {
-    const sizeButtons = tmpProduct.size.sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
-    const strengthButtons = tmpProduct.strength.sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
+    const sizeButtons = Object.keys(tmpProduct.attributes)
+      .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
+    const strengthButtons = tmpProduct.attributes[sizeButtons[0]]
+      .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
 
     if (option === 'Recipe') {
       this.sizeRadioButtons = sizeButtons;
