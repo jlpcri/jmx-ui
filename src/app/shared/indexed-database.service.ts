@@ -47,29 +47,32 @@ export class IndexedDatabaseService {
   }
 
   syncRecipes(data) {
-    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
-    const store = tx.objectStore(this.objectStoreName);
-
     for (const item of data) {
-      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity, store);
-    }
-
-    tx.oncomplete = () => {};
-    tx.onerror = onerror;
-
-    function onerror(error) {
-      console.error('Error add data to indexedDB ', error);
+      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity)
+        .then();
     }
   }
 
-  addRecipe(sku: string, productName: string, componentName: string, quantity: number, store) {
+  async addRecipe(sku: string, productName: string, componentName: string, quantity: number) {
     const tmp = {
       sku,
       productName,
       componentName,
       quantity
     };
-    store.put(tmp);
+
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreName);
+
+    await store.put(tmp);
+
+    tx.oncomplete = () => {};
+    tx.onerror = onerror;
+    await tx.done;
+
+    function onerror(error) {
+      console.error('Error add data to indexedDB ', error);
+    }
   }
 
   getProductNameListByComponent(ingredients) {
