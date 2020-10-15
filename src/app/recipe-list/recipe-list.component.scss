@@ -199,28 +199,15 @@ table.table tr {
 .test {
   display: flex;
 }
-.ing-color-1 {
-  color: #02C4CC;
-}
 
-.ing-color-2 {
-  color: #CD4631;
-}
+$colors: #02C4CC, #8DAE32, #C6D2D0, #614870, #D27973, #A2E5F3,
+         #55CDB0, #B598F4, #A28EAE, #E9B191, #A4D797, #C35AE8,
+         #456DD5, #868487, #E8735A, #588A4B, #031111, #155462, #CD4631;
 
-.ing-color-3 {
-  color: #155462;
-}
-
-.ing-color-4 {
-  color: #8DAE32;
-}
-
-.ing-color-5 {
-  color: #C6D2D0;
-}
-
-.ing-color-6 {
-  color: #614870;
+@for $i from 1 through length($colors) {
+  .ing-color-#{$i} {
+    color: nth($colors, $i);
+  }
 }
 
 .ing-color-nicotine {

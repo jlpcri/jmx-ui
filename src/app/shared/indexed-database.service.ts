@@ -16,8 +16,9 @@ export class IndexedDatabaseService {
   constructor(private messageService: MessageService) {
   }
 
-  init() {
+  init(callback) {
     const request = indexedDB.open(this.dbName, this.version);
+    let dbExisted = true;
 
     request.onerror = (event: any) => {
       this.messageService.error(
@@ -32,6 +33,7 @@ export class IndexedDatabaseService {
           'Database Error',
           JSON.stringify(event, null, 2));
       };
+      callback(dbExisted);
     };
 
     request.onupgradeneeded = (event: any) => {
@@ -39,29 +41,34 @@ export class IndexedDatabaseService {
       const objectStore = db.createObjectStore(this.objectStoreName, {keyPath: 'id', autoIncrement: true});
       objectStore.createIndex(GlobalConstants.indexProduct, 'productName', {unique: false});
       objectStore.createIndex(GlobalConstants.indexComponent, 'componentName', {unique: false});
+      dbExisted = false;
 
     };
   }
 
   syncRecipes(data) {
     for (const item of data) {
-      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity);
+      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity)
+        .then();
     }
   }
 
-  addRecipe(sku: string, productName: string, componentName: string, quantity: number) {
-    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
-    const store = tx.objectStore(this.objectStoreName);
+  async addRecipe(sku: string, productName: string, componentName: string, quantity: number) {
     const tmp = {
       sku,
       productName,
       componentName,
       quantity
     };
-    store.put(tmp);
+
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreName);
+
+    await store.put(tmp);
 
     tx.oncomplete = () => {};
     tx.onerror = onerror;
+    await tx.done;
 
     function onerror(error) {
       console.error('Error add data to indexedDB ', error);
@@ -76,9 +83,7 @@ export class IndexedDatabaseService {
     const myCursor = index.openCursor();
 
     let name = '';
-    let nameArray = [];
     let componentName = '';
-    let idx = 0;
 
     myCursor.onsuccess = event => {
       const cursor = event.target.result;
@@ -87,14 +92,7 @@ export class IndexedDatabaseService {
         name = cursor.value.productName;
 
         if (componentName === ingredients) {
-          nameArray = name.split(/[\s,]+/);
-          subject.next({
-            id: idx,
-            name,
-            size: nameArray[nameArray.length - 2],
-            strength: nameArray[nameArray.length - 1]
-          });
-          idx++;
+          subject.next(this.getProductDetailFromName(name));
         }
         cursor.continue();
       }
@@ -103,20 +101,27 @@ export class IndexedDatabaseService {
     return subject;
   }
 
-  clearData() {
-    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
-    const objectStore = tx.objectStore(this.objectStoreName);
-    const objectStoreReq = objectStore.clear();
+  eraseIdbData() {
+    const idbDeleteRequest = indexedDB.deleteDatabase(this.dbName);
+    idbDeleteRequest.onerror = event => {
+      console.log('Error deleting database', event);
+    };
 
-    objectStoreReq.onsuccess = () => {
-      console.log('IDb cleared.');
+    idbDeleteRequest.onblocked = event => {
+      console.log('Blocked: ', event);
+      this.db.close();
+    };
+
+    idbDeleteRequest.onsuccess = event => {
+      console.log('Database deleted successfully', event);
     };
   }
 
   getRecipesFromIdb(indexName: string, key: string) {
     const result = [];
     let colorIdx = 1;
-    const colorTotal = 7;
+    const colorTotal = 20;
+    let tmpColor = '';
     let quantitySum = 0;
 
     const index = this.db
@@ -128,20 +133,24 @@ export class IndexedDatabaseService {
       const cursor = event.target.result;
       if (cursor) {
         if (cursor.value.productName === key) {
+          if (cursor.value.componentName.toLowerCase().indexOf('nicotine') >= 0) {
+            tmpColor = 'nicotine';
+          } else {
+            tmpColor = (colorIdx % colorTotal).toString();
+          }
           result.push({
             ingredients: cursor.value.componentName,
             quantity: (cursor.value.quantity).toFixed(2),
             percentage: 0,
-            color: (colorIdx % colorTotal).toString(),
+            color: tmpColor,
           });
           quantitySum += parseFloat(cursor.value.quantity);
           colorIdx++;
         }
         cursor.continue();
-      } else {
-        for (const item of result) {
-          item.percentage = (item.quantity / quantitySum).toFixed(2);
-        }
+      }
+      for (const item of result) {
+        item.percentage = (item.quantity / quantitySum).toFixed(2);
       }
     };
 
@@ -158,7 +167,6 @@ export class IndexedDatabaseService {
 
     let found = false;
     let name = '';
-    let nameArr = [];
     let idx = 0;
 
     if (indexName === GlobalConstants.indexProduct) {
@@ -171,14 +179,7 @@ export class IndexedDatabaseService {
             if (!found) {
               found = true;
             }
-            nameArr = name.split(/[\s,]+/);
-            subject.next({
-              id: idx,
-              name,
-              size: nameArr[nameArr.length - 2],
-              strength: nameArr[nameArr.length - 1]
-            });
-            idx++;
+            subject.next(this.getProductDetailFromName(name));
           }
           cursor.continue();
         } else {
@@ -219,6 +220,40 @@ export class IndexedDatabaseService {
 
     return subject;
 
+  }
+
+  getProductDetailFromName(name: string) {
+    let nameArr: any[];
+    let tmpName: string;
+    let tmpSize: string;
+    let tmpStrength: string;
+    let tmpCommaCounts = '';
+
+    nameArr = name.split(/[\s,]+/);
+    // todo: size with ohm, strength with pack
+    if ((nameArr[nameArr.length - 2].toLowerCase().indexOf('ml') < 0)
+      || (nameArr[nameArr.length - 1].toLowerCase().indexOf('mg')) < 0) {
+      tmpName = name;
+      tmpSize = '';
+      tmpStrength = '';
+    } else {
+      tmpName = nameArr.slice(0, nameArr.length - 2).join(' ');
+      tmpSize = nameArr[nameArr.length - 2];
+      tmpStrength = nameArr[nameArr.length - 1];
+      if ((name.match(/,/g) || []).length > 1 ) {
+        // todo: need check different locations of comma
+        tmpCommaCounts = '2';
+      } else {
+        tmpCommaCounts = '1';
+      }
+    }
+
+    return {
+      name: tmpName,
+      commaCount: tmpCommaCounts,
+      size: tmpSize,
+      strength: tmpStrength
+    };
   }
 
 }

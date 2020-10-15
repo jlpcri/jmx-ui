@@ -8,7 +8,7 @@ import {GlobalConstants} from '../shared/GlobalConstants';
 @Component({
   selector: 'app-recipe-list',
   templateUrl: './recipe-list.component.html',
-  styleUrls: ['./recipe-list.component.css']
+  styleUrls: ['./recipe-list.component.scss']
 })
 export class RecipeListComponent implements OnInit, OnDestroy {
 
@@ -27,8 +27,17 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   firstNameList: any[];
   secondNameList: any[];
   nameListKey = 'name';
+  sizeRadioButtons = [];
+  strengthRadioButtons = [];
+  sizeRadioButtonsSecond = [];
+  strengthRadioButtonsSecond = [];
   firstNameListHistory: string;
   secondNameListHistory: string;
+
+  bottleSizeSelected = '';
+  nicStrengthSelected = '';
+  bottleSizeSelectedSecond = '';
+  nicStrengthSelectedSecond = '';
 
   isLoadingNameListFirst: boolean;
   isLoadingNameListSecond: boolean;
@@ -42,15 +51,19 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.firstNameList = [GlobalConstants.nameListInitial];
     this.firstNameListHistory = '';
     this.secondNameListHistory = '';
-    this.saveRecipesToIdb();
+    this.idbService.init(dbExisted => {
+      if (!dbExisted) {
+        this.saveRecipesToIdb();
+      }
+    });
+
   }
 
   ngOnDestroy(): void {
   }
 
   onChangeSelectOption(event) {
-    // console.log(event.target.id)
-    this.recipes = [];
+    this.resetSizeStrengthRecipes();
     this.firstNameList = [GlobalConstants.nameListInitial];
     this.secondNameList = [];
     if (event.target.id === 'search_Ingredients') {
@@ -64,20 +77,20 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   selectEvent(item: { name: string; }, option: string) {
     if (option === 'Recipe') {
-      const indexName = GlobalConstants.indexProduct;
-      this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
-      this.productNamePrint = item.name;
+      const tmpProduct = this.existInArray(this.firstNameList, 'name', item.name);
+      if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
+        const indexName = GlobalConstants.indexProduct;
+        this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
+        this.productNamePrint = item.name;
+      } else {
+        this.getSizeStrengthRadioButtons(tmpProduct, option);
+      }
     } else {
       this.isLoadingNameListSecond = true;
       this.idbService.getProductNameListByComponent(item.name)
         .subscribe(
           nameList => {
-            this.secondNameList.push({
-              id: nameList.id,
-              name: nameList.name,
-              size: nameList.size,
-              strength: nameList.strength
-            });
+            this.getProductNameListWithSizeStrength(this.secondNameList, nameList);
             this.isLoadingNameListSecond = false;
           });
 
@@ -101,12 +114,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
               if ('error' in nameList) {
                 this.isLoadingNameListFirst = false;
               } else {
-                this.firstNameList.push({
-                  id: nameList.id,
-                  name: nameList.name,
-                  size: nameList.size,
-                  strength: nameList.strength
-                });
+                this.getProductNameListWithSizeStrength(this.firstNameList, nameList);
                 this.isLoadingNameListFirst = false;
               }
             },
@@ -138,8 +146,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   }
 
-  onSearchCleared() {
+  onInputCleared() {
     this.firstNameList = [];
+    this.resetSizeStrengthRecipes();
   }
 
   onFocused() {
@@ -148,9 +157,14 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   selectEventSecond(item: { name: string; }) {
     // console.log('Selected: ', item);
-    const indexName = GlobalConstants.indexProduct;
-    this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
-    this.productNamePrint = item.name;
+    const tmpProduct = this.existInArray(this.secondNameList, 'name', item.name);
+    if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
+      const indexName = GlobalConstants.indexProduct;
+      this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
+      this.productNamePrint = item.name;
+    } else {
+      this.getSizeStrengthRadioButtons(tmpProduct, 'Ingredients');
+    }
   }
 
   onChangeSearchSecond() {
@@ -162,8 +176,122 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     // Get productName List
   }
 
+  onInputClearedSecond() {
+    // this.secondNameList = [];
+    this.resetSizeStrengthRecipesSecond();
+  }
+
   saveRecipesToIdb(): void {
     this.recipeListService.retrieveAll();
+  }
+
+  getProductNameListWithSizeStrength(resultList, nameList) {
+    const tmpProduct = this.existInArray(resultList, 'name', nameList.name);
+    if (!tmpProduct ) {
+      const objAttributes = {};
+      if (nameList.size !== '') {
+        objAttributes[nameList.size] = [nameList.strength];
+      }
+      resultList.push({
+        name: nameList.name,
+        commaCount: nameList.commaCount,
+        attributes: objAttributes
+      });
+    } else {
+      if (nameList.size in tmpProduct.attributes) {
+        if (tmpProduct.attributes[nameList.size].indexOf(nameList.strength) < 0) {
+          tmpProduct.attributes[nameList.size].push(nameList.strength);
+        }
+      } else {
+        tmpProduct.attributes[nameList.size] = [nameList.strength];
+      }
+    }
+  }
+
+  existInArray(arr: any, key: string, value: string) {
+    return arr.find(x => x[key] === value);
+  }
+
+  changeSize(size: string) {
+    const tmpProduct = this.existInArray(this.firstNameList, 'name', this.searchItem.name);
+    const strengthButtons = tmpProduct.attributes[size]
+      .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
+
+    this.strengthRadioButtons = strengthButtons;
+    this.nicStrengthSelected = strengthButtons[0];
+
+    this.getRecipeContents(this.searchItem.name, this.searchItem.commaCount, size, this.nicStrengthSelected);
+  }
+
+  changeStrength(strength: string) {
+    this.getRecipeContents(this.searchItem.name, this.searchItem.commaCount, this.bottleSizeSelected, strength);
+  }
+
+  changeSizeSecond(size: string) {
+    const tmpProduct = this.existInArray(this.secondNameList, 'name', this.searchItemSecond.name);
+    const strengthButtons = tmpProduct.attributes[size]
+      .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
+
+    this.strengthRadioButtonsSecond = strengthButtons;
+    this.nicStrengthSelectedSecond = strengthButtons[0];
+    this.getRecipeContents(this.searchItemSecond.name, this.searchItemSecond.commaCount, size, this.nicStrengthSelectedSecond);
+  }
+
+  changeStrengthSecond(strength: string) {
+    this.getRecipeContents(this.searchItemSecond.name, this.searchItemSecond.commaCount, this.bottleSizeSelectedSecond, strength);
+  }
+
+  getRecipeContents(name: string, commaCount: string, size: string, strength: string) {
+    let searchName: string;
+    if (commaCount === '2') {
+      searchName = name + ', ' + size + ', ' + strength;
+    } else {
+      searchName = name + ' ' + size + ', ' + strength;
+    }
+
+    this.recipes = this.idbService.getRecipesFromIdb(GlobalConstants.indexProduct, searchName);
+  }
+
+  resetSizeStrengthRecipes() {
+    this.bottleSizeSelected = '';
+    this.nicStrengthSelected = '';
+    this.sizeRadioButtons = [];
+    this.strengthRadioButtons = [];
+
+    this.recipes = [];
+  }
+
+  resetSizeStrengthRecipesSecond() {
+    this.bottleSizeSelectedSecond = '';
+    this.nicStrengthSelectedSecond = '';
+    this.sizeRadioButtonsSecond = [];
+    this.strengthRadioButtonsSecond = [];
+  }
+
+  getSizeStrengthRadioButtons(tmpProduct, option: string) {
+    const sizeButtons = Object.keys(tmpProduct.attributes)
+      .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
+    const strengthButtons = tmpProduct.attributes[sizeButtons[0]]
+      .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
+
+    if (option === 'Recipe') {
+      this.sizeRadioButtons = sizeButtons;
+      this.bottleSizeSelected = sizeButtons[0];
+
+      this.strengthRadioButtons = strengthButtons;
+      this.nicStrengthSelected = strengthButtons[0];
+
+      this.getRecipeContents(tmpProduct.name, tmpProduct.commaCount, this.bottleSizeSelected, this.nicStrengthSelected);
+    } else {
+      this.sizeRadioButtonsSecond = sizeButtons;
+      this.bottleSizeSelectedSecond = sizeButtons[0];
+
+      this.strengthRadioButtonsSecond = strengthButtons;
+      this.nicStrengthSelectedSecond = strengthButtons[0];
+
+      this.getRecipeContents(tmpProduct.name, tmpProduct.commaCount, this.bottleSizeSelectedSecond, this.nicStrengthSelectedSecond);
+    }
+
   }
 
 }

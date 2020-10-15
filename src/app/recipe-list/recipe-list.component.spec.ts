@@ -10,7 +10,7 @@ describe('RecipeListComponent', () => {
 
   beforeEach(async(() => {
     const recipeListServiceSpy = jasmine.createSpyObj('RecipeListService', ['retrieveAll']);
-    const idbServiceSpy = jasmine.createSpyObj('IndexedDatabaseService', ['getRecipesFromIdb']);
+    const idbServiceSpy = jasmine.createSpyObj('IndexedDatabaseService', ['getRecipesFromIdb', 'init']);
     TestBed.configureTestingModule({
       declarations: [ RecipeListComponent ],
       providers: [
