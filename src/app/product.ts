@@ -1,4 +1,10 @@
 export interface Product {
-  bottle_size: number;
-  nic_strength: number;
+  name: string;
+  sku: string;
+  size: string;
+  strength: string;
+  storeName: string;
+  storeLocation: string;
+  batchNumber: string;
+  createdAt: string;
 }

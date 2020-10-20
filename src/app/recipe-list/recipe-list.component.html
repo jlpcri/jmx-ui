@@ -162,7 +162,7 @@
 </div>
 
 <!-- START - Recipe Display -->
-<div class="container"  id="print-section">
+<div class="container">
   <div class="row">
     <div class="col-md-4 align-items-start">
       <!-- Juice Bottle -->
@@ -218,13 +218,40 @@
 </div>
 
 <div class="container">
-  <div class="row">
-    <div class="col-sm-10"></div>
+  <div class="row" *ngIf="printData.name.length > 0">
+    <div class="col-sm-4"></div>
+    <div class="col-sm-4">
+      <div class="container" id="print-section">
+        <div class="table-wrapper">
+          <table>
+            <tr style="font-weight: bold">{{printData.storeName}}</tr>
+            <tr>{{printData.storeLocation}}</tr>
+            <tr></tr>
+            <tr>
+              <td>
+                <strong>{{printData.name}}</strong><br>
+                {{printData.size}}&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}<br>
+                {{printData.createdAt}}<br>
+                {{printData.sku}}
+              </td>
+              <td>
+                <qrcode [qrdata]="printData.sku"
+                        width="10"
+                        [errorCorrectionLevel]="'M'"></qrcode>
+              </td>
+            </tr>
+            <tr style="text-align: center">Lot #{{printData.batchNumber}}</tr>
+          </table>
+        </div>
+      </div>
+    </div>
+    <div class="col-sm-2"></div>
     <div class="col-sm-2">
-      <button type="button" class="btn btn-primary btn-lg btn-block"
-              printTitle= "{{productNamePrint}}"
-              [useExistingCss]="true"
-              printSectionId="print-section" ngxPrint>Print</button>
+      <div class="container">
+        <button type="button" class="btn btn-primary btn-lg btn-block"
+                [useExistingCss]="true"
+                printSectionId="print-section" ngxPrint>Print</button>
+      </div>
     </div>
   </div>
 </div>

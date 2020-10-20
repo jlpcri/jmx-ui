@@ -12,6 +12,7 @@ import { HeaderComponent } from './header/header.component';
 import { GuideComponent } from './guide/guide.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import {NgbDropdownModule, NgbProgressbarModule} from '@ng-bootstrap/ng-bootstrap';
+import {QRCodeModule} from 'angularx-qrcode';
 
 @NgModule({
   declarations: [
@@ -21,15 +22,16 @@ import {NgbDropdownModule, NgbProgressbarModule} from '@ng-bootstrap/ng-bootstra
     GuideComponent,
     ProgressBarComponent
   ],
-    imports: [
-        BrowserModule,
-        HttpClientModule,
-        FormsModule,
-        AutocompleteLibModule,
-        NgxPrintModule,
-        NgbProgressbarModule,
-        NgbDropdownModule
-    ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    FormsModule,
+    AutocompleteLibModule,
+    NgxPrintModule,
+    NgbProgressbarModule,
+    NgbDropdownModule,
+    QRCodeModule
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })

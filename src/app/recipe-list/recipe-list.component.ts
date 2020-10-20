@@ -4,6 +4,7 @@ import {Recipe} from '../recipe';
 import {RecipeListService} from './shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
 import {GlobalConstants} from '../shared/GlobalConstants';
+import {Product} from '../product';
 
 @Component({
   selector: 'app-recipe-list',
@@ -22,7 +23,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   searchItemSecond: any = '';
 
   recipes: Recipe[] = [];
-  productNamePrint = '';
+  printData: Product = {
+    name: '', size: '', sku: '', strength: '',
+    storeName: 'Madvapes Headquarters',
+    storeLocation: '128 Oak Park Dr., Mooresville, NC 28115',
+    createdAt: '10/10/2020',
+    batchNumber: '159763'};
 
   firstNameList: any[];
   secondNameList: any[];
@@ -81,7 +87,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
         const indexName = GlobalConstants.indexProduct;
         this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
-        this.productNamePrint = item.name;
       } else {
         this.getSizeStrengthRadioButtons(tmpProduct, option);
       }
@@ -161,7 +166,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
       const indexName = GlobalConstants.indexProduct;
       this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
-      this.productNamePrint = item.name;
     } else {
       this.getSizeStrengthRadioButtons(tmpProduct, 'Ingredients');
     }
@@ -228,8 +232,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   changeSizeSecond(size: string) {
-    const tmpProduct = this.existInArray(this.secondNameList, 'name', this.searchItemSecond.name);
-    const strengthButtons = tmpProduct.attributes[size]
+    let tmpProduct: any;
+    tmpProduct = this.existInArray(this.secondNameList, 'name', this.searchItemSecond.name);
+    let strengthButtons: any;
+    strengthButtons = tmpProduct.attributes[size]
       .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
 
     this.strengthRadioButtonsSecond = strengthButtons;
@@ -250,6 +256,17 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     }
 
     this.recipes = this.idbService.getRecipesFromIdb(GlobalConstants.indexProduct, searchName);
+    this.idbService.getProductPrintData(searchName).subscribe(
+      nameList => {
+        this.printData.name = name;
+        this.printData.sku = nameList.sku;
+        this.printData.size = size;
+        this.printData.strength = strength;
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 
   resetSizeStrengthRecipes() {
