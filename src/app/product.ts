@@ -6,5 +6,5 @@ export interface Product {
   storeName: string;
   storeLocation: string;
   batchNumber: string;
-  createdAt: string;
+  currentDate: string;
 }

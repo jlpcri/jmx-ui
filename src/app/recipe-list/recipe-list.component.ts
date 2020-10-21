@@ -1,4 +1,5 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
+import * as moment from 'moment';
 
 import {Recipe} from '../recipe';
 import {RecipeListService} from './shared/recipe-list.service';
@@ -27,7 +28,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     name: '', size: '', sku: '', strength: '',
     storeName: 'Madvapes Headquarters',
     storeLocation: '128 Oak Park Dr., Mooresville, NC 28115',
-    createdAt: '10/10/2020',
+    currentDate: moment().format('L'),
     batchNumber: '159763'};
 
   firstNameList: any[];
@@ -47,7 +48,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   isLoadingNameListFirst: boolean;
   isLoadingNameListSecond: boolean;
-
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService
               ) { }
@@ -255,6 +255,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       searchName = name + ' ' + size + ', ' + strength;
     }
 
+    if (name.toUpperCase().indexOf('(salt)'.toUpperCase()) >= 0) {
+      strength += ' --s/ml';
+    } else {
+      strength += '/ml';
+    }
+
     this.recipes = this.idbService.getRecipesFromIdb(GlobalConstants.indexProduct, searchName);
     this.idbService.getProductPrintData(searchName).subscribe(
       nameList => {
@@ -309,6 +315,19 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       this.getRecipeContents(tmpProduct.name, tmpProduct.commaCount, this.bottleSizeSelectedSecond, this.nicStrengthSelectedSecond);
     }
 
+  }
+
+  exportToPdf(): void {
+    const element = document.getElementById('printSection');
+    const params = {
+      margin: 0,
+      filename: this.printData.name + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {scale: 2},
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'l'}
+    };
+
+    html2pdf().from(element).set(params).save();
   }
 
 }
