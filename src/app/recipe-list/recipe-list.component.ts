@@ -332,9 +332,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     html2pdf().from(element).set(params).save();
   }
 
-  getPrintLocations() {
+  getPrintLocations(): void {
     this.printLocations = this.recipeListService.retrieveLocations();
-    console.log(this.printLocations);
   }
 
   selectEventLocation(event) {

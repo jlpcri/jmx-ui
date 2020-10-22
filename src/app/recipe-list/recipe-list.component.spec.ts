@@ -9,7 +9,7 @@ describe('RecipeListComponent', () => {
   let fixture: ComponentFixture<RecipeListComponent>;
 
   beforeEach(async(() => {
-    const recipeListServiceSpy = jasmine.createSpyObj('RecipeListService', ['retrieveAll']);
+    const recipeListServiceSpy = jasmine.createSpyObj('RecipeListService', ['retrieveAll', 'retrieveLocations']);
     const idbServiceSpy = jasmine.createSpyObj('IndexedDatabaseService', ['getRecipesFromIdb', 'init']);
     TestBed.configureTestingModule({
       declarations: [ RecipeListComponent ],

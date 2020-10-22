@@ -66,7 +66,6 @@ export class RecipeListService {
   }
 
   retrieveLocations() {
-    // const subject = new Subject<Locations>();
     let tmpAddr = '';
     const results: any[] = [];
     const options = {
