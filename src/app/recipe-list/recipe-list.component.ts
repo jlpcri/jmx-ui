@@ -87,8 +87,16 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     if (option === 'Recipe') {
       const tmpProduct = this.existInArray(this.firstNameList, 'name', item.name);
       if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
-        const indexName = GlobalConstants.indexProduct;
-        this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
+        this.recipes = this.idbService.getRecipesFromIdb(GlobalConstants.indexProduct, item.name);
+        this.idbService.getProductPrintData(item.name).subscribe(
+          nameList => {
+            this.printData.name = nameList.name;
+            this.printData.sku = nameList.sku;
+          },
+          error => {
+            console.log(error);
+          }
+        );
       } else {
         this.getSizeStrengthRadioButtons(tmpProduct, option);
       }
@@ -166,8 +174,16 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     // console.log('Selected: ', item);
     const tmpProduct = this.existInArray(this.secondNameList, 'name', item.name);
     if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
-      const indexName = GlobalConstants.indexProduct;
-      this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
+      this.recipes = this.idbService.getRecipesFromIdb(GlobalConstants.indexProduct, item.name);
+      this.idbService.getProductPrintData(item.name).subscribe(
+        nameList => {
+          this.printData.name = nameList.name;
+          this.printData.sku = nameList.sku;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     } else {
       this.getSizeStrengthRadioButtons(tmpProduct, 'Ingredients');
     }
@@ -284,6 +300,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.strengthRadioButtons = [];
 
     this.recipes = [];
+    this.printData.name = '';
   }
 
   resetSizeStrengthRecipesSecond() {
@@ -291,6 +308,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.nicStrengthSelectedSecond = '';
     this.sizeRadioButtonsSecond = [];
     this.strengthRadioButtonsSecond = [];
+    this.printData.name = '';
   }
 
   getSizeStrengthRadioButtons(tmpProduct, option: string) {
