@@ -219,7 +219,21 @@
 
 <div class="container">
   <div class="row" *ngIf="printData.sku.length > 0">
-    <div class="col-sm-4"></div>
+    <div class="col-sm-4 input-icons">
+      <i class="fas fa-search icon"></i>
+      <ng-autocomplete class="form-control input-field"
+                       [data]="printLocations"
+                       [searchKeyword]="nameListKey"
+                       [placeHolder]="'Search Store name'"
+                       (selected)="selectEventLocation($event)"
+                       [historyIdentifier]="firstNameListHistory"
+                       [debounceTime]="400"
+                       [minQueryLength]=""
+                       [itemTemplate]="itemTemplate"
+                       [notFoundTemplate]="notFoundTemplate"
+                       [(ngModel)]="searchStoreName">
+      </ng-autocomplete>
+    </div>
     <div class="col-sm-4" id="printSection" #printSection>
       <div class="table-wrapper">
         <table>
@@ -245,10 +259,9 @@
       </div>
     </div>
     <div class="col-sm-2 container">
-      <button class="btn btn-success btn-block" (click)="exportToPdf()">Create PDF</button>
+      <button class="btn btn-success btn-block" (click)="exportToPdf()">Export PDF</button>
     </div>
-    <div class="col-sm-2 container">
-    </div>
+    <div class="col-sm-2"></div>
   </div>
 </div>
 <!-- END Recipe Display -->

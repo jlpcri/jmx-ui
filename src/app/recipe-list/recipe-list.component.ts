@@ -26,10 +26,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   recipes: Recipe[] = [];
   printData: Product = {
     name: '', size: '', sku: '', strength: '',
-    storeName: 'Madvapes Headquarters',
-    storeLocation: '128 Oak Park Dr., Mooresville, NC 28115',
+    storeName: 'Alohma Bellevue',
+    storeLocation: '11527 S 36th St, Bellevue NE, 68123',
     currentDate: moment().format('L'),
     batchNumber: '159763'};
+  printLocations: any[] = [];
+  searchStoreName = '';
 
   firstNameList: any[];
   secondNameList: any[];
@@ -62,7 +64,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.saveRecipesToIdb();
       }
     });
-
+    this.getPrintLocations();
   }
 
   ngOnDestroy(): void {
@@ -328,6 +330,16 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     };
 
     html2pdf().from(element).set(params).save();
+  }
+
+  getPrintLocations() {
+    this.printLocations = this.recipeListService.retrieveLocations();
+    console.log(this.printLocations);
+  }
+
+  selectEventLocation(event) {
+    this.printData.storeName = event.name;
+    this.printData.storeLocation = event.storeLocation;
   }
 
 }

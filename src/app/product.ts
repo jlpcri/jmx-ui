@@ -8,3 +8,13 @@ export interface Product {
   batchNumber: string;
   currentDate: string;
 }
+
+export interface Locations {
+  name: string;
+  addrLine1: string;
+  addrLine2: string;
+  addrLine3: string;
+  city: string;
+  state: string;
+  zipCode: string;
+}
