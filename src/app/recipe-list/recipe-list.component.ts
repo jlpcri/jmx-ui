@@ -1,9 +1,11 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
+import * as moment from 'moment';
 
 import {Recipe} from '../recipe';
 import {RecipeListService} from './shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
 import {GlobalConstants} from '../shared/GlobalConstants';
+import {Product} from '../product';
 
 @Component({
   selector: 'app-recipe-list',
@@ -22,7 +24,14 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   searchItemSecond: any = '';
 
   recipes: Recipe[] = [];
-  productNamePrint = '';
+  printData: Product = {
+    name: '', size: '', sku: '', strength: '',
+    storeName: 'Alohma Bellevue',
+    storeLocation: '11527 S 36th St, Bellevue NE, 68123',
+    currentDate: moment().format('L'),
+    batchNumber: '159763'};
+  printLocations: any[] = [];
+  searchStoreName = '';
 
   firstNameList: any[];
   secondNameList: any[];
@@ -41,7 +50,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   isLoadingNameListFirst: boolean;
   isLoadingNameListSecond: boolean;
-
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService
               ) { }
@@ -56,7 +64,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.saveRecipesToIdb();
       }
     });
-
+    this.getPrintLocations();
   }
 
   ngOnDestroy(): void {
@@ -79,9 +87,16 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     if (option === 'Recipe') {
       const tmpProduct = this.existInArray(this.firstNameList, 'name', item.name);
       if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
-        const indexName = GlobalConstants.indexProduct;
-        this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
-        this.productNamePrint = item.name;
+        this.recipes = this.idbService.getRecipesFromIdb(GlobalConstants.indexProduct, item.name);
+        this.idbService.getProductPrintData(item.name).subscribe(
+          nameList => {
+            this.printData.name = nameList.name;
+            this.printData.sku = nameList.sku;
+          },
+          error => {
+            console.log(error);
+          }
+        );
       } else {
         this.getSizeStrengthRadioButtons(tmpProduct, option);
       }
@@ -159,9 +174,16 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     // console.log('Selected: ', item);
     const tmpProduct = this.existInArray(this.secondNameList, 'name', item.name);
     if (Object.keys(tmpProduct.attributes).length === 0 && tmpProduct.attributes.constructor === Object ) {
-      const indexName = GlobalConstants.indexProduct;
-      this.recipes = this.idbService.getRecipesFromIdb(indexName, item.name);
-      this.productNamePrint = item.name;
+      this.recipes = this.idbService.getRecipesFromIdb(GlobalConstants.indexProduct, item.name);
+      this.idbService.getProductPrintData(item.name).subscribe(
+        nameList => {
+          this.printData.name = nameList.name;
+          this.printData.sku = nameList.sku;
+        },
+        error => {
+          console.log(error);
+        }
+      );
     } else {
       this.getSizeStrengthRadioButtons(tmpProduct, 'Ingredients');
     }
@@ -228,8 +250,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   changeSizeSecond(size: string) {
-    const tmpProduct = this.existInArray(this.secondNameList, 'name', this.searchItemSecond.name);
-    const strengthButtons = tmpProduct.attributes[size]
+    let tmpProduct: any;
+    tmpProduct = this.existInArray(this.secondNameList, 'name', this.searchItemSecond.name);
+    let strengthButtons: any;
+    strengthButtons = tmpProduct.attributes[size]
       .sort((a, b) => Number(a.slice(0, a.length - 2)) - Number(b.slice(0, b.length - 2)));
 
     this.strengthRadioButtonsSecond = strengthButtons;
@@ -249,7 +273,24 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       searchName = name + ' ' + size + ', ' + strength;
     }
 
+    if (name.toUpperCase().indexOf('(salt)'.toUpperCase()) >= 0) {
+      strength += ' --s/ml';
+    } else {
+      strength += '/ml';
+    }
+
     this.recipes = this.idbService.getRecipesFromIdb(GlobalConstants.indexProduct, searchName);
+    this.idbService.getProductPrintData(searchName).subscribe(
+      nameList => {
+        this.printData.name = name;
+        this.printData.sku = nameList.sku;
+        this.printData.size = size;
+        this.printData.strength = strength;
+      },
+      error => {
+        console.log(error);
+      }
+    );
   }
 
   resetSizeStrengthRecipes() {
@@ -259,6 +300,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.strengthRadioButtons = [];
 
     this.recipes = [];
+    this.printData.name = '';
   }
 
   resetSizeStrengthRecipesSecond() {
@@ -266,6 +308,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.nicStrengthSelectedSecond = '';
     this.sizeRadioButtonsSecond = [];
     this.strengthRadioButtonsSecond = [];
+    this.printData.name = '';
   }
 
   getSizeStrengthRadioButtons(tmpProduct, option: string) {
@@ -292,6 +335,28 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       this.getRecipeContents(tmpProduct.name, tmpProduct.commaCount, this.bottleSizeSelectedSecond, this.nicStrengthSelectedSecond);
     }
 
+  }
+
+  exportToPdf(): void {
+    const element = document.getElementById('printSection');
+    const params = {
+      margin: 0,
+      filename: this.printData.name + '.pdf',
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: {scale: 2},
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'l'}
+    };
+
+    html2pdf().from(element).set(params).save();
+  }
+
+  getPrintLocations(): void {
+    this.printLocations = this.recipeListService.retrieveLocations();
+  }
+
+  selectEventLocation(event) {
+    this.printData.storeName = event.name;
+    this.printData.storeLocation = event.storeLocation;
   }
 
 }

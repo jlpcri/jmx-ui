@@ -162,7 +162,7 @@
 </div>
 
 <!-- START - Recipe Display -->
-<div class="container"  id="print-section">
+<div class="container">
   <div class="row">
     <div class="col-md-4 align-items-start">
       <!-- Juice Bottle -->
@@ -218,14 +218,50 @@
 </div>
 
 <div class="container">
-  <div class="row">
-    <div class="col-sm-10"></div>
-    <div class="col-sm-2">
-      <button type="button" class="btn btn-primary btn-lg btn-block"
-              printTitle= "{{productNamePrint}}"
-              [useExistingCss]="true"
-              printSectionId="print-section" ngxPrint>Print</button>
+  <div class="row" *ngIf="printData.name.length > 0">
+    <div class="col-sm-4 input-icons">
+      <i class="fas fa-search icon"></i>
+      <ng-autocomplete class="form-control input-field"
+                       [data]="printLocations"
+                       [searchKeyword]="nameListKey"
+                       [placeHolder]="'Search Store name'"
+                       (selected)="selectEventLocation($event)"
+                       [historyIdentifier]="firstNameListHistory"
+                       [debounceTime]="400"
+                       [minQueryLength]=""
+                       [itemTemplate]="itemTemplate"
+                       [notFoundTemplate]="notFoundTemplate"
+                       [(ngModel)]="searchStoreName">
+      </ng-autocomplete>
     </div>
+    <div class="col-sm-4" id="printSection">
+      <div class="table-wrapper">
+        <table>
+          <tr style="font-weight: bold">{{printData.storeName}}</tr>
+          <tr>{{printData.storeLocation}}</tr>
+          <tr></tr>
+          <tr>
+            <td>
+              <strong>{{printData.name}}</strong><br>
+              {{printData.size}}&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}<br>
+              {{printData.currentDate}}<br>
+              {{printData.sku}}
+            </td>
+            <td>
+              <qrcode [qrdata]="printData.sku"
+                      [elementType]="'img'"
+                      width="10"
+                      [errorCorrectionLevel]="'M'"></qrcode>
+            </td>
+          </tr>
+          <tr style="text-align: center">Lot #{{printData.batchNumber}}</tr>
+        </table>
+      </div>
+    </div>
+    <div class="col-sm-2 container">
+      <button class="btn btn-success btn-block" (click)="exportToPdf()">Export PDF</button>
+    </div>
+    <div class="col-sm-2"></div>
   </div>
 </div>
 <!-- END Recipe Display -->

@@ -3,6 +3,8 @@ import {HttpClient, HttpParams} from '@angular/common/http';
 import {IndexedDatabaseService} from '../../shared/indexed-database.service';
 import {RecipeListModel} from './recipe-list.model';
 import {ProgressService} from '../../progress-bar/shared/progress.service';
+import {Subject} from 'rxjs';
+import {Locations} from '../../product';
 
 @Injectable({
   providedIn: 'root'
@@ -19,6 +21,7 @@ export class RecipeListService {
   private totalPage = 5;
   private getTotalPageFlag = false;
   private recipeUrl = '/jmx-ui/api/productComponents/search/recipes';
+  private locationUrl = '/jmx-ui/api/locations';
 
   retrieveAll(): void {
     this.progressService.progressMessage = 'Loading Recipes ...';
@@ -60,5 +63,33 @@ export class RecipeListService {
     };
 
     retrieveNextPage();
+  }
+
+  retrieveLocations() {
+    let tmpAddr = '';
+    const results: any[] = [];
+    const options = {
+      params: new HttpParams()
+        .set('page', '0')
+        .set('size', this.size.toString())
+        .set('sort', 'name')
+    };
+    this.http.get<any>(this.locationUrl, options).subscribe(
+      resp => {
+        for (const item of resp.content) {
+          tmpAddr = item.addrLine1 + ' ' + item.addrLine2 + ', ' + item.city + ' ' + item.state + ', ' +  item.zipCode;
+          results.push({
+            name: item.name,
+            storeLocation: tmpAddr
+          });
+        }
+      },
+      error => {
+        console.log('Fetch API Locations: ', error.message);
+      }
+    );
+
+    return results;
+
   }
 }

@@ -2,6 +2,7 @@ import {Injectable} from '@angular/core';
 import {MessageService} from './message.service';
 import {Subject} from 'rxjs';
 import {GlobalConstants} from './GlobalConstants';
+import {Product} from '../product';
 
 @Injectable({
   providedIn: 'root'
@@ -148,9 +149,10 @@ export class IndexedDatabaseService {
           colorIdx++;
         }
         cursor.continue();
-      }
-      for (const item of result) {
-        item.percentage = (item.quantity / quantitySum).toFixed(2);
+      } else {
+        for (const item of result) {
+          item.percentage = (item.quantity / quantitySum).toFixed(2);
+        }
       }
     };
 
@@ -254,6 +256,45 @@ export class IndexedDatabaseService {
       size: tmpSize,
       strength: tmpStrength
     };
+  }
+
+  getProductPrintData(searchName) {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
+    const index = store.index(GlobalConstants.indexProduct);
+    const myCursor = index.openCursor(null, GlobalConstants.nextUnique);
+
+    let found = false;
+
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+
+      if (cursor) {
+        const sku = cursor.value.sku;
+        const name = cursor.value.productName;
+
+        if (name.toUpperCase().indexOf(searchName.toUpperCase()) >= 0) {
+          if (!found) {
+            found = true;
+          }
+          subject.next({
+            sku,
+            name
+          });
+        }
+        cursor.continue();
+      } else {
+        if (!found) {
+          subject.next({
+            error: 'not found'
+          });
+        }
+      }
+    };
+
+    return subject;
   }
 
 }
