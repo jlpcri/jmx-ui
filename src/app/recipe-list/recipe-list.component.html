@@ -14,7 +14,7 @@
         </div>
 
         <div class="row input-icons">
-          <i class="fas fa-search icon"></i>
+          <span class="fas fa-search icon"></span>
           <ng-autocomplete class="form-control input-field"
                            [data]="firstNameList"
                            [searchKeyword]="nameListKey"
@@ -93,7 +93,7 @@
   <div class="row">
     <div class="col-md-8 form-group">
       <div class="row input-icons">
-        <i class="fas fa-search icon"></i>
+        <span class="fas fa-search icon"></span>
         <ng-autocomplete class="form-control input-field"
                          [data]="secondNameList"
                          [searchKeyword]="nameListKey"
@@ -205,7 +205,7 @@
             </thead>
             <tbody>
             <tr *ngFor="let recipe of recipes">
-              <td class="d-flex"><i class="fas fa-circle ing-icon ing-color-{{recipe.color}}"></i> <span class="d-flex">{{recipe.ingredients}}</span></td>
+              <td class="d-flex"><span class="fas fa-circle ing-icon ing-color-{{recipe.color}}"></span> <span class="d-flex">{{recipe.ingredients}}</span></td>
               <td>{{recipe.quantity}} mL</td>
               <td>{{recipe.percentage * 100}}%</td>
             </tr>
@@ -220,7 +220,7 @@
 <div class="container">
   <div class="row" *ngIf="printData.name.length > 0">
     <div class="col-sm-4 input-icons">
-      <i class="fas fa-search icon"></i>
+      <span class="fas fa-search icon"></span>
       <ng-autocomplete class="form-control input-field"
                        [data]="printLocations"
                        [searchKeyword]="nameListKey"
