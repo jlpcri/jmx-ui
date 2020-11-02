@@ -1,0 +1,13 @@
+<div class="container">
+  <ngb-alert
+    *ngFor="let alert of alertService.alerts"
+    dismissible="true"
+    (close)="alertService.remove(alert)"
+    type="danger"
+  >
+    <strong>Error:</strong> {{alert}}
+  </ngb-alert>
+
+  <button *ngIf="isDevMode()" (click)="showMessage()">Test Error Message</button>
+</div>
+
