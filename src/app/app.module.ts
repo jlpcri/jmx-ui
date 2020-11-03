@@ -10,8 +10,10 @@ import { AutocompleteLibModule } from 'angular-ng-autocomplete';
 import { HeaderComponent } from './header/header.component';
 import { GuideComponent } from './guide/guide.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
-import {NgbDropdownModule, NgbProgressbarModule} from '@ng-bootstrap/ng-bootstrap';
-import {QRCodeModule} from 'angularx-qrcode';
+import { AlertsComponent } from './alerts/alerts.component';
+
+import { NgbDropdownModule, NgbProgressbarModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import { QRCodeModule } from 'angularx-qrcode';
 
 @NgModule({
   declarations: [
@@ -19,7 +21,8 @@ import {QRCodeModule} from 'angularx-qrcode';
     RecipeListComponent,
     HeaderComponent,
     GuideComponent,
-    ProgressBarComponent
+    ProgressBarComponent,
+    AlertsComponent
   ],
   imports: [
     BrowserModule,
@@ -28,7 +31,8 @@ import {QRCodeModule} from 'angularx-qrcode';
     AutocompleteLibModule,
     NgbProgressbarModule,
     NgbDropdownModule,
-    QRCodeModule
+    QRCodeModule,
+    NgbAlertModule
   ],
   providers: [],
   bootstrap: [AppComponent]
