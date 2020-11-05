@@ -4,8 +4,8 @@ export class GlobalConstants {
   public static nextUnique = 'nextunique';
   public static idbReadOnly = 'readonly';
   public static idbReadWrite = 'readwrite';
-  public static nameListInitial = {
+  public static nameListInitial = [{
     id: 0,
     name: '',
-  };
+  }];
 }

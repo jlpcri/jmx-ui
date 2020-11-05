@@ -12,7 +12,7 @@ import { GuideComponent } from './guide/guide.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { AlertsComponent } from './alerts/alerts.component';
 
-import { NgbDropdownModule, NgbProgressbarModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import {NgbDropdownModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule} from '@ng-bootstrap/ng-bootstrap';
 import { QRCodeModule } from 'angularx-qrcode';
 
 @NgModule({
@@ -24,16 +24,17 @@ import { QRCodeModule } from 'angularx-qrcode';
     ProgressBarComponent,
     AlertsComponent
   ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    AutocompleteLibModule,
-    NgbProgressbarModule,
-    NgbDropdownModule,
-    QRCodeModule,
-    NgbAlertModule
-  ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        FormsModule,
+        AutocompleteLibModule,
+        NgbProgressbarModule,
+        NgbDropdownModule,
+        QRCodeModule,
+        NgbAlertModule,
+        NgbDatepickerModule
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })
