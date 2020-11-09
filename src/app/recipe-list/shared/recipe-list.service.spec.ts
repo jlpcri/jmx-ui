@@ -1,22 +1,26 @@
 import { TestBed } from '@angular/core/testing';
 
 import { RecipeListService } from './recipe-list.service';
-import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
-import {HttpClient} from '@angular/common/http';
 import {RecipeListModel} from './recipe-list.model';
+import {ApiService} from '../../api/api.service';
+import {Observable, of} from 'rxjs';
+import {HttpParams} from '@angular/common/http';
 
 describe('RecipListService', () => {
   let service: RecipeListService;
-  let httpClient: HttpClient;
-  let httpTestingController: HttpTestingController;
+  let apiServiceSpy: jasmine.SpyObj<ApiService>;
 
   beforeEach(() => {
+    const apiSpy = jasmine.createSpyObj('ApiService', ['get']);
+
     TestBed.configureTestingModule({
-      imports: [ HttpClientTestingModule ]
+      providers: [
+        RecipeListService,
+        { provide: ApiService, useValue: apiSpy }
+      ]
     });
     service = TestBed.inject(RecipeListService);
-    httpClient = TestBed.inject(HttpClient);
-    httpTestingController = TestBed.inject(HttpTestingController);
+    apiServiceSpy = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
   });
 
   it('should be created', () => {
@@ -24,22 +28,19 @@ describe('RecipListService', () => {
   });
 
   it('should fetch all recipes', () => {
-    const url = '/jmx-ui/api/productComponents/search/recipes';
-    const params = 'projection=recipeProjection&sourceSystem=amvpos&status=active&size=1000&page=';
     const recipeList: RecipeListModel = {
-      content: [],
-      page: { totalPages: 1 }
+      totalRecipes: 0,
+      recipes: []
     };
-    service.retrieveAll();
-    let req = httpTestingController.expectOne(`${url}?${params}0`);
-    req.flush(recipeList);
-    expect(req.request.method).toEqual('GET');
 
-    req = httpTestingController.expectOne(`${url}?${params}1`);
-    req.flush(recipeList);
+    apiServiceSpy.get.and.callFake((url: string, options: { params: HttpParams }): Observable<any> => {
+      expect(url).toBe('/recipes');
+      expect(options.params.get('sourceSystem')).toBe('amvpos');
+      expect(options.params.get('status')).toBe('active');
+      return of(recipeList);
+    });
 
-    req = httpTestingController.expectOne(`${url}?${params}2`);
-    req.flush(recipeList);
+    service.retrieveAllRecipes();
 
   });
 

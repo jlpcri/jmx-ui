@@ -1,5 +1,4 @@
 import {Component, OnInit} from '@angular/core';
-import {IndexedDatabaseService} from './shared/indexed-database.service';
 
 @Component({
   selector: 'app-root',
