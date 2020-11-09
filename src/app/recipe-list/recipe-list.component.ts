@@ -204,7 +204,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   saveRecipesToIdb(): void {
-    this.recipeListService.retrieveAllRecipes();
+    this.recipeListService.saveRecipesToIdb();
   }
 
   getProductNameListWithSizeStrength(resultList, nameList) {

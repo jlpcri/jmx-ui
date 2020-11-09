@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {MessageService} from './message.service';
 import {Subject} from 'rxjs';
 import {GlobalConstants} from './GlobalConstants';
-import {Product} from '../product';
+import {RecipeModel} from '../recipe-list/shared/recipe.model';
 
 @Injectable({
   providedIn: 'root'
@@ -40,8 +40,9 @@ export class IndexedDatabaseService {
     request.onupgradeneeded = (event: any) => {
       const db = event.target.result;
       const objectStore = db.createObjectStore(this.objectStoreName, {keyPath: 'id', autoIncrement: true});
-      objectStore.createIndex(GlobalConstants.indexProduct, 'productName', {unique: false});
-      objectStore.createIndex(GlobalConstants.indexComponent, 'componentName', {unique: false});
+      objectStore.createIndex(GlobalConstants.indexProduct, 'name', {unique: false});
+      objectStore.createIndex(GlobalConstants.indexLabelKey, 'labelKey', {unique: false});
+      objectStore.createIndex(GlobalConstants.indexProductKey, 'key', {unique: false});
       dbExisted = false;
 
     };
@@ -49,17 +50,22 @@ export class IndexedDatabaseService {
 
   syncRecipes(data) {
     for (const item of data) {
-      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity)
+      this.addRecipe(item)
         .then();
     }
   }
 
-  async addRecipe(sku: string, productName: string, componentName: string, quantity: number) {
+  async addRecipe(product: RecipeModel) {
     const tmp = {
-      sku,
-      productName,
-      componentName,
-      quantity
+      sku: product.sku,
+      name: product.name,
+      label: product.label,
+      labelKey: product.labelKey,
+      nicStrength: product.nicStrength,
+      bottleSize: product.bottleSize,
+      key: product.key,
+      ingredients: product.ingredients,
+      saltNic: product.saltNic
     };
 
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
