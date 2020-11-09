@@ -49,6 +49,7 @@ yarn-error.log
 testem.log
 /typings
 .scannerwork/
+.karma*
 
 # System Files
 .DS_Store
