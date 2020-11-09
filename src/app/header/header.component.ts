@@ -28,7 +28,7 @@ export class HeaderComponent implements OnInit {
   saveRecipesToIdb() {
     this.idbService.init(dbExisted => {
       if (!dbExisted) {
-        this.recipeListService.retrieveAll();
+        this.recipeListService.retrieveAllRecipes();
       } else {
         console.log('IndexDB exists. No need loading');
       }
