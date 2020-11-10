@@ -18,7 +18,7 @@
           <ng-autocomplete class="form-control input-field"
                            [data]="firstNameList"
                            [searchKeyword]="nameListKey"
-                           [placeHolder]=" searchOptionSelected === 'Recipe' ? 'Search Recipe(Product) Name - 3 chars minimum': 'Search Ingredients(Component) Name - 3 chars minimum' "
+                           [placeHolder]=" searchOptionSelected === 'Recipe' ? 'Search Recipe(Product) Name': 'Search Ingredients(Component) Name' "
                            (selected)="selectEvent($event, searchOptionSelected)"
                            (inputChanged)="onChangeSearch($event, searchOptionSelected)"
                            (inputCleared)="onInputCleared()"
@@ -26,7 +26,7 @@
                            [historyIdentifier]="firstNameListHistory"
                            [debounceTime]="400"
                            [isLoading]="isLoadingNameListFirst"
-                           [minQueryLength]="3"
+                           [minQueryLength]="0"
                            [itemTemplate]="itemTemplate"
                            [notFoundTemplate]="notFoundTemplate"
                            [(ngModel)]="searchItem">
@@ -80,11 +80,11 @@
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Bottle Size:</span><br>
-      <h2 class="font-weight-bold">{{bottleSizeSelected}}</h2>
+      <h2 class="font-weight-bold">{{bottleSizeSelected}} ml</h2>
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Nicotine Strength:</span><br>
-      <h2 class="font-weight-bold">{{nicStrengthSelected}}</h2>
+      <h2 class="font-weight-bold">{{nicStrengthSelected}} mg</h2>
     </div>
   </div>
 </div>
@@ -243,7 +243,7 @@
           <tr>
             <td>
               <strong>{{printData.name}}</strong><br>
-              {{printData.size}}&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}<br>
+              {{printData.size}}ml&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}mg<br>
               {{printData.currentDate}}<br>
               {{printData.sku}}
             </td>

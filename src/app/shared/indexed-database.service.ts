@@ -99,7 +99,7 @@ export class IndexedDatabaseService {
         name = cursor.value.productName;
 
         if (componentName === ingredients) {
-          subject.next(this.getProductDetailFromName(name));
+          // subject.next(this.getProductDetailFromName(name));
         }
         cursor.continue();
       }
@@ -125,7 +125,7 @@ export class IndexedDatabaseService {
   }
 
   getRecipesFromIdb(indexName: string, key: string) {
-    const result = [];
+    const recipes = [];
     let colorIdx = 1;
     const colorTotal = 20;
     let tmpColor = '';
@@ -136,33 +136,29 @@ export class IndexedDatabaseService {
       .objectStore(this.objectStoreName)
       .index(indexName);
 
-    index.openCursor().onsuccess = event => {
-      const cursor = event.target.result;
-      if (cursor) {
-        if (cursor.value.productName === key) {
-          if (cursor.value.componentName.toLowerCase().indexOf('nicotine') >= 0) {
-            tmpColor = 'nicotine';
-          } else {
-            tmpColor = (colorIdx % colorTotal).toString();
-          }
-          result.push({
-            ingredients: cursor.value.componentName,
-            quantity: (cursor.value.quantity).toFixed(2),
-            percentage: 0,
-            color: tmpColor,
-          });
-          quantitySum += parseFloat(cursor.value.quantity);
-          colorIdx++;
+    const getRequest = index.get(key);
+    getRequest.onsuccess = () => {
+      for (const item of getRequest.result.ingredients) {
+        if (item.name.toLowerCase().indexOf('nicotine') >= 0) {
+          tmpColor = 'nicotine';
+        } else {
+          tmpColor = (colorIdx % colorTotal).toString();
         }
-        cursor.continue();
-      } else {
-        for (const item of result) {
-          item.percentage = (item.quantity / quantitySum).toFixed(2);
-        }
+        recipes.push({
+          ingredients: item.name,
+          quantity: item.quantity,
+          percentage: 0,
+          color: tmpColor
+        });
+        quantitySum += parseFloat(item.quantity);
+        colorIdx++;
+      }
+      for (const item of recipes) {
+        item.percentage = (item.quantity / quantitySum).toFixed(2);
       }
     };
+    return recipes;
 
-    return result;
   }
 
   getProdComponentNames(indexName, search) {
@@ -177,17 +173,20 @@ export class IndexedDatabaseService {
     let name = '';
     let idx = 0;
 
-    if (indexName === GlobalConstants.indexProduct) {
+    if (indexName === GlobalConstants.indexLabelKey) {
       myCursor.onsuccess = event => {
         const cursor = event.target.result;
 
         if (cursor) {
-          name = cursor.value.productName;
-          if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0) {
+          name = cursor.value.labelKey;
+          if (name.indexOf(search.toLowerCase()) >= 0) {
             if (!found) {
               found = true;
             }
-            subject.next(this.getProductDetailFromName(name));
+            subject.next({
+              label: cursor.value.label,
+              labelKey: cursor.value.labelKey
+            });
           }
           cursor.continue();
         } else {
@@ -230,38 +229,32 @@ export class IndexedDatabaseService {
 
   }
 
-  getProductDetailFromName(name: string) {
-    let nameArr: any[];
-    let tmpName: string;
-    let tmpSize: string;
-    let tmpStrength: string;
-    let tmpCommaCounts = '';
+  getProductSizeNicStrength(search) {
+    const subject = new Subject<any>();
 
-    nameArr = name.split(/[\s,]+/);
-    // todo: size with ohm, strength with pack
-    if ((nameArr[nameArr.length - 2].toLowerCase().indexOf('ml') < 0)
-      || (nameArr[nameArr.length - 1].toLowerCase().indexOf('mg')) < 0) {
-      tmpName = name;
-      tmpSize = '';
-      tmpStrength = '';
-    } else {
-      tmpName = nameArr.slice(0, nameArr.length - 2).join(' ');
-      tmpSize = nameArr[nameArr.length - 2];
-      tmpStrength = nameArr[nameArr.length - 1];
-      if ((name.match(/,/g) || []).length > 1 ) {
-        // todo: need check different locations of comma
-        tmpCommaCounts = '2';
-      } else {
-        tmpCommaCounts = '1';
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
+    const index = store.index(GlobalConstants.indexLabelKey);
+    const myCursor = index.openCursor(null);
+
+    let labelKey = '';
+
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+      if (cursor) {
+        labelKey = cursor.value.labelKey;
+        if (labelKey === search) {
+          subject.next({
+            bottleSize: cursor.value.bottleSize,
+            nicStrength: cursor.value.nicStrength
+          });
+        }
+        cursor.continue();
       }
-    }
-
-    return {
-      name: tmpName,
-      commaCount: tmpCommaCounts,
-      size: tmpSize,
-      strength: tmpStrength
     };
+
+    return subject;
+
   }
 
   getProductPrintData(searchName) {
@@ -269,35 +262,16 @@ export class IndexedDatabaseService {
 
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
     const store = tx.objectStore(this.objectStoreName);
-    const index = store.index(GlobalConstants.indexProduct);
-    const myCursor = index.openCursor(null, GlobalConstants.nextUnique);
+    const index = store.index(GlobalConstants.indexProductKey);
 
-    let found = false;
-
-    myCursor.onsuccess = event => {
-      const cursor = event.target.result;
-
-      if (cursor) {
-        const sku = cursor.value.sku;
-        const name = cursor.value.productName;
-
-        if (name.toUpperCase().indexOf(searchName.toUpperCase()) >= 0) {
-          if (!found) {
-            found = true;
-          }
-          subject.next({
-            sku,
-            name
-          });
-        }
-        cursor.continue();
-      } else {
-        if (!found) {
-          subject.next({
-            error: 'not found'
-          });
-        }
-      }
+    const getRequest = index.get(searchName);
+    getRequest.onsuccess = () => {
+      subject.next({
+        name: getRequest.result.name,
+        sku: getRequest.result.sku,
+        size: getRequest.result.bottleSize,
+        strength: getRequest.result.nicStrength
+      });
     };
 
     return subject;
