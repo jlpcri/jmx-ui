@@ -12,7 +12,10 @@
             <label class="form-check-label custom-control-label" for="search_{{each.value}}">{{each.value}} Name</label>
           </div>
         </div>
-
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8 form-group">
         <div class="row input-icons">
           <span class="fas fa-search icon"></span>
           <ng-autocomplete class="form-control input-field"
@@ -42,32 +45,21 @@
       </div>
 
       <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
-        <span class="custom-label-title">Bottle Size</span>
-        <div class="form-check custom-radio" *ngFor="let each of sizeRadioButtons">
-          <input class="form-check-input custom-control-input"
-                 type="radio"
-                 id="size{{each}}"
-                 name="bottleSize"
-                 value="{{each}}"
-                 [(ngModel)]="bottleSizeSelected"
-                 (ngModelChange)="changeSize($event)" />
-          <label class="form-check-label custom-control-label" for="size{{each}}">{{each}}</label>
-        </div>
+        <select class="form-check-input"
+                (change)="changeSize(bottleSizeSelected)"
+                [(ngModel)]="bottleSizeSelected">
+          <option value="">--Bottle Size--</option>
+          <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
+        </select>
       </div>
       <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
-        <span class="custom-label-title">Nicotine Strength</span>
-        <div class="form-check custom-radio" *ngFor="let strength of strengthRadioButtons">
-          <input class="form-check-input custom-control-input"
-                 type="radio"
-                 id="strength{{strength}}"
-                 name="nicStrength"
-                 value="{{strength}}"
-                 [(ngModel)]="nicStrengthSelected"
-                 (ngModelChange)="changeStrength($event)" />
-          <label class="form-check-label custom-control-label" for="strength{{strength}}">{{strength}}</label>
-        </div>
+        <select class="form-check-input"
+                (change)="changeStrength(nicStrengthSelected)"
+                [(ngModel)]="nicStrengthSelected">
+          <option value="">--Nic Strength--</option>
+          <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
+        </select>
       </div>
-
     </div>
   </div>
 </div>
@@ -80,12 +72,13 @@
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Bottle Size:</span><br>
-      <h2 class="font-weight-bold">{{bottleSizeSelected}}mL</h2>
+      <h2 class="font-weight-bold" *ngIf="bottleSizeSelected.length > 0; else sizeStrengthNoValue">{{bottleSizeSelected}}mL</h2>
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Nicotine Strength:</span><br>
-      <h2 class="font-weight-bold">{{nicStrengthSelected}}mg</h2>
+      <h2 class="font-weight-bold" *ngIf="nicStrengthSelected.length > 0; else sizeStrengthNoValue">{{nicStrengthSelected}}mg</h2>
     </div>
+    <ng-template #sizeStrengthNoValue></ng-template>
   </div>
 </div>
 
@@ -114,30 +107,21 @@
     </div>
 
     <div class="col-md-2 form-group">
-      <span class="custom-label-title">Bottle Size</span>
-      <div class="form-check custom-radio" *ngFor="let each of sizeRadioButtonsSecond">
-        <input class="form-check-input custom-control-input"
-               type="radio"
-               id="size2nd{{each}}"
-               name="bottleSize2nd"
-               value="{{each}}"
-               [(ngModel)]="bottleSizeSelectedSecond"
-               (ngModelChange)="changeSizeSecond($event)" />
-        <label class="form-check-label custom-control-label" for="size2nd{{each}}">{{each}}</label>
-      </div>
+      <select class="form-check-input"
+              (change)="changeSizeSecond(bottleSizeSelectedSecond)"
+              [(ngModel)]="bottleSizeSelectedSecond">
+        <option value="">--Bottle Size--</option>
+        <option *ngFor="let each of sizeRadioButtonsSecond" [value]="each">{{each}}mL</option>
+      </select>
     </div>
+
     <div class="col-md-2 form-group">
-      <span class="custom-label-title">Nicotine Strength</span>
-      <div class="form-check custom-radio" *ngFor="let strength of strengthRadioButtonsSecond">
-        <input class="form-check-input custom-control-input"
-               type="radio"
-               id="strength2nd{{strength}}"
-               name="nicStrength2nd"
-               value="{{strength}}"
-               [(ngModel)]="nicStrengthSelectedSecond"
-               (ngModelChange)="changeStrengthSecond($event)" />
-        <label class="form-check-label custom-control-label" for="strength2nd{{strength}}">{{strength}}</label>
-      </div>
+      <select class="form-check-input"
+              (change)="changeStrengthSecond(nicStrengthSelectedSecond)"
+              [(ngModel)]="nicStrengthSelectedSecond">
+        <option value="">--Nic Strength--</option>
+        <option *ngFor="let each of strengthRadioButtonsSecond" [value]="each">{{each}}mg</option>
+      </select>
     </div>
 
   </div>
@@ -150,12 +134,13 @@
       </div>
       <div class="col-md-2">
         <span class="custom-label-title">Bottle Size:</span><br>
-        <h2 class="font-weight-bold">{{bottleSizeSelectedSecond}}</h2>
+        <h2 class="font-weight-bold" *ngIf="bottleSizeSelectedSecond.length > 0; else sizeStrengthNoValue">{{bottleSizeSelectedSecond}}mL</h2>
       </div>
       <div class="col-md-2">
         <span class="custom-label-title">Nicotine Strength:</span><br>
-        <h2 class="font-weight-bold">{{nicStrengthSelectedSecond}}</h2>
+        <h2 class="font-weight-bold" *ngIf="nicStrengthSelectedSecond.length > 0; else sizeStrengthNoValue">{{nicStrengthSelectedSecond}}mg</h2>
       </div>
+      <ng-template #sizeStrengthNoValue></ng-template>
     </div>
   </div>
 
@@ -219,23 +204,26 @@
 
 <div class="container">
   <div class="row" *ngIf="printData.name.length > 0">
-    <div class="col-sm-4 input-icons">
-      <span class="fas fa-search icon"></span>
-      <ng-autocomplete class="form-control input-field"
-                       [data]="printLocations"
-                       [searchKeyword]="nameListKey"
-                       [placeHolder]="'Search Store name'"
-                       (selected)="selectEventLocation($event)"
-                       [historyIdentifier]="firstNameListHistory"
-                       [debounceTime]="400"
-                       [minQueryLength]=""
-                       [itemTemplate]="itemTemplate"
-                       [notFoundTemplate]="notFoundTemplate"
-                       [(ngModel)]="searchStoreName">
-      </ng-autocomplete>
+    <div class="col-sm-3">
     </div>
-    <div class="col-sm-4" id="printSection">
-      <div class="table-wrapper">
+    <div class="col-sm-6">
+      <div class="input-icons">
+        <span class="fas fa-search icon"></span>
+        <ng-autocomplete class="form-control input-field"
+                         [data]="printLocations"
+                         [searchKeyword]="nameListKey"
+                         [placeHolder]="'Search Store name'"
+                         (selected)="selectEventLocation($event)"
+                         [historyIdentifier]="firstNameListHistory"
+                         [debounceTime]="400"
+                         [minQueryLength]=""
+                         [itemTemplate]="itemTemplate"
+                         [notFoundTemplate]="notFoundTemplate"
+                         [(ngModel)]="searchStoreName">
+        </ng-autocomplete>
+      </div>
+
+      <div class="table-wrapper" id="printSection">
         <table>
           <tr style="font-weight: bold">{{printData.storeName}}</tr>
           <tr>{{printData.storeLocation}}</tr>
@@ -257,11 +245,12 @@
           <tr style="text-align: center">Lot #{{printData.batchNumber}}</tr>
         </table>
       </div>
+      <div class="container">
+        <button class="btn btn-success" style="float: right;" (click)="exportToPdf()">EXPORT LABEL</button>
+      </div>
     </div>
-    <div class="col-sm-2 container">
-      <button class="btn btn-success btn-block" (click)="exportToPdf()">Export PDF</button>
+    <div class="col-sm-3">
     </div>
-    <div class="col-sm-2"></div>
   </div>
 </div>
 <!-- END Recipe Display -->
