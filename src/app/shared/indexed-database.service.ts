@@ -82,24 +82,27 @@ export class IndexedDatabaseService {
     }
   }
 
-  getProductNameListByComponent(ingredients) {
+  getProductNameListByComponent(ingredientName) {
     const subject = new Subject<any>();
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
     const store = tx.objectStore(this.objectStoreName);
-    const index = store.index(GlobalConstants.indexComponent);
-    const myCursor = index.openCursor();
+    const index = store.index(GlobalConstants.indexLabelKey);
+    const myCursor = index.openCursor(null, GlobalConstants.nextUnique);
 
-    let name = '';
-    let componentName = '';
+    let ingredients = [];
 
     myCursor.onsuccess = event => {
       const cursor = event.target.result;
       if (cursor) {
-        componentName = cursor.value.componentName;
-        name = cursor.value.productName;
-
-        if (componentName === ingredients) {
-          // subject.next(this.getProductDetailFromName(name));
+        ingredients = cursor.value.ingredients;
+        for (const item of ingredients) {
+          if (item.name === ingredientName) {
+            subject.next({
+              label: cursor.value.label,
+              labelKey: cursor.value.labelKey
+            });
+            break;
+          }
         }
         cursor.continue();
       }
@@ -161,69 +164,84 @@ export class IndexedDatabaseService {
 
   }
 
-  getProdComponentNames(indexName, search) {
+  getProductNameList(search) {
     const subject = new Subject<any>();
 
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
     const store = tx.objectStore(this.objectStoreName);
-    const index = store.index(indexName);
+    const index = store.index(GlobalConstants.indexLabelKey);
     const myCursor = index.openCursor(null, GlobalConstants.nextUnique);
 
     let found = false;
-    let name = '';
+    let labelKey = '';
+
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+
+      if (cursor) {
+        labelKey = cursor.value.labelKey;
+        if (labelKey.indexOf(search.toLowerCase()) >= 0) {
+          if (!found) {
+            found = true;
+          }
+          subject.next({
+            label: cursor.value.label,
+            labelKey: cursor.value.labelKey
+          });
+        }
+        cursor.continue();
+      } else {
+        if (!found) {
+          subject.next({
+            error: 'not found'
+          });
+        }
+      }
+    };
+
+    return subject;
+
+  }
+
+  getComponentNameList(search) {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
+    const index = store.index(GlobalConstants.indexLabelKey);
+    const myCursor = index.openCursor();
+
+    let found = false;
+    let ingredients = [];
     let idx = 0;
 
-    if (indexName === GlobalConstants.indexLabelKey) {
-      myCursor.onsuccess = event => {
-        const cursor = event.target.result;
+    // get componentNameList
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
 
-        if (cursor) {
-          name = cursor.value.labelKey;
-          if (name.indexOf(search.toLowerCase()) >= 0) {
-            if (!found) {
-              found = true;
-            }
-            subject.next({
-              label: cursor.value.label,
-              labelKey: cursor.value.labelKey
-            });
-          }
-          cursor.continue();
-        } else {
-          if (!found) {
-            subject.next({
-              error: 'not found'
-            });
-          }
-        }
-      };
-    } else {
-      // get componentNameList
-      myCursor.onsuccess = event => {
-        const cursor = event.target.result;
-
-        if (cursor) {
-          name = cursor.value.componentName;
-          if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0) {
+      if (cursor) {
+        ingredients = cursor.value.ingredients;
+        for (const item of ingredients) {
+          if (item.name.toLowerCase().indexOf(search.toLowerCase()) >= 0) {
             if (!found) {
               found = true;
             }
             subject.next({
               id: idx,
-              name
+              name: item.name,
             });
             idx++;
           }
-          cursor.continue();
-        } else {
-          if (!found) {
-            subject.next({
-              error: 'not found'
-            });
-          }
         }
-      };
-    }
+        cursor.continue();
+      } else {
+        if (!found) {
+          subject.next({
+            error: 'not found'
+          });
+        }
+      }
+    };
 
     return subject;
 
