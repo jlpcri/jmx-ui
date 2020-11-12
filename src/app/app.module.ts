@@ -8,11 +8,11 @@ import { FormsModule } from '@angular/forms';
 import { AutocompleteLibModule } from 'angular-ng-autocomplete';
 
 import { HeaderComponent } from './header/header.component';
-import { GuideComponent } from './guide/guide.component';
+import { BottleScanComponent } from './bottle-scan/bottle-scan.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { AlertsComponent } from './alerts/alerts.component';
 
-import { NgbDropdownModule, NgbProgressbarModule, NgbAlertModule } from '@ng-bootstrap/ng-bootstrap';
+import {NgbDropdownModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule, NgbPopoverModule} from '@ng-bootstrap/ng-bootstrap';
 import { QRCodeModule } from 'angularx-qrcode';
 
 @NgModule({
@@ -20,20 +20,22 @@ import { QRCodeModule } from 'angularx-qrcode';
     AppComponent,
     RecipeListComponent,
     HeaderComponent,
-    GuideComponent,
+    BottleScanComponent,
     ProgressBarComponent,
     AlertsComponent
   ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    AutocompleteLibModule,
-    NgbProgressbarModule,
-    NgbDropdownModule,
-    QRCodeModule,
-    NgbAlertModule
-  ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        FormsModule,
+        AutocompleteLibModule,
+        NgbProgressbarModule,
+        NgbDropdownModule,
+        QRCodeModule,
+        NgbAlertModule,
+        NgbDatepickerModule,
+        NgbPopoverModule
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })

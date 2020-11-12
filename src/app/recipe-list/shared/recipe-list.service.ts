@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {HttpParams} from '@angular/common/http';
 import {IndexedDatabaseService} from '../../shared/indexed-database.service';
 import {ApiService} from '../../api/api.service';
 import {Observable, Subject} from 'rxjs';
@@ -62,6 +62,13 @@ export class RecipeListService {
     return allRecipesSubject;
   }
 
+  saveRecipesToIdb() {
+    this.retrieveAllRecipes().subscribe(
+      data => {
+        this.idbService.syncRecipes(data);
+      }
+    );
+  }
   retrieveLocations() {
     const results: any[] = [];
     const options = {
