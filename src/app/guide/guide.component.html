@@ -2,64 +2,16 @@
   <div class="container">
     <div class="row">
       <div class="col-md-8">
-        <button class="btn btn-outline-info mb-2 mr-2" (click)="openContent(introduction)">Introduction</button>
-        <button class="btn btn-outline-info mb-2 mr-2" (click)="openContent(steps)">Steps</button>
       </div>
       <div class="col-md-4">
-        <button class="btn btn-outline-info mb-2 mr-2" (click)="openBottleScan(bottleScan)">Bottle Scan</button>
+        <button class="btn btn-danger btn-lg mb-2 mr-2"  (click)="openBottleScan(bottleScan)">SCAN NEW BOTTLE</button>
         <br>
       </div>
     </div>
 
-    <ng-template #introduction let-modal>
-      <div class="modal-header">
-        <h4 class="modal-title">Introduction</h4>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>Vapes, vaporizers, vape pens, hookah pens, electronic cigarettes (e-cigarettes or e-cigs), and e-pipes are some of the many terms used to describe electronic nicotine delivery systems (ENDS). ENDS are noncombustible tobacco products.<br>
-          These products use an “e-liquid” that may contain nicotine, as well as varying compositions of flavorings, propylene glycol, vegetable glycerin, and other ingredients. The liquid is heated to create an aerosol that the user inhales.<br>
-          ENDS may be manufactured to look like conventional cigarettes, cigars, or pipes. Some resemble pens or USB flash drives. Larger devices, such as tank systems or mods, bear little or no resemblance to cigarettes.</p>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
-      </div>
-    </ng-template>
-
-    <ng-template #steps let-modal>
-      <div class="modal-header">
-        <h4 class="modal-title">Steps</h4>
-        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <ol>
-          <li>Search option set Recipe Nam</li>
-          <ul>
-            <li>Input search string</li>
-            <li>Select Recipe from dropdown list</li>
-            <li>Choose Radio Buttons of Size/Strength</li>
-          </ul>
-          <li>Search option set Ingredients Name</li>
-          <ul>
-            <li>Select Ingredient from first dropdown</li>
-            <li>Input search string</li>
-            <li>Select Recipe from second dropdown</li>
-            <li>Choose Radio Buttons of Size/Strength</li>
-          </ul>
-        </ol>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
-      </div>
-    </ng-template>
-
     <ng-template #bottleScan let-modal>
       <div class="modal-header">
-        <h4 class="modal-title" id="modal-bottleScan-title">960ml Bottle Scan</h4>
+        <h4 class="modal-title" id="modal-bottleScan-title">Scan A New 960mL Bottle</h4>
         <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
           <span aria-hidden="true">&times;</span>
         </button>
@@ -67,6 +19,11 @@
       <div class="modal-body">
         <form>
           <div class="form-group">
+            <p>
+              Look for a label on the new 960mL liquid bottle. It should be located on the bottom of the bottle. Scan the barcode.<br>
+              <strong>Note: If the barcode isn't scanning, you can enter in the barcode manually.</strong>
+            </p>
+
             <label for="scanProductName">Product Name</label>
             <input id="scanProductName" [(ngModel)]="scanData.productName" name="scanProductName" class="form-control" placeholder="Product Name">
 
@@ -93,8 +50,5 @@
         <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
       </div>
     </ng-template>
-
-
-
   </div>
 </div>

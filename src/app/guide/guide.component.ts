@@ -1,5 +1,5 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
-import {NgbModal, ModalDismissReasons} from '@ng-bootstrap/ng-bootstrap';
+import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-guide',
@@ -23,12 +23,8 @@ export class GuideComponent implements OnInit {
   ngOnInit(): void {
   }
 
-  openContent(content) {
-    this.modalService.open(content, {scrollable: true});
-  }
-
   openBottleScan(content) {
-    const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title'});
+    const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
     modalRef.result.then(
       (result) => {
         this.closeResult = `Closed with: ${result}`;
