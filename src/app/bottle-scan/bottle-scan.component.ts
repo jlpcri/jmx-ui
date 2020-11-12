@@ -3,11 +3,11 @@ import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 
 @Component({
   selector: 'app-guide',
-  templateUrl: './guide.component.html',
-  styleUrls: ['./guide.component.css'],
+  templateUrl: './bottle-scan.component.html',
+  styleUrls: ['./bottle-scan.component.css'],
   encapsulation: ViewEncapsulation.None
 })
-export class GuideComponent implements OnInit {
+export class BottleScanComponent implements OnInit {
   closeResult: string;
 
   @Input() public scanData = {
