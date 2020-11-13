@@ -14,6 +14,7 @@ import { AlertsComponent } from './alerts/alerts.component';
 
 import {NgbDropdownModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule, NgbPopoverModule} from '@ng-bootstrap/ng-bootstrap';
 import { QRCodeModule } from 'angularx-qrcode';
+import {NgxPrintModule} from 'ngx-print';
 
 @NgModule({
   declarations: [
@@ -24,18 +25,19 @@ import { QRCodeModule } from 'angularx-qrcode';
     ProgressBarComponent,
     AlertsComponent
   ],
-    imports: [
-        BrowserModule,
-        HttpClientModule,
-        FormsModule,
-        AutocompleteLibModule,
-        NgbProgressbarModule,
-        NgbDropdownModule,
-        QRCodeModule,
-        NgbAlertModule,
-        NgbDatepickerModule,
-        NgbPopoverModule
-    ],
+  imports: [
+    BrowserModule,
+    HttpClientModule,
+    FormsModule,
+    AutocompleteLibModule,
+    NgbProgressbarModule,
+    NgbDropdownModule,
+    QRCodeModule,
+    NgbAlertModule,
+    NgbDatepickerModule,
+    NgbPopoverModule,
+    NgxPrintModule
+  ],
   providers: [],
   bootstrap: [AppComponent]
 })
