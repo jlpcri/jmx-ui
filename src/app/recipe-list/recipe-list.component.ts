@@ -292,19 +292,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.printData.name = '';
   }
 
-  exportToPdf(): void {
-    const element = document.getElementById('printSection');
-    const params = {
-      margin: 0,
-      filename: this.printData.name + '.pdf',
-      image: { type: 'jpeg', quality: 0.98 },
-      html2canvas: {scale: 2},
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'l'}
-    };
-
-    html2pdf().from(element).set(params).save();
-  }
-
   getPrintLocations(): void {
     this.printLocations = this.recipeListService.retrieveLocations();
   }

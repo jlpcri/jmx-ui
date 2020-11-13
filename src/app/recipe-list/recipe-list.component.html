@@ -298,7 +298,9 @@
         </div>
 
         <div class="ml-auto">
-          <button class="btn btn-secondary-custom btn-lg" style="float: right;" (click)="exportToPdf()">EXPORT LABEL</button>
+          <button class="btn btn-secondary-custom btn-lg" style="float: right;"
+                  printSectionId="printSection"
+                  ngxPrint>PRINT LABEL</button>
         </div>
       </div>
       <div class="col-sm-3">
