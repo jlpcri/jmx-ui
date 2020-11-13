@@ -1,0 +1,15 @@
+<div class="modal-header">
+  <h4 class="modal-title" id="modal-basic-title">Errors</h4>
+  <button type="button" class="close" aria-label="Close" (click)="close()">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>
+<div class="modal-body">
+  <ngb-alert
+    *ngFor="let error of errors"
+    [dismissible]="false"
+    type="danger"
+  >
+    <strong>Error:</strong> {{error}}
+  </ngb-alert>
+</div>
