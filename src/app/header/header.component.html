@@ -5,16 +5,13 @@
         <a href="#" class="site-title">JMX - Juice App</a>
       </div>
       <div class="col-md-4 d-flex justify-content-end align-items-center">
-        <div class="btn-group mr-3">
-          <button type="button" class="btn btn-secondary" *ngIf="user; else notLogin">{{user.name}}</button>
-          <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
-            <button class="btn btn-secondary dropdown-toggle-split" ngbDropdownToggle></button>
-            <div class="dropdown-menu" ngbDropdownMenu>
-              <button ngbDropdownItem (click)="openHelp(helpTemplate)">Help</button>
-              <button ngbDropdownItem (click)="logout()">Logout</button>
-              <button ngbDropdownItem (click)="saveRecipesToIdb()" *ngIf="isAdmin()">LoadRecipes</button>
-              <button ngbDropdownItem (click)="eraseIdbData()" *ngIf="isAdmin()">EraseDB</button>
-            </div>
+        <div ngbDropdown class="d-inline-block">
+          <button class="btn btn-account" id="dropdownMenu" ngbDropdownToggle *ngIf="user; else notLogin">{{user.name}}</button>
+          <div ngbDropdownMenu aria-labelledby="dropdownMenu">
+            <button ngbDropdownItem (click)="openHelp(helpTemplate)">Help</button>
+            <button ngbDropdownItem (click)="logout()">Logout</button>
+            <button ngbDropdownItem (click)="saveRecipesToIdb()" *ngIf="isAdmin()">LoadRecipes</button>
+            <button ngbDropdownItem (click)="eraseIdbData()" *ngIf="isAdmin()">EraseDB</button>
           </div>
         </div>
       </div>

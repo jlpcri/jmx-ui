@@ -1,12 +1,9 @@
-<div class="container-fluid gray-bg">
+<div class="container-fluid section-padding">
   <div class="container">
-    <div class="row">
-      <div class="col-md-8">
-      </div>
-      <div class="col-md-4">
-        <button class="btn btn-danger btn-lg mb-2 mr-2"  (click)="openBottleScan(bottleScan)">SCAN NEW BOTTLE</button>
-        <br>
-      </div>
+    <div class="row margin-bottom-32">
+        <div class="ml-auto">
+          <button type="button" class="btn btn-primary-custom btn-lg" (click)="openBottleScan(bottleScan)">SCAN NEW BOTTLE</button>
+        </div>
     </div>
 
     <ng-template #bottleScan let-modal>

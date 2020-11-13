@@ -1,10 +1,15 @@
+<!-- START - Search Field -->
 <div class="container-fluid">
   <div class="container">
     <div class="row">
       <div class="col-md-8 form-group">
         <div class="row margin-bottom">
-          <span class="fa fa-question-circle" placement="right"
-                ngbPopover="Select Which option you would like to use to search for a recipe">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+          <div class="help-container">
+            <span class="far fa-question-circle hover-help-icon"></span>
+            <div class="hover-help">
+              Select which option you would like to use to search for a recipe.
+            </div>
+          </div>
           <div class="col-md-4 form-check custom-radio" *ngFor="let each of searchOptions">
             <input class="form-check-input custom-control-input"
                    type="radio" id="search_{{each.value}}"
@@ -19,8 +24,13 @@
     <div class="row">
       <div class="col-md-8 form-group">
         <div class="row input-icons">
-          <span class="fas fa-search icon" placement="right"
-                ngbPopover="Type in the name of the recipe or ingredient that you are looking for. Then click on the recipe in the options below the search field."></span>
+          <div class="help-container">
+            <i class="far fa-question-circle hover-help-icon"></i>
+            <div class="hover-help">
+              Type in the name of the recipe or ingredient that you are looking for. Then click on the recipe in the options below the search field.
+            </div>
+          </div>
+          <span class="fas fa-search icon"></span>
           <ng-autocomplete class="form-control input-field"
                            [data]="firstNameList"
                            [searchKeyword]="nameListKey"
@@ -48,18 +58,18 @@
       </div>
 
       <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
-        <select class="form-check-input"
+        <label for="bottleSizeSelected" class="custom-label-title">Bottle Size</label>
+        <select class="custom-select" id="bottleSizeSelected"
                 (change)="changeSize(bottleSizeSelected)"
                 [(ngModel)]="bottleSizeSelected">
-          <option value="">--Bottle Size--</option>
           <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
         </select>
       </div>
       <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
-        <select class="form-check-input"
+        <label for="nicStrengthSelected" class="custom-label-title">Nicotine Strength</label>
+        <select class="custom-select" id="nicStrengthSelected"
                 (change)="changeStrength(nicStrengthSelected)"
                 [(ngModel)]="nicStrengthSelected">
-          <option value="">--Nic Strength--</option>
           <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
         </select>
       </div>
@@ -68,11 +78,15 @@
 </div>
 
 <div class="container" *ngIf="searchOptionSelected === 'Recipe'">
-  <div class="row search-results">
+  <div class="help-container">
+    <i class="far fa-question-circle hover-help-icon"></i>
+    <div class="hover-help">
+      The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
+    </div>
+  </div>
 
+  <div class="row search-results">
     <div class="col-md-8">
-          <span class="fa fa-question-circle" placement="right"
-                ngbPopover="The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe. ">&nbsp;&nbsp;&nbsp;&nbsp;</span>
       <span class="custom-label-title">{{searchOptionSelected}} Name:</span><br>
       <h2 class="font-weight-bold">{{searchItem.name}}</h2>
     </div>
@@ -113,19 +127,19 @@
     </div>
 
     <div class="col-md-2 form-group">
-      <select class="form-check-input"
+      <label for="bottleSizeSelectedSecond" class="custom-label-title">Bottle Size</label>
+      <select class="custom-select" id="bottleSizeSelectedSecond"
               (change)="changeSizeSecond(bottleSizeSelectedSecond)"
               [(ngModel)]="bottleSizeSelectedSecond">
-        <option value="">--Bottle Size--</option>
         <option *ngFor="let each of sizeRadioButtonsSecond" [value]="each">{{each}}mL</option>
       </select>
     </div>
 
     <div class="col-md-2 form-group">
-      <select class="form-check-input"
+      <label for="nicStrengthSelectedSecond" class="custom-label-title">Nicotine Strength</label>
+      <select class="custom-select" id="nicStrengthSelectedSecond"
               (change)="changeStrengthSecond(nicStrengthSelectedSecond)"
               [(ngModel)]="nicStrengthSelectedSecond">
-        <option value="">--Nic Strength--</option>
         <option *ngFor="let each of strengthRadioButtonsSecond" [value]="each">{{each}}mg</option>
       </select>
     </div>
@@ -133,6 +147,12 @@
   </div>
 
   <div class="container">
+    <div class="help-container">
+      <i class="far fa-question-circle hover-help-icon"></i>
+      <div class="hover-help">
+        The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
+      </div>
+    </div>
     <div class="row search-results">
       <div class="col-md-8">
         <span class="custom-label-title">Recipe Name:</span><br>
@@ -151,13 +171,18 @@
   </div>
 
 </div>
+<!-- END Search Field -->
 
 <!-- START - Recipe Display -->
 <div class="container">
   <div class="row">
     <div class="col-md-4 align-items-start">
-      <span class="fa fa-question-circle" placement="right"
-            ngbPopover="The ratio of the ingredients will display in this e-liquid bottle to help you visualize the ratio between recipe ingredients.">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+      <div class="help-container">
+        <i class="far fa-question-circle hover-help-icon"></i>
+        <div class="hover-help">
+          The ratio of the ingredients will display in this e-liquid bottle to help you visualize the ratio between recipe ingredients.
+        </div>
+      </div>
       <!-- Juice Bottle -->
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="bottle"
            x="0px" y="0px" width="160px" height="500px" viewBox="0 0 206.1 719.1"
@@ -187,22 +212,26 @@
 
     <div class="col-md-8">
       <div class="container">
-        <span class="fa fa-question-circle" placement="right"
-              ngbPopover="This table shows the measurements of recipe ingredients. Each ingredient has a color that will match a color on the e-liquid bottle">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <div class="help-container">
+          <i class="far fa-question-circle hover-help-icon"></i>
+          <div class="hover-help">
+            This table shows the measurements of recipe ingredients. Each ingredient has a color that will match a color on the e-liquid bottle.
+          </div>
+        </div>
         <div class="table-wrapper">
           <table class="table table table-hover custom-table">
             <thead class="custom-thead">
             <tr>
               <th scope="col">Ingredients</th>
-              <th scope="col">Percentage</th>
               <th scope="col">Quantity</th>
+              <th scope="col">Percentage</th>
             </tr>
             </thead>
             <tbody>
             <tr *ngFor="let recipe of recipes">
               <td class="d-flex"><span class="fas fa-circle ing-icon ing-color-{{recipe.color}}"></span> <span class="d-flex">{{recipe.ingredients}}</span></td>
+              <td>{{recipe.quantity}}mL</td>
               <td>{{recipe.percentage * 100}}%</td>
-              <td>{{recipe.quantity}} mL</td>
             </tr>
             </tbody>
           </table>
@@ -211,58 +240,67 @@
     </div>
   </div>
 </div>
+<!-- END - Recipe Display -->
 
-<div class="container">
-  <div class="row" *ngIf="printData.name.length > 0">
-    <div class="col-sm-3">
-      <span class="fa fa-question-circle" placement="right" style="float:right;"
-            ngbPopover="Search for the location that you are creating the recipe for. Use the Export Label button to create a printable label">&nbsp;&nbsp;&nbsp;&nbsp;</span>
-    </div>
-    <div class="col-sm-6">
-      <div class="input-icons">
-        <span class="fas fa-search icon"></span>
-        <ng-autocomplete class="form-control input-field"
-                         [data]="printLocations"
-                         [searchKeyword]="nameListKey"
-                         [placeHolder]="'Search Store name'"
-                         (selected)="selectEventLocation($event)"
-                         [historyIdentifier]="firstNameListHistory"
-                         [debounceTime]="400"
-                         [minQueryLength]=""
-                         [itemTemplate]="itemTemplate"
-                         [notFoundTemplate]="notFoundTemplate"
-                         [(ngModel)]="searchStoreName">
-        </ng-autocomplete>
+<!-- START - Print Section -->
+<div class="container-fluid section-padding gray-bg">
+  <div class="container">
+    <div class="row" *ngIf="printData.name.length > 0">
+      <div class="col-sm-3">
       </div>
+      <div class="col-sm-6">
+        <div class="input-icons">
+          <div class="help-container">
+            <i class="far fa-question-circle hover-help-icon"></i>
+            <div class="hover-help">
+              Type in the name of the recipe or ingredient that you are looking for. Then click on the recipe in the options below the search field.
+            </div>
+          </div>
+          <span class="fas fa-search icon"></span>
+          <ng-autocomplete class="form-control input-field"
+                           [data]="printLocations"
+                           [searchKeyword]="nameListKey"
+                           [placeHolder]="'Search Store name'"
+                           (selected)="selectEventLocation($event)"
+                           [historyIdentifier]="firstNameListHistory"
+                           [debounceTime]="400"
+                           [minQueryLength]=""
+                           [itemTemplate]="itemTemplate"
+                           [notFoundTemplate]="notFoundTemplate"
+                           [(ngModel)]="searchStoreName">
+          </ng-autocomplete>
+        </div>
 
-      <div class="table-wrapper" id="printSection">
-        <table>
-          <tr style="font-weight: bold">{{printData.storeName}}</tr>
-          <tr>{{printData.storeLocation}}</tr>
-          <tr></tr>
-          <tr>
-            <td>
-              <strong>{{printData.name}}</strong><br>
-              {{printData.size}}ml&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}mg<br>
-              {{printData.currentDate}}<br>
-              {{printData.sku}}
-            </td>
-            <td>
-              <qrcode [qrdata]="printData.sku"
-                      [elementType]="'img'"
-                      width="10"
-                      [errorCorrectionLevel]="'M'"></qrcode>
-            </td>
-          </tr>
-          <tr style="text-align: center">Lot #{{printData.batchNumber}}</tr>
-        </table>
+        <div class="table-wrapper" id="printSection">
+          <table>
+            <tr style="font-weight: bold">{{printData.storeName}}</tr>
+            <tr>{{printData.storeLocation}}</tr>
+            <tr></tr>
+            <tr>
+              <td>
+                <strong>{{printData.name}}</strong><br>
+                {{printData.size}}ml&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}mg<br>
+                {{printData.currentDate}}<br>
+                {{printData.sku}}
+              </td>
+              <td>
+                <qrcode [qrdata]="printData.sku"
+                        [elementType]="'img'"
+                        width="10"
+                        [errorCorrectionLevel]="'M'"></qrcode>
+              </td>
+            </tr>
+            <tr style="text-align: center">Lot #{{printData.batchNumber}}</tr>
+          </table>
+        </div>
+
+        <div class="ml-auto">
+          <button class="btn btn-secondary-custom btn-lg" style="float: right;" (click)="exportToPdf()">EXPORT LABEL</button>
+        </div>
       </div>
-      <div class="container">
-        <button class="btn btn-success" style="float: right;" (click)="exportToPdf()">EXPORT LABEL</button>
+      <div class="col-sm-3">
       </div>
-    </div>
-    <div class="col-sm-3">
     </div>
   </div>
 </div>
-<!-- END Recipe Display -->
+<!-- END Print Section -->
