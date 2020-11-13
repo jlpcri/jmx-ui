@@ -17,7 +17,12 @@
       </div>
 
       <ng-template #notLogin>
-        <strong><a href="#">Guest</a></strong>
+        <div ngbDropdown class="d-inline-block">
+          <button class="btn btn-account" id="dropdownMenuNotLogin" ngbDropdownToggle>Hello, Guest</button>
+          <div ngbDropdownMenu aria-labelledby="dropdownMenuNotLogin">
+            <button ngbDropdownItem (click)="openHelp(helpTemplate)">Help</button>
+          </div>
+        </div>
       </ng-template>
     </div>
   </div>

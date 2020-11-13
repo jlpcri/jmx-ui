@@ -25,7 +25,7 @@
       <div class="col-md-8 form-group">
         <div class="row input-icons">
           <div class="help-container">
-            <i class="far fa-question-circle hover-help-icon"></i>
+            <span class="far fa-question-circle hover-help-icon"></span>
             <div class="hover-help">
               Type in the name of the recipe or ingredient that you are looking for. Then click on the recipe in the options below the search field.
             </div>
@@ -79,7 +79,7 @@
 
 <div class="container" *ngIf="searchOptionSelected === 'Recipe'">
   <div class="help-container">
-    <i class="far fa-question-circle hover-help-icon"></i>
+    <span class="far fa-question-circle hover-help-icon"></span>
     <div class="hover-help">
       The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
     </div>
@@ -148,7 +148,7 @@
 
   <div class="container">
     <div class="help-container">
-      <i class="far fa-question-circle hover-help-icon"></i>
+      <span class="far fa-question-circle hover-help-icon"></span>
       <div class="hover-help">
         The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
       </div>
@@ -178,7 +178,7 @@
   <div class="row">
     <div class="col-md-4 align-items-start">
       <div class="help-container">
-        <i class="far fa-question-circle hover-help-icon"></i>
+        <span class="far fa-question-circle hover-help-icon"></span>
         <div class="hover-help">
           The ratio of the ingredients will display in this e-liquid bottle to help you visualize the ratio between recipe ingredients.
         </div>
@@ -213,13 +213,13 @@
     <div class="col-md-8">
       <div class="container">
         <div class="help-container">
-          <i class="far fa-question-circle hover-help-icon"></i>
+          <span class="far fa-question-circle hover-help-icon"></span>
           <div class="hover-help">
             This table shows the measurements of recipe ingredients. Each ingredient has a color that will match a color on the e-liquid bottle.
           </div>
         </div>
         <div class="table-wrapper">
-          <table class="table table table-hover custom-table">
+          <table class="table table table-hover custom-table" aria-describedby="ingredientsTable">
             <thead class="custom-thead">
             <tr>
               <th scope="col">Ingredients</th>
@@ -251,7 +251,7 @@
       <div class="col-sm-6">
         <div class="input-icons">
           <div class="help-container">
-            <i class="far fa-question-circle hover-help-icon"></i>
+            <span class="far fa-question-circle hover-help-icon"></span>
             <div class="hover-help">
               Type in the name of the recipe or ingredient that you are looking for. Then click on the recipe in the options below the search field.
             </div>
@@ -272,7 +272,10 @@
         </div>
 
         <div class="table-wrapper" id="printSection">
-          <table>
+          <table aria-describedby="printSection">
+            <tr>
+              <th scope="col"></th>
+            </tr>
             <tr style="font-weight: bold">{{printData.storeName}}</tr>
             <tr>{{printData.storeLocation}}</tr>
             <tr></tr>
