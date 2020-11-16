@@ -10,9 +10,10 @@ import { AutocompleteLibModule } from 'angular-ng-autocomplete';
 import { HeaderComponent } from './header/header.component';
 import { BottleScanComponent } from './bottle-scan/bottle-scan.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
-import { AlertsComponent } from './alerts/alerts.component';
+import { ErrorTestComponent } from './error/error-test.component';
+import { ErrorComponent } from './error/error.component';
 
-import {NgbDropdownModule, NgbProgressbarModule, NgbAlertModule, NgbDatepickerModule, NgbPopoverModule} from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbProgressbarModule, NgbAlertModule, NgbModalModule, NgbDatepickerModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { QRCodeModule } from 'angularx-qrcode';
 import {NgxPrintModule} from 'ngx-print';
 
@@ -23,7 +24,8 @@ import {NgxPrintModule} from 'ngx-print';
     HeaderComponent,
     BottleScanComponent,
     ProgressBarComponent,
-    AlertsComponent
+    ErrorTestComponent,
+    ErrorComponent
   ],
   imports: [
     BrowserModule,
@@ -34,6 +36,7 @@ import {NgxPrintModule} from 'ngx-print';
     NgbDropdownModule,
     QRCodeModule,
     NgbAlertModule,
+    NgbModalModule,
     NgbDatepickerModule,
     NgbPopoverModule,
     NgxPrintModule
