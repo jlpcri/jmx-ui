@@ -1,3 +1,4 @@
+/*** START - Header ***/
 header {
   background: #031111;
   color: #ffffff;
@@ -7,9 +8,20 @@ header {
   font-size: 1.5rem;
   line-height: 150%;
   font-weight: 700;
-}
-
-.light,
-.light a {
   color: #ffffff;
 }
+
+.dropdown-menu {
+  background: #ffffff;
+  border: 2px solid #031111;
+  border-radius: 0px 0px 8px 8px;
+  top: 18px!important;
+}
+
+.dropdown-item.active, .dropdown-item:active {
+  color: #031111;
+  text-decoration: none;
+  background-color: #f5f5f5;
+  border: 0px;
+}
+/*** END - Header ***/

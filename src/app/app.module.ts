@@ -8,20 +8,21 @@ import { FormsModule } from '@angular/forms';
 import { AutocompleteLibModule } from 'angular-ng-autocomplete';
 
 import { HeaderComponent } from './header/header.component';
-import { GuideComponent } from './guide/guide.component';
+import { BottleScanComponent } from './bottle-scan/bottle-scan.component';
 import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { ErrorTestComponent } from './error/error-test.component';
 import { ErrorComponent } from './error/error.component';
 
-import { NgbDropdownModule, NgbProgressbarModule, NgbAlertModule, NgbModalModule } from '@ng-bootstrap/ng-bootstrap';
+import { NgbDropdownModule, NgbProgressbarModule, NgbAlertModule, NgbModalModule, NgbDatepickerModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { QRCodeModule } from 'angularx-qrcode';
+import {NgxPrintModule} from 'ngx-print';
 
 @NgModule({
   declarations: [
     AppComponent,
     RecipeListComponent,
     HeaderComponent,
-    GuideComponent,
+    BottleScanComponent,
     ProgressBarComponent,
     ErrorTestComponent,
     ErrorComponent
@@ -35,7 +36,10 @@ import { QRCodeModule } from 'angularx-qrcode';
     NgbDropdownModule,
     QRCodeModule,
     NgbAlertModule,
-    NgbModalModule
+    NgbModalModule,
+    NgbDatepickerModule,
+    NgbPopoverModule,
+    NgxPrintModule
   ],
   providers: [],
   bootstrap: [AppComponent]

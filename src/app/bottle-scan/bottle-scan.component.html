@@ -1,0 +1,51 @@
+<div class="container-fluid section-padding">
+  <div class="container">
+    <div class="row margin-bottom-32">
+        <div class="ml-auto">
+          <button type="button" class="btn btn-primary-custom btn-lg" (click)="openBottleScan(bottleScan)">SCAN NEW BOTTLE</button>
+        </div>
+    </div>
+
+    <ng-template #bottleScan let-modal>
+      <div class="modal-header">
+        <h4 class="modal-title" id="modal-bottleScan-title">Scan A New 960mL Bottle</h4>
+        <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="form-group">
+            <p>
+              Look for a label on the new 960mL liquid bottle. It should be located on the bottom of the bottle. Scan the barcode.<br>
+              <strong>Note: If the barcode isn't scanning, you can enter in the barcode manually.</strong>
+            </p>
+
+            <label for="scanProductName">Product Name</label>
+            <input id="scanProductName" [(ngModel)]="scanData.productName" name="scanProductName" class="form-control" placeholder="Product Name">
+
+            <label for="scanProductSku">Product SKU</label>
+            <input id="scanProductSku" [(ngModel)]="scanData.productSku" name="scanProductSku" class="form-control" placeholder="Product SKU">
+
+            <label for="scanProductBar">Product Barcode</label>
+            <input id="scanProductBar" [(ngModel)]="scanData.productBar" name="scanProductBar" class="form-control" placeholder="Product Barcode">
+
+            <label for="scanEmployeeName">Employee Name</label>
+            <input id="scanEmployeeName" [(ngModel)]="scanData.employeeName" name="scanEmployee" class="form-control" placeholder="Employee Name">
+
+            <label for="scanDate">Date of Scan</label>
+            <div class="input-group">
+              <input id="scanDate" [(ngModel)]="scanData.currentDate" name="scanDate" class="form-control" placeholder="yyyy-mm-dd" ngbDatepicker #dp="ngbDatepicker">
+              <div class="input-group-append">
+                <button class="btn btn-outline-secondary calendar" (click)="dp.toggle()" type="button"></button>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
+      </div>
+    </ng-template>
+  </div>
+</div>

@@ -5,27 +5,59 @@
         <a href="#" class="site-title">JMX - Juice App</a>
       </div>
       <div class="col-md-4 d-flex justify-content-end align-items-center">
-        <div class="btn-group mr-3">
-          <button type="button" class="btn btn-secondary" *ngIf="user; else notLogin">{{user.name}}</button>
-          <div class="btn-group" ngbDropdown role="group" aria-label="Button group with nested dropdown">
-            <button class="btn btn-secondary dropdown-toggle-split" ngbDropdownToggle></button>
-            <div class="dropdown-menu" ngbDropdownMenu *ngIf="isAdmin(); else notAdmin">
-              <button ngbDropdownItem (click)="logout()">Logout</button>
-              <button ngbDropdownItem (click)="saveRecipesToIdb()">LoadRecipes</button>
-              <button ngbDropdownItem (click)="eraseIdbData()">EraseDB</button>
-            </div>
-            <ng-template #notAdmin>
-              <div class="dropdown-menu" ngbDropdownMenu >
-                <button ngbDropdownItem (click)="logout()">Logout</button>
-              </div>
-            </ng-template>
+        <div ngbDropdown class="d-inline-block">
+          <button class="btn btn-account" id="dropdownMenu" ngbDropdownToggle *ngIf="user; else notLogin">{{user.name}}</button>
+          <div ngbDropdownMenu aria-labelledby="dropdownMenu">
+            <button ngbDropdownItem (click)="openHelp(helpTemplate)">Help</button>
+            <button ngbDropdownItem (click)="logout()">Logout</button>
+            <button ngbDropdownItem (click)="saveRecipesToIdb()" *ngIf="isAdmin()">LoadRecipes</button>
+            <button ngbDropdownItem (click)="eraseIdbData()" *ngIf="isAdmin()">EraseDB</button>
           </div>
         </div>
       </div>
 
       <ng-template #notLogin>
-        <strong><a href="#">Guest</a></strong>
+        <div ngbDropdown class="d-inline-block">
+          <button class="btn btn-account" id="dropdownMenuNotLogin" ngbDropdownToggle>Hello, Guest</button>
+          <div ngbDropdownMenu aria-labelledby="dropdownMenuNotLogin">
+            <button ngbDropdownItem (click)="openHelp(helpTemplate)">Help</button>
+          </div>
+        </div>
       </ng-template>
     </div>
   </div>
 </header>
+
+<ng-template #helpTemplate let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title">How To Use</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss()">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <ol>
+      <li>
+        Select a search option to look up a recipe. The default option is <strong>Search Recipe Names</strong> but select <strong>Search Recipe Ingredients</strong> if you wish to search for ingredients instead.
+      </li>
+      <li>
+        In the search field, start typing to find the recipe you are looking for. Recipes that match your search will be displayed below the search field. When you find the recipe you are looking for, click on the recipe name.
+      </li>
+      <li>
+        Next, you will need to select your bottle size and the nicotine strength of the recipe you are making.
+      </li>
+      <li>
+        The recipe name, bottle size, and strength will display below the search fields.
+      </li>
+      <li>
+        Once you’ve selected your recipe, bottle size, and nicotine strength, the recipe ingredients will display in the table below the recipe info. Each ingredient has a color that corresponds to the same color on the e-liquids bottle to help you visualize the ratio of ingredients used in the recipe.
+      </li>
+      <li>
+        When you are ready to print the label, use the search field below the ingredients table to search for the location you are creating the label for. Once you have found your location and have verified that the recipe info is correct, click the <strong>Export Label</strong> button to create PDF of the label that you can print.
+      </li>
+    </ol>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+  </div>
+</ng-template>

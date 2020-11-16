@@ -1,9 +1,16 @@
+<!-- START - Search Field -->
 <div class="container-fluid">
   <div class="container">
     <div class="row">
       <div class="col-md-8 form-group">
         <div class="row margin-bottom">
-          <div class="col-4 form-check custom-radio" *ngFor="let each of searchOptions">
+          <div class="help-container">
+            <span class="far fa-question-circle hover-help-icon"></span>
+            <div class="hover-help">
+              Select which option you would like to use to search for a recipe.
+            </div>
+          </div>
+          <div class="col-md-4 form-check custom-radio" *ngFor="let each of searchOptions">
             <input class="form-check-input custom-control-input"
                    type="radio" id="search_{{each.value}}"
                    name="searchOptions"
@@ -12,13 +19,22 @@
             <label class="form-check-label custom-control-label" for="search_{{each.value}}">{{each.value}} Name</label>
           </div>
         </div>
-
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-8 form-group">
         <div class="row input-icons">
+          <div class="help-container">
+            <span class="far fa-question-circle hover-help-icon"></span>
+            <div class="hover-help">
+              Type in the name of the recipe or ingredient that you are looking for. Then click on the recipe in the options below the search field.
+            </div>
+          </div>
           <span class="fas fa-search icon"></span>
           <ng-autocomplete class="form-control input-field"
                            [data]="firstNameList"
                            [searchKeyword]="nameListKey"
-                           [placeHolder]=" searchOptionSelected === 'Recipe' ? 'Search Recipe(Product) Name - 3 chars minimum': 'Search Ingredients(Component) Name - 3 chars minimum' "
+                           [placeHolder]=" searchOptionSelected === 'Recipe' ? 'Search Recipe(Product) Name': 'Search Ingredients(Component) Name' "
                            (selected)="selectEvent($event, searchOptionSelected)"
                            (inputChanged)="onChangeSearch($event, searchOptionSelected)"
                            (inputCleared)="onInputCleared()"
@@ -26,7 +42,7 @@
                            [historyIdentifier]="firstNameListHistory"
                            [debounceTime]="400"
                            [isLoading]="isLoadingNameListFirst"
-                           [minQueryLength]="3"
+                           [minQueryLength]="0"
                            [itemTemplate]="itemTemplate"
                            [notFoundTemplate]="notFoundTemplate"
                            [(ngModel)]="searchItem">
@@ -42,37 +58,33 @@
       </div>
 
       <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
-        <span class="custom-label-title">Bottle Size</span>
-        <div class="form-check custom-radio" *ngFor="let each of sizeRadioButtons">
-          <input class="form-check-input custom-control-input"
-                 type="radio"
-                 id="size{{each}}"
-                 name="bottleSize"
-                 value="{{each}}"
-                 [(ngModel)]="bottleSizeSelected"
-                 (ngModelChange)="changeSize($event)" />
-          <label class="form-check-label custom-control-label" for="size{{each}}">{{each}}</label>
-        </div>
+        <label for="bottleSizeSelected" class="custom-label-title">Bottle Size</label>
+        <select class="custom-select" id="bottleSizeSelected"
+                (change)="changeSize(bottleSizeSelected)"
+                [(ngModel)]="bottleSizeSelected">
+          <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
+        </select>
       </div>
       <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
-        <span class="custom-label-title">Nicotine Strength</span>
-        <div class="form-check custom-radio" *ngFor="let strength of strengthRadioButtons">
-          <input class="form-check-input custom-control-input"
-                 type="radio"
-                 id="strength{{strength}}"
-                 name="nicStrength"
-                 value="{{strength}}"
-                 [(ngModel)]="nicStrengthSelected"
-                 (ngModelChange)="changeStrength($event)" />
-          <label class="form-check-label custom-control-label" for="strength{{strength}}">{{strength}}</label>
-        </div>
+        <label for="nicStrengthSelected" class="custom-label-title">Nicotine Strength</label>
+        <select class="custom-select" id="nicStrengthSelected"
+                (change)="changeStrength(nicStrengthSelected)"
+                [(ngModel)]="nicStrengthSelected">
+          <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
+        </select>
       </div>
-
     </div>
   </div>
 </div>
 
 <div class="container" *ngIf="searchOptionSelected === 'Recipe'">
+  <div class="help-container">
+    <span class="far fa-question-circle hover-help-icon"></span>
+    <div class="hover-help">
+      The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
+    </div>
+  </div>
+
   <div class="row search-results">
     <div class="col-md-8">
       <span class="custom-label-title">{{searchOptionSelected}} Name:</span><br>
@@ -80,12 +92,13 @@
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Bottle Size:</span><br>
-      <h2 class="font-weight-bold">{{bottleSizeSelected}}</h2>
+      <h2 class="font-weight-bold" *ngIf="bottleSizeSelected.length > 0; else sizeStrengthNoValue">{{bottleSizeSelected}}mL</h2>
     </div>
     <div class="col-md-2">
       <span class="custom-label-title">Nicotine Strength:</span><br>
-      <h2 class="font-weight-bold">{{nicStrengthSelected}}</h2>
+      <h2 class="font-weight-bold" *ngIf="nicStrengthSelected.length > 0; else sizeStrengthNoValue">{{nicStrengthSelected}}mg</h2>
     </div>
+    <ng-template #sizeStrengthNoValue></ng-template>
   </div>
 </div>
 
@@ -114,35 +127,32 @@
     </div>
 
     <div class="col-md-2 form-group">
-      <span class="custom-label-title">Bottle Size</span>
-      <div class="form-check custom-radio" *ngFor="let each of sizeRadioButtonsSecond">
-        <input class="form-check-input custom-control-input"
-               type="radio"
-               id="size2nd{{each}}"
-               name="bottleSize2nd"
-               value="{{each}}"
-               [(ngModel)]="bottleSizeSelectedSecond"
-               (ngModelChange)="changeSizeSecond($event)" />
-        <label class="form-check-label custom-control-label" for="size2nd{{each}}">{{each}}</label>
-      </div>
+      <label for="bottleSizeSelectedSecond" class="custom-label-title">Bottle Size</label>
+      <select class="custom-select" id="bottleSizeSelectedSecond"
+              (change)="changeSizeSecond(bottleSizeSelectedSecond)"
+              [(ngModel)]="bottleSizeSelectedSecond">
+        <option *ngFor="let each of sizeRadioButtonsSecond" [value]="each">{{each}}mL</option>
+      </select>
     </div>
+
     <div class="col-md-2 form-group">
-      <span class="custom-label-title">Nicotine Strength</span>
-      <div class="form-check custom-radio" *ngFor="let strength of strengthRadioButtonsSecond">
-        <input class="form-check-input custom-control-input"
-               type="radio"
-               id="strength2nd{{strength}}"
-               name="nicStrength2nd"
-               value="{{strength}}"
-               [(ngModel)]="nicStrengthSelectedSecond"
-               (ngModelChange)="changeStrengthSecond($event)" />
-        <label class="form-check-label custom-control-label" for="strength2nd{{strength}}">{{strength}}</label>
-      </div>
+      <label for="nicStrengthSelectedSecond" class="custom-label-title">Nicotine Strength</label>
+      <select class="custom-select" id="nicStrengthSelectedSecond"
+              (change)="changeStrengthSecond(nicStrengthSelectedSecond)"
+              [(ngModel)]="nicStrengthSelectedSecond">
+        <option *ngFor="let each of strengthRadioButtonsSecond" [value]="each">{{each}}mg</option>
+      </select>
     </div>
 
   </div>
 
   <div class="container">
+    <div class="help-container">
+      <span class="far fa-question-circle hover-help-icon"></span>
+      <div class="hover-help">
+        The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
+      </div>
+    </div>
     <div class="row search-results">
       <div class="col-md-8">
         <span class="custom-label-title">Recipe Name:</span><br>
@@ -150,21 +160,29 @@
       </div>
       <div class="col-md-2">
         <span class="custom-label-title">Bottle Size:</span><br>
-        <h2 class="font-weight-bold">{{bottleSizeSelectedSecond}}</h2>
+        <h2 class="font-weight-bold" *ngIf="bottleSizeSelectedSecond.length > 0; else sizeStrengthNoValue">{{bottleSizeSelectedSecond}}mL</h2>
       </div>
       <div class="col-md-2">
         <span class="custom-label-title">Nicotine Strength:</span><br>
-        <h2 class="font-weight-bold">{{nicStrengthSelectedSecond}}</h2>
+        <h2 class="font-weight-bold" *ngIf="nicStrengthSelectedSecond.length > 0; else sizeStrengthNoValue">{{nicStrengthSelectedSecond}}mg</h2>
       </div>
+      <ng-template #sizeStrengthNoValue></ng-template>
     </div>
   </div>
 
 </div>
+<!-- END Search Field -->
 
 <!-- START - Recipe Display -->
 <div class="container">
   <div class="row">
     <div class="col-md-4 align-items-start">
+      <div class="help-container">
+        <span class="far fa-question-circle hover-help-icon"></span>
+        <div class="hover-help">
+          The ratio of the ingredients will display in this e-liquid bottle to help you visualize the ratio between recipe ingredients.
+        </div>
+      </div>
       <!-- Juice Bottle -->
       <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="bottle"
            x="0px" y="0px" width="160px" height="500px" viewBox="0 0 206.1 719.1"
@@ -194,8 +212,14 @@
 
     <div class="col-md-8">
       <div class="container">
+        <div class="help-container">
+          <span class="far fa-question-circle hover-help-icon"></span>
+          <div class="hover-help">
+            This table shows the measurements of recipe ingredients. Each ingredient has a color that will match a color on the e-liquid bottle.
+          </div>
+        </div>
         <div class="table-wrapper">
-          <table class="table table table-hover custom-table">
+          <table class="table table table-hover custom-table" aria-describedby="ingredientsTable">
             <thead class="custom-thead">
             <tr>
               <th scope="col">Ingredients</th>
@@ -206,7 +230,7 @@
             <tbody>
             <tr *ngFor="let recipe of recipes">
               <td class="d-flex"><span class="fas fa-circle ing-icon ing-color-{{recipe.color}}"></span> <span class="d-flex">{{recipe.ingredients}}</span></td>
-              <td>{{recipe.quantity}} mL</td>
+              <td>{{recipe.quantity}}mL</td>
               <td>{{recipe.percentage * 100}}%</td>
             </tr>
             </tbody>
@@ -216,52 +240,72 @@
     </div>
   </div>
 </div>
+<!-- END - Recipe Display -->
 
-<div class="container">
-  <div class="row" *ngIf="printData.name.length > 0">
-    <div class="col-sm-4 input-icons">
-      <span class="fas fa-search icon"></span>
-      <ng-autocomplete class="form-control input-field"
-                       [data]="printLocations"
-                       [searchKeyword]="nameListKey"
-                       [placeHolder]="'Search Store name'"
-                       (selected)="selectEventLocation($event)"
-                       [historyIdentifier]="firstNameListHistory"
-                       [debounceTime]="400"
-                       [minQueryLength]=""
-                       [itemTemplate]="itemTemplate"
-                       [notFoundTemplate]="notFoundTemplate"
-                       [(ngModel)]="searchStoreName">
-      </ng-autocomplete>
-    </div>
-    <div class="col-sm-4" id="printSection">
-      <div class="table-wrapper">
-        <table>
-          <tr style="font-weight: bold">{{printData.storeName}}</tr>
-          <tr>{{printData.storeLocation}}</tr>
-          <tr></tr>
-          <tr>
-            <td>
-              <strong>{{printData.name}}</strong><br>
-              {{printData.size}}&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}<br>
-              {{printData.currentDate}}<br>
-              {{printData.sku}}
-            </td>
-            <td>
-              <qrcode [qrdata]="printData.sku"
-                      [elementType]="'img'"
-                      width="10"
-                      [errorCorrectionLevel]="'M'"></qrcode>
-            </td>
-          </tr>
-          <tr style="text-align: center">Lot #{{printData.batchNumber}}</tr>
-        </table>
+<!-- START - Print Section -->
+<div class="container-fluid section-padding gray-bg">
+  <div class="container">
+    <div class="row" *ngIf="printData.name.length > 0">
+      <div class="col-sm-3">
+      </div>
+      <div class="col-sm-6">
+        <div class="input-icons">
+          <div class="help-container">
+            <span class="far fa-question-circle hover-help-icon"></span>
+            <div class="hover-help">
+              Type in the name of the recipe or ingredient that you are looking for. Then click on the recipe in the options below the search field.
+            </div>
+          </div>
+          <span class="fas fa-search icon"></span>
+          <ng-autocomplete class="form-control input-field"
+                           [data]="printLocations"
+                           [searchKeyword]="nameListKey"
+                           [placeHolder]="'Search Store name'"
+                           (selected)="selectEventLocation($event)"
+                           [historyIdentifier]="firstNameListHistory"
+                           [debounceTime]="400"
+                           [minQueryLength]=""
+                           [itemTemplate]="itemTemplate"
+                           [notFoundTemplate]="notFoundTemplate"
+                           [(ngModel)]="searchStoreName">
+          </ng-autocomplete>
+        </div>
+
+        <div class="table-wrapper" id="printSection">
+          <table aria-describedby="printSection">
+            <tr>
+              <th scope="col"></th>
+            </tr>
+            <tr style="font-weight: bold">{{printData.storeName}}</tr>
+            <tr>{{printData.storeLocation}}</tr>
+            <tr></tr>
+            <tr>
+              <td>
+                <strong>{{printData.name}}</strong><br>
+                {{printData.size}}ml&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}mg<br>
+                {{printData.currentDate}}<br>
+                {{printData.sku}}
+              </td>
+              <td>
+                <qrcode [qrdata]="printData.sku"
+                        [elementType]="'img'"
+                        width="10"
+                        [errorCorrectionLevel]="'M'"></qrcode>
+              </td>
+            </tr>
+            <tr style="text-align: center">Lot #{{printData.batchNumber}}</tr>
+          </table>
+        </div>
+
+        <div class="ml-auto">
+          <button class="btn btn-secondary-custom btn-lg" style="float: right;"
+                  printSectionId="printSection"
+                  ngxPrint>PRINT LABEL</button>
+        </div>
+      </div>
+      <div class="col-sm-3">
       </div>
     </div>
-    <div class="col-sm-2 container">
-      <button class="btn btn-success btn-block" (click)="exportToPdf()">Export PDF</button>
-    </div>
-    <div class="col-sm-2"></div>
   </div>
 </div>
-<!-- END Recipe Display -->
+<!-- END Print Section -->

@@ -1,6 +1,6 @@
-import {RecipeContentModel, RecipePageModel} from './recipe-content.model';
+import {RecipeModel} from './recipe.model';
 
 export class RecipeListModel {
-  content: RecipeContentModel[];
-  page: RecipePageModel;
+  recipes: RecipeModel[];
+  totalRecipes: number;
 }

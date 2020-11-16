@@ -2,7 +2,7 @@ import {Injectable} from '@angular/core';
 import {MessageService} from './message.service';
 import {Subject} from 'rxjs';
 import {GlobalConstants} from './GlobalConstants';
-import {Product} from '../product';
+import {RecipeModel} from '../recipe-list/shared/recipe.model';
 
 @Injectable({
   providedIn: 'root'
@@ -40,8 +40,9 @@ export class IndexedDatabaseService {
     request.onupgradeneeded = (event: any) => {
       const db = event.target.result;
       const objectStore = db.createObjectStore(this.objectStoreName, {keyPath: 'id', autoIncrement: true});
-      objectStore.createIndex(GlobalConstants.indexProduct, 'productName', {unique: false});
-      objectStore.createIndex(GlobalConstants.indexComponent, 'componentName', {unique: false});
+      objectStore.createIndex(GlobalConstants.indexProduct, 'name', {unique: false});
+      objectStore.createIndex(GlobalConstants.indexLabelKey, 'labelKey', {unique: false});
+      objectStore.createIndex(GlobalConstants.indexProductKey, 'key', {unique: false});
       dbExisted = false;
 
     };
@@ -49,17 +50,22 @@ export class IndexedDatabaseService {
 
   syncRecipes(data) {
     for (const item of data) {
-      this.addRecipe(item.sku, item.productName, item.componentName, item.quantity)
+      this.addRecipe(item)
         .then();
     }
   }
 
-  async addRecipe(sku: string, productName: string, componentName: string, quantity: number) {
+  async addRecipe(product: RecipeModel) {
     const tmp = {
-      sku,
-      productName,
-      componentName,
-      quantity
+      sku: product.sku,
+      name: product.name,
+      label: product.label,
+      labelKey: product.labelKey,
+      nicStrength: product.nicStrength,
+      bottleSize: product.bottleSize,
+      key: product.key,
+      ingredients: product.ingredients,
+      saltNic: product.saltNic
     };
 
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
@@ -76,24 +82,27 @@ export class IndexedDatabaseService {
     }
   }
 
-  getProductNameListByComponent(ingredients) {
+  getProductNameListByComponent(ingredientName) {
     const subject = new Subject<any>();
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
     const store = tx.objectStore(this.objectStoreName);
-    const index = store.index(GlobalConstants.indexComponent);
-    const myCursor = index.openCursor();
+    const index = store.index(GlobalConstants.indexLabelKey);
+    const myCursor = index.openCursor(null, GlobalConstants.nextUnique);
 
-    let name = '';
-    let componentName = '';
+    let ingredients = [];
 
     myCursor.onsuccess = event => {
       const cursor = event.target.result;
       if (cursor) {
-        componentName = cursor.value.componentName;
-        name = cursor.value.productName;
-
-        if (componentName === ingredients) {
-          subject.next(this.getProductDetailFromName(name));
+        ingredients = cursor.value.ingredients;
+        for (const item of ingredients) {
+          if (item.name === ingredientName) {
+            subject.next({
+              label: cursor.value.label,
+              labelKey: cursor.value.labelKey
+            });
+            break;
+          }
         }
         cursor.continue();
       }
@@ -119,7 +128,7 @@ export class IndexedDatabaseService {
   }
 
   getRecipesFromIdb(indexName: string, key: string) {
-    const result = [];
+    const recipes = [];
     let colorIdx = 1;
     const colorTotal = 20;
     let tmpColor = '';
@@ -130,158 +139,54 @@ export class IndexedDatabaseService {
       .objectStore(this.objectStoreName)
       .index(indexName);
 
-    index.openCursor().onsuccess = event => {
-      const cursor = event.target.result;
-      if (cursor) {
-        if (cursor.value.productName === key) {
-          if (cursor.value.componentName.toLowerCase().indexOf('nicotine') >= 0) {
-            tmpColor = 'nicotine';
-          } else {
-            tmpColor = (colorIdx % colorTotal).toString();
-          }
-          result.push({
-            ingredients: cursor.value.componentName,
-            quantity: (cursor.value.quantity).toFixed(2),
-            percentage: 0,
-            color: tmpColor,
-          });
-          quantitySum += parseFloat(cursor.value.quantity);
-          colorIdx++;
+    const getRequest = index.get(key);
+    getRequest.onsuccess = () => {
+      for (const item of getRequest.result.ingredients) {
+        if (item.name.toLowerCase().indexOf('nicotine') >= 0) {
+          tmpColor = 'nicotine';
+        } else {
+          tmpColor = (colorIdx % colorTotal).toString();
         }
-        cursor.continue();
-      } else {
-        for (const item of result) {
-          item.percentage = (item.quantity / quantitySum).toFixed(2);
-        }
+        recipes.push({
+          ingredients: item.name,
+          quantity: item.quantity,
+          percentage: 0,
+          color: tmpColor
+        });
+        quantitySum += parseFloat(item.quantity);
+        colorIdx++;
+      }
+      for (const item of recipes) {
+        item.percentage = (item.quantity / quantitySum).toFixed(2);
       }
     };
+    return recipes;
 
-    return result;
   }
 
-  getProdComponentNames(indexName, search) {
+  getProductNameList(search) {
     const subject = new Subject<any>();
 
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
     const store = tx.objectStore(this.objectStoreName);
-    const index = store.index(indexName);
+    const index = store.index(GlobalConstants.indexLabelKey);
     const myCursor = index.openCursor(null, GlobalConstants.nextUnique);
 
     let found = false;
-    let name = '';
-    let idx = 0;
-
-    if (indexName === GlobalConstants.indexProduct) {
-      myCursor.onsuccess = event => {
-        const cursor = event.target.result;
-
-        if (cursor) {
-          name = cursor.value.productName;
-          if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0) {
-            if (!found) {
-              found = true;
-            }
-            subject.next(this.getProductDetailFromName(name));
-          }
-          cursor.continue();
-        } else {
-          if (!found) {
-            subject.next({
-              error: 'not found'
-            });
-          }
-        }
-      };
-    } else {
-      // get componentNameList
-      myCursor.onsuccess = event => {
-        const cursor = event.target.result;
-
-        if (cursor) {
-          name = cursor.value.componentName;
-          if (name.toUpperCase().indexOf(search.toUpperCase()) >= 0) {
-            if (!found) {
-              found = true;
-            }
-            subject.next({
-              id: idx,
-              name
-            });
-            idx++;
-          }
-          cursor.continue();
-        } else {
-          if (!found) {
-            subject.next({
-              error: 'not found'
-            });
-          }
-        }
-      };
-    }
-
-    return subject;
-
-  }
-
-  getProductDetailFromName(name: string) {
-    let nameArr: any[];
-    let tmpName: string;
-    let tmpSize: string;
-    let tmpStrength: string;
-    let tmpCommaCounts = '';
-
-    nameArr = name.split(/[\s,]+/);
-    // todo: size with ohm, strength with pack
-    if ((nameArr[nameArr.length - 2].toLowerCase().indexOf('ml') < 0)
-      || (nameArr[nameArr.length - 1].toLowerCase().indexOf('mg')) < 0) {
-      tmpName = name;
-      tmpSize = '';
-      tmpStrength = '';
-    } else {
-      tmpName = nameArr.slice(0, nameArr.length - 2).join(' ');
-      tmpSize = nameArr[nameArr.length - 2];
-      tmpStrength = nameArr[nameArr.length - 1];
-      if ((name.match(/,/g) || []).length > 1 ) {
-        // todo: need check different locations of comma
-        tmpCommaCounts = '2';
-      } else {
-        tmpCommaCounts = '1';
-      }
-    }
-
-    return {
-      name: tmpName,
-      commaCount: tmpCommaCounts,
-      size: tmpSize,
-      strength: tmpStrength
-    };
-  }
-
-  getProductPrintData(searchName) {
-    const subject = new Subject<any>();
-
-    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
-    const store = tx.objectStore(this.objectStoreName);
-    const index = store.index(GlobalConstants.indexProduct);
-    const myCursor = index.openCursor(null, GlobalConstants.nextUnique);
-
-    let found = false;
+    let labelKey = '';
 
     myCursor.onsuccess = event => {
       const cursor = event.target.result;
 
       if (cursor) {
-        const sku = cursor.value.sku;
-        const name = cursor.value.productName;
-
-        if (name.toUpperCase().indexOf(searchName.toUpperCase()) >= 0) {
+        labelKey = cursor.value.labelKey;
+        if (labelKey.indexOf(search.toLowerCase()) >= 0) {
           if (!found) {
             found = true;
           }
           subject.next({
-            sku,
-            name
+            label: cursor.value.label,
+            labelKey: cursor.value.labelKey
           });
         }
         cursor.continue();
@@ -292,6 +197,99 @@ export class IndexedDatabaseService {
           });
         }
       }
+    };
+
+    return subject;
+
+  }
+
+  getComponentNameList(search) {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
+    const index = store.index(GlobalConstants.indexLabelKey);
+    const myCursor = index.openCursor();
+
+    let found = false;
+    let ingredients = [];
+    let idx = 0;
+
+    // get componentNameList
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+
+      if (cursor) {
+        ingredients = cursor.value.ingredients;
+        for (const item of ingredients) {
+          if (item.name.toLowerCase().indexOf(search.toLowerCase()) >= 0) {
+            if (!found) {
+              found = true;
+            }
+            subject.next({
+              id: idx,
+              name: item.name,
+            });
+            idx++;
+          }
+        }
+        cursor.continue();
+      } else {
+        if (!found) {
+          subject.next({
+            error: 'not found'
+          });
+        }
+      }
+    };
+
+    return subject;
+
+  }
+
+  getProductSizeNicStrength(search) {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
+    const index = store.index(GlobalConstants.indexLabelKey);
+    const myCursor = index.openCursor(null);
+
+    let labelKey = '';
+
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+      if (cursor) {
+        labelKey = cursor.value.labelKey;
+        if (labelKey === search) {
+          subject.next({
+            bottleSize: cursor.value.bottleSize,
+            nicStrength: cursor.value.nicStrength
+          });
+        }
+        cursor.continue();
+      }
+    };
+
+    return subject;
+
+  }
+
+  getProductPrintData(searchName) {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
+    const index = store.index(GlobalConstants.indexProductKey);
+
+    const getRequest = index.get(searchName);
+    getRequest.onsuccess = () => {
+      subject.next({
+        name: getRequest.result.name,
+        sku: getRequest.result.sku,
+        size: getRequest.result.bottleSize,
+        strength: getRequest.result.nicStrength
+      });
     };
 
     return subject;
