@@ -224,6 +224,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.recipeListService.saveRecipesToIdb();
   }
 
+  saveLocationsToIdb(): void {
+    this.recipeListService.saveLocationsToIdb();
+  }
+
   notExistInArray(arr: any, key: string, value: string) {
     const obj = arr.find(x => x[key] === value);
     for (const objKey in obj) {
@@ -293,7 +297,17 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   getPrintLocations(): void {
-    this.printLocations = this.recipeListService.retrieveLocations();
+    // this.printLocations = this.recipeListService.retrieveLocations();
+    this.recipeListService.retrieveLocations().subscribe(
+      data => {
+        for (const item of data) {
+          this.printLocations.push({
+            name: item.name,
+            storeLocation: item.storeLocation
+          });
+        }
+      }
+    );
   }
 
   selectEventLocation(event) {

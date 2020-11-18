@@ -69,8 +69,10 @@ export class RecipeListService {
       }
     );
   }
+
   retrieveLocations() {
-    const results: any[] = [];
+    const allLocations: any[] = [];
+    const allLocationsSubject: Subject<any> = new Subject<any>();
     const options = {
       params: new HttpParams()
         .set('size', '1000')
@@ -80,16 +82,27 @@ export class RecipeListService {
       resp => {
         for (const item of resp) {
           const fullAddr = item.addrLine1 + ' ' + item.addrLine2 + ', ' + item.city + ' ' + item.state + ', ' +  item.zipCode;
-          results.push({
+          allLocations.push({
             name: item.name,
             storeLocation: fullAddr
           });
         }
+        // console.log('loaded ' + allLocations.length + ' locations');
+        allLocationsSubject.next(allLocations);
       },
       error => {
         console.log('Fetch API Locations: ', error.message);
+        // todo: get locations from Idb
       }
     );
-    return results;
+    return allLocationsSubject;
+  }
+
+  saveLocationsToIdb() {
+    this.retrieveLocations().subscribe(
+      data => {
+        this.idbService.syncLocations(data);
+      }
+    );
   }
 }

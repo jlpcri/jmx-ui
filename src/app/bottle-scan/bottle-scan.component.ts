@@ -1,5 +1,7 @@
 import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import * as moment from 'moment';
+import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 
 @Component({
   selector: 'app-guide',
@@ -9,18 +11,22 @@ import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 })
 export class BottleScanComponent implements OnInit {
   closeResult: string;
+  storeLocations: any[] = [];
 
   @Input() public scanData = {
-    productName: 'Purple Worm',
+    eventTimestamp: '',
+    associateName: 'John Doe',
+    batchId: '4158',
     productSku: '790080',
-    productBar: '7 746307 900805',
-    productLot: '4158',
-    employeeName: 'John Doe',
-    currentDate: ''
+    productName: 'Purple Worm',
+    locationName: '',
+    productBarcode: '7 746307 900805',
   };
-  constructor(private modalService: NgbModal) { }
+  constructor(private modalService: NgbModal,
+              private recipeListService: RecipeListService) { }
 
   ngOnInit(): void {
+    this.getStoreLocations();
   }
 
   openBottleScan(content) {
@@ -28,7 +34,7 @@ export class BottleScanComponent implements OnInit {
     modalRef.result.then(
       (result) => {
         this.closeResult = `Closed with: ${result}`;
-        console.log(this.closeResult);
+        this.scanData.eventTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZ');
         console.log(this.scanData);
       },
       (reason) => {
@@ -45,6 +51,19 @@ export class BottleScanComponent implements OnInit {
     } else {
       return `with: ${reason}`;
     }
+  }
+
+  getStoreLocations(): void {
+    this.recipeListService.retrieveLocations().subscribe(
+      data => {
+        for (const item of data) {
+          this.storeLocations.push({
+            name: item.name,
+            storeLocation: item.storeLocation
+          });
+        }
+      }
+    );
   }
 
 }

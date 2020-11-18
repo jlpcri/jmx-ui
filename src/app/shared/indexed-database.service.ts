@@ -13,6 +13,8 @@ export class IndexedDatabaseService {
   private version = 1;
   private dbName = 'AmvRecipesDatabase';
   private objectStoreName = 'recipes';
+  private objectStoreLocation = 'locations';
+  private objectStoreBottleScan = 'bottleScans';
 
   constructor(private messageService: MessageService) {
   }
@@ -43,6 +45,13 @@ export class IndexedDatabaseService {
       objectStore.createIndex(GlobalConstants.indexProduct, 'name', {unique: false});
       objectStore.createIndex(GlobalConstants.indexLabelKey, 'labelKey', {unique: false});
       objectStore.createIndex(GlobalConstants.indexProductKey, 'key', {unique: false});
+
+      const objectStoreLocation = db.createObjectStore(this.objectStoreLocation, {keyPath: 'id', autoIncrement: true});
+      objectStoreLocation.createIndex('name', 'name', {unique: false});
+      const objectStoreBottleScan = db.createObjectStore(this.objectStoreBottleScan, {keyPath: 'id', autoIncrement: true});
+      objectStoreBottleScan.createIndex('productName', 'productName', {unique: false});
+      objectStoreBottleScan.createIndex('productSku', 'productSku', {unique: false});
+
       dbExisted = false;
 
     };
@@ -78,8 +87,31 @@ export class IndexedDatabaseService {
     await tx.done;
 
     function onerror(error) {
-      console.error('Error add data to indexedDB ', error);
+      console.error('Error add recipes data to indexedDB ', error);
     }
+  }
+
+  syncLocations(data) {
+    for (const item of data) {
+      this.addLocation(item)
+        .then();
+    }
+  }
+
+  async addLocation(location) {
+    const tx = this.db.transaction([this.objectStoreLocation], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreLocation);
+
+    await store.put({
+      name: location.name,
+      storeLocation: location.storeLocation
+    });
+
+    tx.oncomplete = () => {};
+    tx.onerror = (error) => {
+      console.error('Error add location data to indexedDB ', error);
+    };
+    await tx.done;
   }
 
   getProductNameListByComponent(ingredientName) {
@@ -290,6 +322,21 @@ export class IndexedDatabaseService {
         size: getRequest.result.bottleSize,
         strength: getRequest.result.nicStrength
       });
+    };
+
+    return subject;
+  }
+
+  getLocationsFromIdb() {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.db.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreLocation);
+    // const index = store.index('name');
+
+    const getRequest = store.getAll();
+    getRequest.onsuccess = () => {
+      console.log(getRequest.result);
     };
 
     return subject;

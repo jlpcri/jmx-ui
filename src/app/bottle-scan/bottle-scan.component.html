@@ -28,18 +28,30 @@
             <input id="scanProductSku" [(ngModel)]="scanData.productSku" name="scanProductSku" class="form-control" placeholder="Product SKU">
 
             <label for="scanProductBar">Product Barcode</label>
-            <input id="scanProductBar" [(ngModel)]="scanData.productBar" name="scanProductBar" class="form-control" placeholder="Product Barcode">
+            <input id="scanProductBar" [(ngModel)]="scanData.productBarcode" name="scanProductBar" class="form-control" placeholder="Product Barcode">
 
-            <label for="scanEmployeeName">Employee Name</label>
-            <input id="scanEmployeeName" [(ngModel)]="scanData.employeeName" name="scanEmployee" class="form-control" placeholder="Employee Name">
+            <label for="scanEmployeeName">Associate Name</label>
+            <input id="scanEmployeeName" [(ngModel)]="scanData.associateName" name="scanEmployee" class="form-control" placeholder="Associate Name">
 
-            <label for="scanDate">Date of Scan</label>
-            <div class="input-group">
-              <input id="scanDate" [(ngModel)]="scanData.currentDate" name="scanDate" class="form-control" placeholder="yyyy-mm-dd" ngbDatepicker #dp="ngbDatepicker">
-              <div class="input-group-append">
-                <button class="btn btn-outline-secondary calendar" (click)="dp.toggle()" type="button"></button>
-              </div>
-            </div>
+            <label for="location">Store Location</label>
+            <ng-autocomplete name="location" id="location"
+                             [data]="storeLocations"
+                             [searchKeyword]="'name'"
+                             [placeHolder]="'Search Store name'"
+                             [historyIdentifier]=""
+                             [debounceTime]="400"
+                             [minQueryLength]=""
+                             [itemTemplate]="itemTemplate"
+                             [notFoundTemplate]="notFoundTemplate"
+                             [(ngModel)]="scanData.locationName">
+            </ng-autocomplete>
+            <ng-template #itemTemplate let-item>
+              <a [innerHTML]="item.name"></a>
+            </ng-template>
+            <ng-template #notFoundTemplate let-notFound>
+              <div [innerHTML]="notFound"></div>
+            </ng-template>
+
           </div>
         </form>
       </div>

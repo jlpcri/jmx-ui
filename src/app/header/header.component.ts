@@ -37,6 +37,10 @@ export class HeaderComponent implements OnInit {
     });
   }
 
+  saveLocationsToIdb() {
+    this.recipeListService.saveLocationsToIdb();
+  }
+
   eraseIdbData() {
     this.idbService.eraseIdbData();
   }
