@@ -12,6 +12,7 @@ import {RecipeModel} from './recipe.model';
 })
 
 export class RecipeListService {
+  private saveLocationsToIdbFlag = false;
 
   constructor(private api: ApiService,
               private progress: ProgressService,
@@ -87,7 +88,7 @@ export class RecipeListService {
             storeLocation: fullAddr
           });
         }
-        // console.log('loaded ' + allLocations.length + ' locations');
+        console.log('loaded ' + allLocations.length + ' locations');
         allLocationsSubject.next(allLocations);
       },
       error => {
@@ -99,10 +100,13 @@ export class RecipeListService {
   }
 
   saveLocationsToIdb() {
-    this.retrieveLocations().subscribe(
-      data => {
-        this.idbService.syncLocations(data);
-      }
-    );
+    if (!this.saveLocationsToIdbFlag) {
+      this.retrieveLocations().subscribe(
+        data => {
+          this.idbService.syncLocations(data);
+        }
+      );
+      this.saveLocationsToIdbFlag = true;
+    }
   }
 }

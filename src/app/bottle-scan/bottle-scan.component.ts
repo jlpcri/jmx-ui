@@ -2,6 +2,7 @@ import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
 import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
+import {IndexedDatabaseService} from '../shared/indexed-database.service';
 
 @Component({
   selector: 'app-guide',
@@ -12,6 +13,7 @@ import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 export class BottleScanComponent implements OnInit {
   closeResult: string;
   storeLocations: any[] = [];
+  isLoading: boolean;
 
   @Input() public scanData = {
     eventTimestamp: '',
@@ -23,13 +25,14 @@ export class BottleScanComponent implements OnInit {
     productBarcode: '7 746307 900805',
   };
   constructor(private modalService: NgbModal,
-              private recipeListService: RecipeListService) { }
+              private recipeListService: RecipeListService,
+              private idbService: IndexedDatabaseService) { }
 
   ngOnInit(): void {
-    this.getStoreLocations();
   }
 
   openBottleScan(content) {
+    this.recipeListService.saveLocationsToIdb();
     const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
     modalRef.result.then(
       (result) => {
@@ -53,17 +56,23 @@ export class BottleScanComponent implements OnInit {
     }
   }
 
-  getStoreLocations(): void {
-    this.recipeListService.retrieveLocations().subscribe(
-      data => {
-        for (const item of data) {
+  getStoreLocationsFromIdb(): void {
+    if (this.storeLocations.length === 0) {
+      this.isLoading = true;
+      this.idbService.getLocationsFromIdb().subscribe(
+        data => {
           this.storeLocations.push({
-            name: item.name,
-            storeLocation: item.storeLocation
+            name: data.name,
+            storeLocation: data.storeLocation
           });
+          this.isLoading = false;
         }
-      }
-    );
+      );
+    }
+  }
+
+  onFocused() {
+    this.getStoreLocationsFromIdb();
   }
 
 }

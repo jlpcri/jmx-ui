@@ -51,6 +51,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   isLoadingNameListFirst: boolean;
   isLoadingNameListSecond: boolean;
+  isLoadingLocation: boolean;
+
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService
               ) { }
@@ -65,7 +67,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.saveRecipesToIdb();
       }
     });
-    this.getPrintLocations();
   }
 
   ngOnDestroy(): void {
@@ -84,6 +85,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   selectEvent(item: { name: string; labelKey: string}, option: string) {
+    this.saveLocationsToIdb();
     if (option === 'Recipe') {
       this.productSizeStrengths = {};
       this.idbService.getProductSizeNicStrength(item.labelKey).subscribe(
@@ -296,23 +298,28 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.printData.name = '';
   }
 
-  getPrintLocations(): void {
-    // this.printLocations = this.recipeListService.retrieveLocations();
-    this.recipeListService.retrieveLocations().subscribe(
-      data => {
-        for (const item of data) {
+  getPrintLocationsFromIdb(): void {
+    if (this.printLocations.length === 0 ) {
+      this.isLoadingLocation = true;
+      this.idbService.getLocationsFromIdb().subscribe(
+        data => {
           this.printLocations.push({
-            name: item.name,
-            storeLocation: item.storeLocation
+            name: data.name,
+            storeLocation: data.storeLocation
           });
+          this.isLoadingLocation = false;
         }
-      }
-    );
+      );
+    }
   }
 
   selectEventLocation(event) {
     this.printData.storeName = event.name;
     this.printData.storeLocation = event.storeLocation;
+  }
+
+  onFocusedLocation() {
+    this.getPrintLocationsFromIdb();
   }
 
 }

@@ -330,13 +330,18 @@ export class IndexedDatabaseService {
   getLocationsFromIdb() {
     const subject = new Subject<any>();
 
-    const tx = this.db.transaction([this.db.objectStoreName], GlobalConstants.idbReadOnly);
+    const tx = this.db.transaction([this.objectStoreLocation], GlobalConstants.idbReadOnly);
     const store = tx.objectStore(this.objectStoreLocation);
     // const index = store.index('name');
 
     const getRequest = store.getAll();
     getRequest.onsuccess = () => {
-      console.log(getRequest.result);
+      for (const item of getRequest.result) {
+        subject.next({
+          name: item.name,
+          storeLocation: item.storeLocation
+        });
+      }
     };
 
     return subject;
