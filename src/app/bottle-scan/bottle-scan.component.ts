@@ -3,6 +3,7 @@ import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
+import {GlobalConstants} from '../shared/GlobalConstants';
 
 @Component({
   selector: 'app-guide',
@@ -15,15 +16,7 @@ export class BottleScanComponent implements OnInit {
   storeLocations: any[] = [];
   isLoading: boolean;
 
-  @Input() public scanData = {
-    eventTimestamp: '',
-    associateName: 'John Doe',
-    batchId: '4158',
-    productSku: '790080',
-    productName: 'Purple Worm',
-    locationName: '',
-    productBarcode: '7 746307 900805',
-  };
+  @Input() public scanData = GlobalConstants.scanDataInitial;
   constructor(private modalService: NgbModal,
               private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService) { }
@@ -33,6 +26,7 @@ export class BottleScanComponent implements OnInit {
 
   openBottleScan(content) {
     this.recipeListService.saveLocationsToIdb();
+    this.scanData.locationName = '';
     const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
     modalRef.result.then(
       (result) => {

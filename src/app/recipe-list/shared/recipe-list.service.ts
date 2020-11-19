@@ -12,8 +12,6 @@ import {RecipeModel} from './recipe.model';
 })
 
 export class RecipeListService {
-  private saveLocationsToIdbFlag = false;
-
   constructor(private api: ApiService,
               private progress: ProgressService,
               private idbService: IndexedDatabaseService) { }
@@ -100,13 +98,16 @@ export class RecipeListService {
   }
 
   saveLocationsToIdb() {
-    if (!this.saveLocationsToIdbFlag) {
-      this.retrieveLocations().subscribe(
-        data => {
-          this.idbService.syncLocations(data);
+    this.idbService.getLocationsObjectStoreCount().subscribe(
+      count => {
+        if (count === 0) {
+          this.retrieveLocations().subscribe(
+            data => {
+              this.idbService.syncLocations(data);
+            }
+          );
         }
-      );
-      this.saveLocationsToIdbFlag = true;
-    }
+      }
+    );
   }
 }

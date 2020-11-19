@@ -24,12 +24,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   searchItemSecond: any = '';
 
   recipes: Recipe[] = [];
-  printData: Product = {
-    name: '', size: '', sku: '', strength: '',
-    storeName: 'Alohma Bellevue',
-    storeLocation: '11527 S 36th St, Bellevue NE, 68123',
-    currentDate: moment().format('L'),
-    batchNumber: '159763'};
+  printData: Product = GlobalConstants.printDataInitial;
   printLocations: any[] = [];
   searchStoreName = '';
 
@@ -278,6 +273,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         console.log(error);
       }
     );
+    this.searchStoreName = '';
   }
 
   resetSizeStrengthRecipes() {
