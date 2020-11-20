@@ -91,7 +91,6 @@ export class RecipeListService {
       },
       error => {
         console.log('Fetch API Locations: ', error.message);
-        // todo: get locations from Idb
       }
     );
     return allLocationsSubject;

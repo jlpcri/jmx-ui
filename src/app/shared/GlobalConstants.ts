@@ -9,6 +9,9 @@ export class GlobalConstants {
   public static nextUnique = 'nextunique';
   public static idbReadOnly = 'readonly';
   public static idbReadWrite = 'readwrite';
+  public static bottleScanCommit = 'commit';
+  public static bottleScanSend = 'send';
+
   public static nameListInitial = [{
     id: 0,
     name: '',
@@ -30,6 +33,7 @@ export class GlobalConstants {
     productSku: '790080',
     productName: 'Purple Worm',
     locationName: '',
+    status: '',
     productBarcode: '7 746307 900805',
   };
 }

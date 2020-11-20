@@ -365,4 +365,79 @@ export class IndexedDatabaseService {
 
   }
 
+  addBottleScan(scanData) {
+    const tx = this.db.transaction([this.objectStoreBottleScan], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreBottleScan);
+
+    store.put({
+      eventTimestamp: scanData.eventTimestamp,
+      associateName: scanData.associateName,
+      batchId: scanData.batchId,
+      productSku: scanData.productSku,
+      productName: scanData.productName,
+      locationName: scanData.locationName.name,
+      status: scanData.status
+    });
+
+    tx.oncomplete = () => {};
+    tx.onerror = (error) => {
+      console.error('Error add location data to indexedDB ', error);
+    };
+  }
+
+  getBottleScan(status) {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreBottleScan], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreBottleScan);
+    const myCursor = store.openCursor();
+
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+
+      if (cursor) {
+        if (cursor.value.status === status) {
+          subject.next(cursor.value);
+        }
+        cursor.continue();
+      }
+    };
+
+    myCursor.onerror = (error) => {
+      console.log(error);
+    };
+
+    return subject;
+  }
+
+  updateBottleScan(bsId) {
+    const tx = this.db.transaction([this.objectStoreBottleScan], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreBottleScan);
+    const myCursor = store.openCursor();
+
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+      if (cursor) {
+        if (cursor.value.id === bsId) {
+          const updateData = cursor.value;
+          updateData.status = GlobalConstants.bottleScanSend;
+          const updateRequest = cursor.update(updateData);
+
+          updateRequest.onsuccess = () => {
+            console.log('Record updated with id: ', bsId);
+          };
+          updateRequest.onerror = error => {
+            console.log(error);
+          };
+        }
+        cursor.continue();
+      }
+    };
+
+    myCursor.onerror = error => {
+      console.log(error);
+    };
+
+  }
+
 }

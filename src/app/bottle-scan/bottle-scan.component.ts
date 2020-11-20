@@ -32,7 +32,15 @@ export class BottleScanComponent implements OnInit {
       (result) => {
         this.closeResult = `Closed with: ${result}`;
         this.scanData.eventTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZ');
-        console.log(this.scanData);
+        this.scanData.status = GlobalConstants.bottleScanCommit;
+        // console.log(this.scanData);
+        // this.idbService.addBottleScan(this.scanData);
+        this.idbService.getBottleScan(GlobalConstants.bottleScanCommit).subscribe(
+          data => {
+            // post to amv-data-api
+            this.idbService.updateBottleScan(data.id);
+          }
+        );
       },
       (reason) => {
         this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
