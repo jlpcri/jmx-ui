@@ -1,5 +1,4 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import * as moment from 'moment';
 
 import {Recipe} from '../recipe';
 import {RecipeListService} from './shared/recipe-list.service';
@@ -26,6 +25,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   recipes: Recipe[] = [];
   printData: Product = GlobalConstants.printDataInitial;
   printLocations: any[] = [];
+  isPrintLocationEmpty = true;
   searchStoreName = '';
 
   firstNameList: any[];
@@ -310,12 +310,19 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   selectEventLocation(event) {
+    this.isPrintLocationEmpty = false;
     this.printData.storeName = event.name;
     this.printData.storeLocation = event.storeLocation;
   }
 
-  onFocusedLocation() {
+  onChangeSearchLocation() {
     this.getPrintLocationsFromIdb();
+  }
+
+  onInputClearedLocation() {
+    this.isPrintLocationEmpty = true;
+    this.printData.storeName = 'Store Name';
+    this.printData.storeLocation = 'Store Location Address';
   }
 
 }

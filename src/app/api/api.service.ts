@@ -30,8 +30,8 @@ export class ApiService {
     return this.http.get<T>(this.baseUrl + url, options).pipe(catchError(ApiService.errorHandler));
   }
 
-  post<T>(url: string, options: {params: HttpParams}): Observable<T> {
-    return this.http.post<T>(this.baseUrl + url, options).pipe(catchError(ApiService.errorHandler));
+  post<T>(url: string, postData: any): Observable<T> {
+    return this.http.post<T>(this.baseUrl + url, postData).pipe(catchError(ApiService.errorHandler));
   }
 
   getAllPages(url: string, options: {params: HttpParams}): Observable<any> {

@@ -50,6 +50,7 @@ export class RecipeListService {
             allRecipesSubject.next(allRecipes);
           }
         }, error => {
+          console.log(error);
           self.progress.loading = false;
           allRecipes = [];
           allRecipesSubject.next(allRecipes);
@@ -72,6 +73,7 @@ export class RecipeListService {
   retrieveLocations() {
     const allLocations: any[] = [];
     const allLocationsSubject: Subject<any> = new Subject<any>();
+    let fullAddr = '';
     const options = {
       params: new HttpParams()
         .set('size', '1000')
@@ -80,7 +82,11 @@ export class RecipeListService {
     this.api.getAllPages('/locations', options).subscribe(
       resp => {
         for (const item of resp) {
-          const fullAddr = item.addrLine1 + ' ' + item.addrLine2 + ', ' + item.city + ' ' + item.state + ', ' +  item.zipCode;
+          if (item.addrLine1 === '') {
+            fullAddr = '';
+          } else {
+            fullAddr = item.addrLine1 + ' ' + item.addrLine2 + ', ' + item.city + ' ' + item.state + ', ' + item.zipCode;
+          }
           allLocations.push({
             name: item.name,
             storeLocation: fullAddr

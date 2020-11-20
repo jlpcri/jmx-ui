@@ -253,7 +253,8 @@
           <div class="help-container">
             <span class="far fa-question-circle hover-help-icon"></span>
             <div class="hover-help">
-              Type in the name of the recipe or ingredient that you are looking for. Then click on the recipe in the options below the search field.
+              Search for the location that you are creating the recipe for. Use the Export Label button to create a printable label.<br>
+              Print button will be disable until you select store name.
             </div>
           </div>
           <span class="fas fa-search icon"></span>
@@ -262,7 +263,8 @@
                            [searchKeyword]="nameListKey"
                            [placeHolder]="'Search Store name'"
                            (selected)="selectEventLocation($event)"
-                           (inputFocused)="onFocusedLocation()"
+                           (inputChanged)="onChangeSearchLocation()"
+                           (inputCleared)="onInputClearedLocation()"
                            [historyIdentifier]="firstNameListHistory"
                            [debounceTime]="400"
                            [isLoading]="isLoadingLocation"
@@ -301,6 +303,7 @@
 
         <div class="ml-auto">
           <button class="btn btn-secondary-custom btn-lg" style="float: right;"
+                  [disabled]="isPrintLocationEmpty"
                   printSectionId="printSection"
                   ngxPrint>PRINT LABEL</button>
         </div>

@@ -38,14 +38,14 @@
                              [data]="storeLocations"
                              [searchKeyword]="'name'"
                              [placeHolder]="'Search Store name'"
-                             (inputFocused)="onFocused()"
+                             (inputChanged)="onChangeSearch()"
                              [historyIdentifier]=""
                              [debounceTime]="400"
                              [isLoading]="isLoading"
                              [minQueryLength]=""
                              [itemTemplate]="itemTemplate"
                              [notFoundTemplate]="notFoundTemplate"
-                             [(ngModel)]="scanData.locationName">
+                             [(ngModel)]="scanDataLocationName">
             </ng-autocomplete>
             <ng-template #itemTemplate let-item>
               <a [innerHTML]="item.name"></a>
@@ -54,11 +54,14 @@
               <div [innerHTML]="notFound"></div>
             </ng-template>
 
+            <br>
+            <div class="form-control" style='float: left; color: red' *ngIf="isShowAlert"><strong>Error: </strong>Store Location Empty.</div>
+
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="modal.close('Save click')">Save</button>
+        <button type="button" class="btn btn-outline-dark" (click)="modal.close(scanDataLocationName)">Save</button>
       </div>
     </ng-template>
   </div>

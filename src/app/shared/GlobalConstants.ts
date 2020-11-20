@@ -21,8 +21,8 @@ export class GlobalConstants {
     size: '',
     sku: '',
     strength: '',
-    storeName: 'Alohma Bellevue',
-    storeLocation: '11527 S 36th St, Bellevue NE, 68123',
+    storeName: 'Store Name',
+    storeLocation: 'Store Location Address',
     currentDate: moment().format('L'),
     batchId: '159763'};
 

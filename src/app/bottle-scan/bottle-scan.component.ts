@@ -4,6 +4,7 @@ import * as moment from 'moment';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
 import {GlobalConstants} from '../shared/GlobalConstants';
+import {ApiService} from '../api/api.service';
 
 @Component({
   selector: 'app-guide',
@@ -14,37 +15,80 @@ import {GlobalConstants} from '../shared/GlobalConstants';
 export class BottleScanComponent implements OnInit {
   closeResult: string;
   storeLocations: any[] = [];
+  scanDataLocationName: any;
   isLoading: boolean;
+  isShowAlert = false;
 
   @Input() public scanData = GlobalConstants.scanDataInitial;
   constructor(private modalService: NgbModal,
               private recipeListService: RecipeListService,
-              private idbService: IndexedDatabaseService) { }
+              private idbService: IndexedDatabaseService,
+              private apiService: ApiService) { }
 
   ngOnInit(): void {
   }
 
   openBottleScan(content) {
     this.recipeListService.saveLocationsToIdb();
-    this.scanData.locationName = '';
+    this.scanDataLocationName = '';
+    let postData = {};
     const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
     modalRef.result.then(
-      (result) => {
-        this.closeResult = `Closed with: ${result}`;
+      (locName) => {
+        if (locName === '') {
+          this.isShowAlert = true;
+          this.openBottleScan(content);
+          return false;
+        }
         this.scanData.eventTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZ');
-        this.scanData.status = GlobalConstants.bottleScanCommit;
-        // console.log(this.scanData);
-        // this.idbService.addBottleScan(this.scanData);
+
+        postData = {
+          eventTimestamp: this.scanData.eventTimestamp,
+          associateName: this.scanData.associateName,
+          batchId: this.scanData.batchId,
+          locationName: this.scanDataLocationName.name,
+          productName: this.scanData.productName,
+          productSku: this.scanData.productSku
+        };
+        this.apiService.post<any>('/bottleScanEvents', postData).subscribe(
+          data => {
+            console.log('Added bottle scan product: ', data.productName);
+            this.scanData.status = GlobalConstants.bottleScanSend;
+            this.idbService.addBottleScan(this.scanData);
+          },
+          error => {
+            console.log(error);
+            this.scanData.status = GlobalConstants.bottleScanCommit;
+            this.idbService.addBottleScan(this.scanData);
+          }
+        );
+
         this.idbService.getBottleScan(GlobalConstants.bottleScanCommit).subscribe(
           data => {
-            // post to amv-data-api
-            this.idbService.updateBottleScan(data.id);
+            postData = {
+              eventTimestamp: data.eventTimestamp,
+              associateName: data.associateName,
+              batchId: data.batchId,
+              locationName: data.locationName.name,
+              productName: data.productName,
+              productSku: data.productSku
+            };
+            this.apiService.post<any>('/bottleScanEvents', postData).subscribe(
+              resp => {
+                console.log('Added bottle scan product: ', resp.productName);
+                this.idbService.updateBottleScan(data.id);
+              },
+              error => {
+                console.log(error);
+              }
+            );
           }
         );
       },
       (reason) => {
         this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
         console.log(this.closeResult);
+        this.isShowAlert = false;
       });
   }
 
@@ -73,7 +117,7 @@ export class BottleScanComponent implements OnInit {
     }
   }
 
-  onFocused() {
+  onChangeSearch() {
     this.getStoreLocationsFromIdb();
   }
 
