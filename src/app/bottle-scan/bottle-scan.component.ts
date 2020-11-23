@@ -5,6 +5,7 @@ import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
 import {GlobalConstants} from '../shared/GlobalConstants';
 import {ApiService} from '../api/api.service';
+import {BottleScanModel} from './bottle-scan.model';
 
 @Component({
   selector: 'app-guide',
@@ -31,7 +32,7 @@ export class BottleScanComponent implements OnInit {
   openBottleScan(content) {
     this.recipeListService.saveLocationsToIdb();
     this.scanDataLocationName = '';
-    let postData = {};
+    let postData: BottleScanModel;
     const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
     modalRef.result.then(
       (locName) => {
@@ -50,9 +51,9 @@ export class BottleScanComponent implements OnInit {
           productName: this.scanData.productName,
           productSku: this.scanData.productSku
         };
-        this.apiService.post<any>('/bottleScanEvents', postData).subscribe(
+        this.apiService.post<BottleScanModel>('/bottleScanEvents', postData).subscribe(
           data => {
-            console.log('Added bottle scan product: ', data.productName);
+            console.log('Added bottle scan product: ', data);
             this.scanData.status = GlobalConstants.bottleScanSend;
             this.idbService.addBottleScan(this.scanData);
           },
@@ -73,7 +74,7 @@ export class BottleScanComponent implements OnInit {
               productName: data.productName,
               productSku: data.productSku
             };
-            this.apiService.post<any>('/bottleScanEvents', postData).subscribe(
+            this.apiService.post<BottleScanModel>('/bottleScanEvents', postData).subscribe(
               resp => {
                 console.log('Added bottle scan product: ', resp.productName);
                 this.idbService.updateBottleScan(data.id);

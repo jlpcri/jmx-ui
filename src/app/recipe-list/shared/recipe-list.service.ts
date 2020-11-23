@@ -111,6 +111,8 @@ export class RecipeListService {
               this.idbService.syncLocations(data);
             }
           );
+        } else {
+          console.log('ObjectStore locations exists. No need loading');
         }
       }
     );

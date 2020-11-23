@@ -32,7 +32,7 @@ export class HeaderComponent implements OnInit {
       if (!dbExisted) {
         this.recipeListService.saveRecipesToIdb();
       } else {
-        console.log('IndexDB exists. No need loading');
+        console.log('ObjectStore recipes exists. No need loading');
       }
     });
   }
