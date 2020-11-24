@@ -18,14 +18,16 @@ export class ErrorService {
       this.modalRef = this.modalService.open(ErrorComponent);
       this.modalRef.componentInstance.errors = this.errors;
       this.modalRef.result.then(() => {
-        // Clear errors and modal ref on close
+        // Clear errors and modal ref on close or dismissal
         this.clear();
-        this.modalRef = null;
+      }).catch(() => {
+        this.clear();
       });
     }
   }
 
   clear() {
+    this.modalRef = null;
     this.errors = [];
   }
 }
