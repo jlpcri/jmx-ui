@@ -14,7 +14,7 @@ export class ApiService {
 
   constructor(private http: HttpClient, private progress: ProgressService) { }
 
-  private errorHandler(error: HttpErrorResponse) {
+  private static errorHandler(error: HttpErrorResponse) {
     let message = 'API Error: ';
     if (error.error instanceof ErrorEvent) {
       message += error.error.message;
@@ -27,7 +27,11 @@ export class ApiService {
   }
 
   get<T>(url: string, options: {params: HttpParams}): Observable<T> {
-    return this.http.get<T>(this.baseUrl + url, options).pipe(catchError(this.errorHandler));
+    return this.http.get<T>(this.baseUrl + url, options).pipe(catchError(ApiService.errorHandler));
+  }
+
+  post<T>(url: string, postData: any): Observable<T> {
+    return this.http.post<T>(this.baseUrl + url, postData).pipe(catchError(ApiService.errorHandler));
   }
 
   getAllPages(url: string, options: {params: HttpParams}): Observable<any> {

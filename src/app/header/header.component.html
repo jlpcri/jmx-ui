@@ -11,6 +11,7 @@
             <button ngbDropdownItem (click)="openHelp(helpTemplate)">Help</button>
             <button ngbDropdownItem (click)="logout()">Logout</button>
             <button ngbDropdownItem (click)="saveRecipesToIdb()" *ngIf="isAdmin()">LoadRecipes</button>
+            <button ngbDropdownItem (click)="saveLocationsToIdb()" *ngIf="isAdmin()">LoadLocations</button>
             <button ngbDropdownItem (click)="eraseIdbData()" *ngIf="isAdmin()">EraseDB</button>
           </div>
         </div>

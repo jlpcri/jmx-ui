@@ -13,6 +13,8 @@ export class IndexedDatabaseService {
   private version = 1;
   private dbName = 'AmvRecipesDatabase';
   private objectStoreName = 'recipes';
+  private objectStoreLocation = 'locations';
+  private objectStoreBottleScan = 'bottleScans';
 
   constructor(private messageService: MessageService) {
   }
@@ -40,9 +42,16 @@ export class IndexedDatabaseService {
     request.onupgradeneeded = (event: any) => {
       const db = event.target.result;
       const objectStore = db.createObjectStore(this.objectStoreName, {keyPath: 'id', autoIncrement: true});
-      objectStore.createIndex(GlobalConstants.indexProduct, 'name', {unique: false});
+      objectStore.createIndex(GlobalConstants.indexProductName, 'name', {unique: false});
       objectStore.createIndex(GlobalConstants.indexLabelKey, 'labelKey', {unique: false});
       objectStore.createIndex(GlobalConstants.indexProductKey, 'key', {unique: false});
+
+      const objectStoreLocation = db.createObjectStore(this.objectStoreLocation, {keyPath: 'id', autoIncrement: true});
+      objectStoreLocation.createIndex(GlobalConstants.indexLocation, 'name', {unique: false});
+      const objectStoreBottleScan = db.createObjectStore(this.objectStoreBottleScan, {keyPath: 'id', autoIncrement: true});
+      objectStoreBottleScan.createIndex(GlobalConstants.indexProductName, 'productName', {unique: false});
+      objectStoreBottleScan.createIndex(GlobalConstants.indexProductSku, 'productSku', {unique: false});
+
       dbExisted = false;
 
     };
@@ -78,8 +87,31 @@ export class IndexedDatabaseService {
     await tx.done;
 
     function onerror(error) {
-      console.error('Error add data to indexedDB ', error);
+      console.error('Error add recipes data to indexedDB ', error);
     }
+  }
+
+  syncLocations(data) {
+    for (const item of data) {
+      this.addLocation(item)
+        .then();
+    }
+  }
+
+  async addLocation(location) {
+    const tx = this.db.transaction([this.objectStoreLocation], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreLocation);
+
+    await store.put({
+      name: location.name,
+      storeLocation: location.storeLocation
+    });
+
+    tx.oncomplete = () => {};
+    tx.onerror = (error) => {
+      console.error('Error add location data to indexedDB ', error);
+    };
+    await tx.done;
   }
 
   getProductNameListByComponent(ingredientName) {
@@ -293,6 +325,119 @@ export class IndexedDatabaseService {
     };
 
     return subject;
+  }
+
+  getLocationsFromIdb() {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreLocation], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreLocation);
+    // const index = store.index('name');
+
+    const getRequest = store.getAll();
+    getRequest.onsuccess = () => {
+      for (const item of getRequest.result) {
+        subject.next({
+          name: item.name,
+          storeLocation: item.storeLocation
+        });
+      }
+    };
+
+    return subject;
+  }
+
+  getLocationsObjectStoreCount() {
+    const subject = new Subject();
+    const tx = this.db.transaction([this.objectStoreLocation], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreLocation);
+    const countRequest = store.count();
+
+    countRequest.onsuccess = () => {
+      subject.next(countRequest.result);
+    };
+
+    countRequest.onerror = (error) => {
+      console.log(error);
+    };
+
+    return subject;
+
+  }
+
+  addBottleScan(scanData) {
+    const tx = this.db.transaction([this.objectStoreBottleScan], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreBottleScan);
+
+    store.put({
+      eventTimestamp: scanData.eventTimestamp,
+      associateName: scanData.associateName,
+      batchId: scanData.batchId,
+      productSku: scanData.productSku,
+      productName: scanData.productName,
+      locationName: scanData.locationName.name,
+      status: scanData.status
+    });
+
+    tx.oncomplete = () => {};
+    tx.onerror = (error) => {
+      console.error('Error add location data to indexedDB ', error);
+    };
+  }
+
+  getBottleScan(status) {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreBottleScan], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreBottleScan);
+    const myCursor = store.openCursor();
+
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+
+      if (cursor) {
+        if (cursor.value.status === status) {
+          subject.next(cursor.value);
+        }
+        cursor.continue();
+      }
+    };
+
+    myCursor.onerror = (error) => {
+      console.log(error);
+    };
+
+    return subject;
+  }
+
+  updateBottleScan(bsId) {
+    const tx = this.db.transaction([this.objectStoreBottleScan], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreBottleScan);
+    const myCursor = store.openCursor();
+
+    myCursor.onsuccess = event => {
+      const cursor = event.target.result;
+      if (cursor) {
+        if (cursor.value.id === bsId) {
+          const updateData = cursor.value;
+          updateData.status = GlobalConstants.bottleScanSend;
+          const updateRequest = cursor.update(updateData);
+
+          updateRequest.onsuccess = () => {
+            console.log('Record updated with id: ', bsId);
+          };
+          updateRequest.onerror = error => {
+            console.log(error);
+          };
+        }
+        cursor.continue();
+      }
+    };
+
+    myCursor.onerror = error => {
+      console.log(error);
+    };
+
   }
 
 }

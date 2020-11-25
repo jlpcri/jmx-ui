@@ -32,7 +32,7 @@ describe('ErrorComponent', () => {
 
   it('closes the active modal when the close button is clicked', () => {
     const button = fixture.debugElement.nativeElement.querySelector('button.close');
-    button.click()
-    expect(modalServiceSpy.close).toHaveBeenCalled()
+    button.click();
+    expect(modalServiceSpy.close).toHaveBeenCalled();
   });
 });

@@ -7,7 +7,7 @@ import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 describe('ErrorService', () => {
   let service: ErrorService;
   let modalServiceSpy: NgbModal;
-  let mockModalRef = {
+  const mockModalRef = {
     componentInstance: {
       errors: []
     },

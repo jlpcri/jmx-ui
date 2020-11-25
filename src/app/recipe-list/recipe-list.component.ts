@@ -1,5 +1,4 @@
 import {Component, OnDestroy, OnInit} from '@angular/core';
-import * as moment from 'moment';
 
 import {Recipe} from '../recipe';
 import {RecipeListService} from './shared/recipe-list.service';
@@ -24,13 +23,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   searchItemSecond: any = '';
 
   recipes: Recipe[] = [];
-  printData: Product = {
-    name: '', size: '', sku: '', strength: '',
-    storeName: 'Alohma Bellevue',
-    storeLocation: '11527 S 36th St, Bellevue NE, 68123',
-    currentDate: moment().format('L'),
-    batchNumber: '159763'};
+  printData: Product = GlobalConstants.printDataInitial;
   printLocations: any[] = [];
+  isPrintLocationEmpty = true;
   searchStoreName = '';
 
   firstNameList: any[];
@@ -51,6 +46,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   isLoadingNameListFirst: boolean;
   isLoadingNameListSecond: boolean;
+  isLoadingLocation: boolean;
+
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService
               ) { }
@@ -65,7 +62,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.saveRecipesToIdb();
       }
     });
-    this.getPrintLocations();
   }
 
   ngOnDestroy(): void {
@@ -84,6 +80,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   selectEvent(item: { name: string; labelKey: string}, option: string) {
+    this.saveLocationsToIdb();
     if (option === 'Recipe') {
       this.productSizeStrengths = {};
       this.idbService.getProductSizeNicStrength(item.labelKey).subscribe(
@@ -224,6 +221,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.recipeListService.saveRecipesToIdb();
   }
 
+  saveLocationsToIdb(): void {
+    this.recipeListService.saveLocationsToIdb();
+  }
+
   notExistInArray(arr: any, key: string, value: string) {
     const obj = arr.find(x => x[key] === value);
     for (const objKey in obj) {
@@ -272,6 +273,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         console.log(error);
       }
     );
+    this.searchStoreName = '';
   }
 
   resetSizeStrengthRecipes() {
@@ -292,13 +294,35 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.printData.name = '';
   }
 
-  getPrintLocations(): void {
-    this.printLocations = this.recipeListService.retrieveLocations();
+  getPrintLocationsFromIdb(): void {
+    if (this.printLocations.length === 0 ) {
+      this.isLoadingLocation = true;
+      this.idbService.getLocationsFromIdb().subscribe(
+        data => {
+          this.printLocations.push({
+            name: data.name,
+            storeLocation: data.storeLocation
+          });
+          this.isLoadingLocation = false;
+        }
+      );
+    }
   }
 
   selectEventLocation(event) {
+    this.isPrintLocationEmpty = false;
     this.printData.storeName = event.name;
     this.printData.storeLocation = event.storeLocation;
+  }
+
+  onChangeSearchLocation() {
+    this.getPrintLocationsFromIdb();
+  }
+
+  onInputClearedLocation() {
+    this.isPrintLocationEmpty = true;
+    this.printData.storeName = 'Store Name';
+    this.printData.storeLocation = 'Store Location Address';
   }
 
 }

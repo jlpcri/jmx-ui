@@ -12,7 +12,6 @@ import {RecipeModel} from './recipe.model';
 })
 
 export class RecipeListService {
-
   constructor(private api: ApiService,
               private progress: ProgressService,
               private idbService: IndexedDatabaseService) { }
@@ -51,6 +50,7 @@ export class RecipeListService {
             allRecipesSubject.next(allRecipes);
           }
         }, error => {
+          console.log(error);
           self.progress.loading = false;
           allRecipes = [];
           allRecipesSubject.next(allRecipes);
@@ -69,8 +69,11 @@ export class RecipeListService {
       }
     );
   }
+
   retrieveLocations() {
-    const results: any[] = [];
+    const allLocations: any[] = [];
+    const allLocationsSubject: Subject<any> = new Subject<any>();
+    let fullAddr = '';
     const options = {
       params: new HttpParams()
         .set('size', '1000')
@@ -79,17 +82,39 @@ export class RecipeListService {
     this.api.getAllPages('/locations', options).subscribe(
       resp => {
         for (const item of resp) {
-          const fullAddr = item.addrLine1 + ' ' + item.addrLine2 + ', ' + item.city + ' ' + item.state + ', ' +  item.zipCode;
-          results.push({
+          if (item.addrLine1 === '') {
+            fullAddr = '';
+          } else {
+            fullAddr = item.addrLine1 + ' ' + item.addrLine2 + ', ' + item.city + ' ' + item.state + ', ' + item.zipCode;
+          }
+          allLocations.push({
             name: item.name,
             storeLocation: fullAddr
           });
         }
+        console.log('loaded ' + allLocations.length + ' locations');
+        allLocationsSubject.next(allLocations);
       },
       error => {
         console.log('Fetch API Locations: ', error.message);
       }
     );
-    return results;
+    return allLocationsSubject;
+  }
+
+  saveLocationsToIdb() {
+    this.idbService.getLocationsObjectStoreCount().subscribe(
+      count => {
+        if (count === 0) {
+          this.retrieveLocations().subscribe(
+            data => {
+              this.idbService.syncLocations(data);
+            }
+          );
+        } else {
+          console.log('ObjectStore locations exists. No need loading');
+        }
+      }
+    );
   }
 }

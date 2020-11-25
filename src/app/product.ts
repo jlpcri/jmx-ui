@@ -5,7 +5,7 @@ export interface Product {
   strength: string;
   storeName: string;
   storeLocation: string;
-  batchNumber: string;
+  batchId: string;
   currentDate: string;
 }
 
