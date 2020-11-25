@@ -34,6 +34,5 @@ export class GlobalConstants {
     productName: 'Purple Worm',
     locationName: '',
     status: '',
-    productBarcode: '7 746307 900805',
   };
 }

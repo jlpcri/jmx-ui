@@ -1,4 +1,4 @@
-import {Component, Input, OnInit, ViewEncapsulation} from '@angular/core';
+import {Component, ElementRef, Input, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
 import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
@@ -20,6 +20,8 @@ export class BottleScanComponent implements OnInit {
   scanDataLocationName: any;
   isLoading: boolean;
   isShowAlert = false;
+
+  @ViewChild('confirmModal') confirmModal: ElementRef;
 
   @Input() public scanData = GlobalConstants.scanDataInitial;
   constructor(private modalService: NgbModal,
@@ -61,46 +63,63 @@ export class BottleScanComponent implements OnInit {
           productName: this.scanData.productName,
           productSku: this.scanData.productSku
         };
-        this.apiService.post<BottleScanModel>('/bottleScanEvents', postData).subscribe(
-          data => {
-            console.log('Added bottle scan product: ', data.productName);
-            this.scanData.status = GlobalConstants.bottleScanSend;
-            this.idbService.addBottleScan(this.scanData);
-          },
-          error => {
-            console.log(error);
-            this.scanData.status = GlobalConstants.bottleScanCommit;
-            this.idbService.addBottleScan(this.scanData);
-          }
-        );
-
-        this.idbService.getBottleScan(GlobalConstants.bottleScanCommit).subscribe(
-          data => {
-            postData = {
-              eventTimestamp: data.eventTimestamp,
-              associateName: data.associateName,
-              batchId: data.batchId,
-              locationName: data.locationName.name,
-              productName: data.productName,
-              productSku: data.productSku
-            };
-            this.apiService.post<BottleScanModel>('/bottleScanEvents', postData).subscribe(
-              resp => {
-                console.log('Added bottle scan product: ', resp.productName);
-                this.idbService.updateBottleScan(data.id);
-              },
-              error => {
-                console.log(error);
-              }
-            );
-          }
-        );
+        this.openBottleScanConfirmation(postData);
       },
       (reason) => {
         this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
         console.log(this.closeResult);
         this.isShowAlert = false;
       });
+  }
+
+  openBottleScanConfirmation(postData) {
+    const modalRef = this.modalService.open(this.confirmModal, {ariaLabelledBy: 'modal-confirmation-title'});
+    modalRef.result.then(
+      (confirm) => {
+        this.postBottleScanData(postData);
+      },
+      (reason) => {
+        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+        console.log(this.closeResult);
+      }
+    );
+  }
+
+  postBottleScanData(postData: BottleScanModel) {
+    this.apiService.post<BottleScanModel>('/bottleScanEvents', postData).subscribe(
+      data => {
+        console.log('Added bottle scan product: ', data.productName);
+        this.scanData.status = GlobalConstants.bottleScanSend;
+        this.idbService.addBottleScan(this.scanData);
+      },
+      error => {
+        console.log(error);
+        this.scanData.status = GlobalConstants.bottleScanCommit;
+        this.idbService.addBottleScan(this.scanData);
+      }
+    );
+
+    this.idbService.getBottleScan(GlobalConstants.bottleScanCommit).subscribe(
+      data => {
+        postData = {
+          eventTimestamp: data.eventTimestamp,
+          associateName: data.associateName,
+          batchId: data.batchId,
+          locationName: data.locationName.name,
+          productName: data.productName,
+          productSku: data.productSku
+        };
+        this.apiService.post<BottleScanModel>('/bottleScanEvents', postData).subscribe(
+          resp => {
+            console.log('Added bottle scan product: ', resp.productName);
+            this.idbService.updateBottleScan(data.id);
+          },
+          error => {
+            console.log(error);
+          }
+        );
+      }
+    );
   }
 
   getDismissReason(reason: any): string {

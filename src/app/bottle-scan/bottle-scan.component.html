@@ -64,5 +64,25 @@
         <button type="button" class="btn btn-outline-dark" (click)="modal.close(scanDataLocationName)">Save</button>
       </div>
     </ng-template>
+
+    <ng-template #confirmModal let-modal>
+      <div class="modal-header">
+        <h4 class="modal-title" id="modal-confirmation-title">BottleScan Data Save</h4>
+        <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <p><strong>Are you sure you want to save product <span class="text-primary">"{{scanData.productName}}"</span> ?</strong></p>
+        <p>All information associated to this bottle scan will be permanently saved to Database.
+          <span class="text-danger">This operation can not be undone.</span>
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('cancel click')">Cancel</button>
+        <button type="button" ngbAutofocus class="btn btn-danger" (click)="modal.close('Ok click')">Ok</button>
+      </div>
+    </ng-template>
+
   </div>
 </div>
