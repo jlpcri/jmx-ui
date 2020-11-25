@@ -43,6 +43,7 @@ export class BottleScanComponent implements OnInit {
     }
 
     this.scanDataLocationName = '';
+    this.scanData.locationName = '';
 
     let postData: BottleScanModel;
     const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
