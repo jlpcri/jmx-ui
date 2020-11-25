@@ -27,8 +27,8 @@
             <label for="scanProductSku">Product SKU</label>
             <input id="scanProductSku" [(ngModel)]="scanData.productSku" name="scanProductSku" class="form-control" placeholder="Product SKU">
 
-            <label for="scanProductBar">Product Barcode</label>
-            <input id="scanProductBar" [(ngModel)]="scanData.productBarcode" name="scanProductBar" class="form-control" placeholder="Product Barcode">
+            <label for="scanProductBar">Product BatchID</label>
+            <input id="scanProductBar" [(ngModel)]="scanData.batchId" name="scanProductBar" class="form-control" placeholder="Product Barcode">
 
             <label for="scanEmployeeName">Associate Name</label>
             <input id="scanEmployeeName" [(ngModel)]="scanData.associateName" name="scanEmployee" class="form-control" placeholder="Associate Name">
@@ -38,7 +38,7 @@
                              [data]="storeLocations"
                              [searchKeyword]="'name'"
                              [placeHolder]="'Search Store name'"
-                             (inputChanged)="onChangeSearch()"
+                             (selected)="selectEvent()"
                              [historyIdentifier]=""
                              [debounceTime]="400"
                              [isLoading]="isLoading"

@@ -12,7 +12,7 @@ export class ErrorTestComponent {
     // Add a unique error message in dev mode to allow testing errors
     this.errorService.add('test');
     // add a second after a moment to test arrival of new messages
-    setTimeout(() => {this.errorService.add('delayed test');},5000)
+    setTimeout(() => {this.errorService.add('delayed test'); }, 5000);
   }
 
   isDevMode() {

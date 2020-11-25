@@ -16,6 +16,7 @@ import {BottleScanModel} from './bottle-scan.model';
 export class BottleScanComponent implements OnInit {
   closeResult: string;
   storeLocations: any[] = [];
+  locationLoadedFlag = false;
   scanDataLocationName: any;
   isLoading: boolean;
   isShowAlert = false;
@@ -30,8 +31,17 @@ export class BottleScanComponent implements OnInit {
   }
 
   openBottleScan(content) {
-    this.recipeListService.saveLocationsToIdb();
+    if (!this.locationLoadedFlag) {
+      this.recipeListService.saveLocationsToIdb();
+      this.locationLoadedFlag = true;
+    }
+
+    if (this.storeLocations.length === 0) {
+      this.getStoreLocationsFromIdb();
+    }
+
     this.scanDataLocationName = '';
+
     let postData: BottleScanModel;
     const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
     modalRef.result.then(
@@ -53,7 +63,7 @@ export class BottleScanComponent implements OnInit {
         };
         this.apiService.post<BottleScanModel>('/bottleScanEvents', postData).subscribe(
           data => {
-            console.log('Added bottle scan product: ', data);
+            console.log('Added bottle scan product: ', data.productName);
             this.scanData.status = GlobalConstants.bottleScanSend;
             this.idbService.addBottleScan(this.scanData);
           },
@@ -118,8 +128,8 @@ export class BottleScanComponent implements OnInit {
     }
   }
 
-  onChangeSearch() {
-    this.getStoreLocationsFromIdb();
+  selectEvent() {
+    this.isShowAlert = false;
   }
 
 }
