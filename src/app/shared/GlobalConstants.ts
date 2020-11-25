@@ -35,4 +35,8 @@ export class GlobalConstants {
     locationName: '',
     status: '',
   };
+
+  public static scanDataCheckFields = [
+     'productName', 'productSku', 'batchId', 'associateName', 'locationName'
+  ];
 }

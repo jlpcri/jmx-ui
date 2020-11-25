@@ -47,8 +47,8 @@ export class BottleScanComponent implements OnInit {
     let postData: BottleScanModel;
     const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
     modalRef.result.then(
-      (locName) => {
-        if (locName === '') {
+      (inputData) => {
+        if (!this.isScanDataValid(inputData)) {
           this.isShowAlert = true;
           this.openBottleScan(content);
           return false;
@@ -59,7 +59,7 @@ export class BottleScanComponent implements OnInit {
           eventTimestamp: this.scanData.eventTimestamp,
           associateName: this.scanData.associateName,
           batchId: this.scanData.batchId,
-          locationName: this.scanDataLocationName.name,
+          locationName: this.scanData.locationName,
           productName: this.scanData.productName,
           productSku: this.scanData.productSku
         };
@@ -147,8 +147,21 @@ export class BottleScanComponent implements OnInit {
     }
   }
 
-  selectEvent() {
+  selectEvent(event) {
+    this.scanData.locationName = event.name;
     this.isShowAlert = false;
+  }
+
+  isScanDataValid(data) {
+    let flag = true;
+    for (const field of GlobalConstants.scanDataCheckFields) {
+      if (data[field] === '') {
+        flag = false;
+        break;
+      }
+    }
+
+    return flag;
   }
 
 }

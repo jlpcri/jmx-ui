@@ -38,7 +38,7 @@
                              [data]="storeLocations"
                              [searchKeyword]="'name'"
                              [placeHolder]="'Search Store name'"
-                             (selected)="selectEvent()"
+                             (selected)="selectEvent($event)"
                              [historyIdentifier]=""
                              [debounceTime]="400"
                              [isLoading]="isLoading"
@@ -55,13 +55,13 @@
             </ng-template>
 
             <br>
-            <div class="form-control" style='float: left; color: red' *ngIf="isShowAlert"><strong>Error: </strong>Store Location Empty.</div>
+            <div class="form-control" style='float: left; color: red' *ngIf="isShowAlert"><strong>Error: </strong>At least one input field Empty.</div>
 
           </div>
         </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-outline-dark" (click)="modal.close(scanDataLocationName)">Save</button>
+        <button type="button" class="btn btn-outline-dark" (click)="modal.close(scanData)">Save</button>
       </div>
     </ng-template>
 
