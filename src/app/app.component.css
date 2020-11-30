@@ -72,4 +72,9 @@ header {
 }
 /*** END - Header ***/
 
+/* autocomplete search field */
+.autocomplete-container::ng-deep {
+  box-shadow: none!important;
+}
+
 

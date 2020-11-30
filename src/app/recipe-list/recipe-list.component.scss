@@ -77,7 +77,7 @@ label {
 
 .input-icons {
   width: 100%;
-  margin-bottom: 10px;
+  margin-top: 10px;
 }
 
 .icon {
@@ -147,6 +147,26 @@ label {
   box-shadow: none;
 }
 
+/* start - custom search field */
+.ng-autocomplete::ng-deep .autocomplete-container {
+  box-shadow: none!important;
+}
+
+.ng-autocomplete::ng-deep .autocomplete-container .input-container input {
+  font-size: 1.5rem;
+  color: #031111;
+}
+
+.ng-autocomplete::ng-deep .autocomplete-container .not-found {
+  margin-top: 8px;
+}
+/* end - custom search field */
+
+/* start - custom drop down */
+.custom-select {
+  border: 2px solid #031111;
+}
+/* end - custom drop down */
 /*** END - Forms ***/
 
 /*** START - Juice Bottle ***/
