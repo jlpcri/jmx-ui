@@ -148,6 +148,14 @@ label {
 }
 
 /* start - custom search field */
+.custom-search-field:focus {
+    color: #031111;
+    background-color: #fff;
+    border-bottom: 4px solid #277C3B;
+    outline: 0;
+    box-shadow: none;
+}
+
 .ng-autocomplete::ng-deep .autocomplete-container {
   box-shadow: none!important;
 }
