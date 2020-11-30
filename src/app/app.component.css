@@ -72,6 +72,34 @@ header {
 }
 /*** END - Header ***/
 
+/*** START - Buttons ***/
+/* start - secondary */
+button.btn-secondary {
+  background: #309C49;
+  border: 2px solid #309C49;
+  color: #ffffff;
+  padding: 8px 40px;
+  border-radius: 40px;
+  font-size: 1.5rem;
+  letter-spacing: 1.75px;
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+button.btn-secondary:hover,
+.btn-secondary:not(:disabled):not(.disabled):active {
+  background: #156126;
+  border: 2px solid #156126;
+  box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.25);
+}
+
+.btn-secondary:focus,
+.btn-secondary:not(:disabled):not(.disabled):active:focus {
+      box-shadow: 0 0 0 0.2rem rgba(0,0,0,0);
+}
+/* end - secondary */
+/*** END - Buttons ***/
+
 /* autocomplete search field */
 .autocomplete-container::ng-deep {
   box-shadow: none!important;
