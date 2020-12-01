@@ -28,4 +28,10 @@ header {
 .btn-account:hover {
   text-decoration: none;
 }
+
+@media (max-width:767px) {
+  .col-header {
+    width: 50%;
+  }
+}
 /*** END - Header ***/

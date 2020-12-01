@@ -165,6 +165,28 @@ button.btn-account:not(:disabled):not(.disabled):active:focus {
     margin: 0;
   }
 
+  .mobile-reverse {
+    flex-direction: column-reverse;
+  }
+
+  .container-fluid {
+    padding: 0 2rem;
+  }
+
+  .search-container {
+    padding-left: 0;
+  }
+
+  .container-search-results {
+    width: auto;
+    margin: 0 2rem;
+  }
+
+  .col-md-4,
+  .col-md-8 {
+    padding: 0 2rem;
+  }
+
   /* button */
   button.btn-primary-custom {
     font-size: 1rem;
