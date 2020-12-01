@@ -57,6 +57,10 @@ h3 {
   line-height: 150%;
   letter-spacing: 0;
 }
+
+.modal-body ol {
+  padding-left: 1.5rem;
+}
 /*** END - Type ***/
 
 /*** START - Header ***/
@@ -105,4 +109,16 @@ button.btn-secondary:hover,
   box-shadow: none!important;
 }
 
+/*** START - Containers ***/
+.row {
+  margin-right: 0px!important;
+  margin-left: 0px!important;
+}
 
+/*@media (max-width: 648px) {
+  .row {
+    margin-right: 0px!important;
+    margin-left: 0px!important;
+  }
+}*/
+/*** END - Containers ***/
