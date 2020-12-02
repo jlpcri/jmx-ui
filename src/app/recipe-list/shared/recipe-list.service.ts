@@ -16,7 +16,7 @@ export class RecipeListService {
               private progress: ProgressService,
               private idbService: IndexedDatabaseService) { }
 
-  retrieveAllRecipes(): Observable<RecipeModel[]> {
+  private retrieveAllRecipes(): Observable<RecipeModel[]> {
     let allRecipes: RecipeModel[] = [];
     const allRecipesSubject: Subject<any> = new Subject<any>();
     this.progress.loading = true;
@@ -45,13 +45,11 @@ export class RecipeListService {
           if (allRecipes.length < resp.totalRecipes) {
             getNext();
           } else {
-            self.progress.loading = false;
             console.log('loaded ' + allRecipes.length + ' recipes');
             allRecipesSubject.next(allRecipes);
           }
         }, error => {
           console.log(error);
-          self.progress.loading = false;
           allRecipes = [];
           allRecipesSubject.next(allRecipes);
         }
@@ -63,9 +61,19 @@ export class RecipeListService {
   }
 
   saveRecipesToIdb() {
+    this.progress.loading = true;
     this.retrieveAllRecipes().subscribe(
       data => {
-        this.idbService.syncRecipes(data);
+        this.progress.progressMessage = 'Saving Recipes...';
+        this.idbService.syncRecipes(data).subscribe(
+          products => {
+            console.log(products.length + ' products saved to idb');
+            this.progress.loading = false;
+          }, error => {
+            // Use error message modal here please...
+            this.progress.loading = false;
+          }
+        );
       }
     );
   }

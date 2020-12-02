@@ -1,6 +1,6 @@
 import {Injectable} from '@angular/core';
 import {MessageService} from './message.service';
-import {Subject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {GlobalConstants} from './GlobalConstants';
 import {RecipeModel} from '../recipe-list/shared/recipe.model';
 
@@ -57,38 +57,24 @@ export class IndexedDatabaseService {
     };
   }
 
-  syncRecipes(data) {
-    for (const item of data) {
-      this.addRecipe(item)
-        .then();
-    }
-  }
-
-  async addRecipe(product: RecipeModel) {
-    const tmp = {
-      sku: product.sku,
-      name: product.name,
-      label: product.label,
-      labelKey: product.labelKey,
-      nicStrength: product.nicStrength,
-      bottleSize: product.bottleSize,
-      key: product.key,
-      ingredients: product.ingredients,
-      saltNic: product.saltNic
+  syncRecipes(recipes: RecipeModel[]): Observable<RecipeModel[]> {
+    const syncRecipesSubject = new Subject<RecipeModel[]>();
+    const tx = this.db.transaction(['recipes'], 'readwrite');
+    const products: RecipeModel[] = [];
+    tx.oncomplete = () => {
+      console.log('all recipes saved');
+      syncRecipesSubject.next(products);
     };
-
-    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
+    tx.onerror = (error) => {
+      console.error('Error adding recipes data to indexedDB ', error);
+      syncRecipesSubject.error(error);
+    };
     const store = tx.objectStore(this.objectStoreName);
-
-    await store.put(tmp);
-
-    tx.oncomplete = () => {};
-    tx.onerror = onerror;
-    await tx.done;
-
-    function onerror(error) {
-      console.error('Error add recipes data to indexedDB ', error);
+    for (const recipe of recipes) {
+        store.put(recipe);
+        products.push(recipe);
     }
+    return syncRecipesSubject;
   }
 
   syncLocations(data) {

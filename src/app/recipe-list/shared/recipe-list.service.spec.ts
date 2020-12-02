@@ -40,7 +40,7 @@ describe('RecipListService', () => {
       return of(recipeList);
     });
 
-    service.retrieveAllRecipes();
+    service.saveRecipesToIdb();
 
   });
 
