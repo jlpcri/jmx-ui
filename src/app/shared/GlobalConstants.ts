@@ -6,6 +6,7 @@ export class GlobalConstants {
   public static indexLocation = 'name';
   public static indexLabelKey = 'labelKey';
   public static indexProductKey = 'productKey';
+  public static indexAppProperty = 'property';
   public static nextUnique = 'nextunique';
   public static idbReadOnly = 'readonly';
   public static idbReadWrite = 'readwrite';

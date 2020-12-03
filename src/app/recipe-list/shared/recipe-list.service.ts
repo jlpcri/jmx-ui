@@ -6,6 +6,7 @@ import {Observable, Subject} from 'rxjs';
 import {ProgressService} from '../../progress-bar/shared/progress.service';
 import {RecipeListModel} from './recipe-list.model';
 import {RecipeModel} from './recipe.model';
+import {LocationModel, LocationResponseListModel} from '../../shared/location.model';
 
 @Injectable({
   providedIn: 'root'
@@ -79,7 +80,7 @@ export class RecipeListService {
   }
 
   retrieveLocations() {
-    const allLocations: any[] = [];
+    const allLocations: LocationModel[] = [];
     const allLocationsSubject: Subject<any> = new Subject<any>();
     let fullAddr = '';
     const options = {
@@ -87,9 +88,9 @@ export class RecipeListService {
         .set('size', '1000')
         .set('sort', 'name')
     };
-    this.api.getAllPages('/locations', options).subscribe(
+    this.api.get<LocationResponseListModel>('/locations', options).subscribe(
       resp => {
-        for (const item of resp) {
+        for (const item of resp.content) {
           if (item.addrLine1 === '') {
             fullAddr = '';
           } else {

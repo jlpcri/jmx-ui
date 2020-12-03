@@ -3,6 +3,7 @@ import {MessageService} from './message.service';
 import {Observable, Subject} from 'rxjs';
 import {GlobalConstants} from './GlobalConstants';
 import {RecipeModel} from '../recipe-list/shared/recipe.model';
+import {LocationModel} from './location.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class IndexedDatabaseService {
   private objectStoreName = 'recipes';
   private objectStoreLocation = 'locations';
   private objectStoreBottleScan = 'bottleScans';
+  private objectStoreAppConfig = 'appConfig';
 
   constructor(private messageService: MessageService) {
   }
@@ -52,6 +54,9 @@ export class IndexedDatabaseService {
       objectStoreBottleScan.createIndex(GlobalConstants.indexProductName, 'productName', {unique: false});
       objectStoreBottleScan.createIndex(GlobalConstants.indexProductSku, 'productSku', {unique: false});
 
+      const objectStoreAppConfig = db.createObjectStore(this.objectStoreAppConfig, {keyPath: 'id', autoIncrement: true});
+      objectStoreAppConfig.createIndex(GlobalConstants.indexAppProperty, 'property', {unique: true});
+
       dbExisted = false;
 
     };
@@ -59,7 +64,7 @@ export class IndexedDatabaseService {
 
   syncRecipes(recipes: RecipeModel[]): Observable<RecipeModel[]> {
     const syncRecipesSubject = new Subject<RecipeModel[]>();
-    const tx = this.db.transaction(['recipes'], 'readwrite');
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
     const products: RecipeModel[] = [];
     tx.oncomplete = () => {
       console.log('all recipes saved');
@@ -77,27 +82,20 @@ export class IndexedDatabaseService {
     return syncRecipesSubject;
   }
 
-  syncLocations(data) {
-    for (const item of data) {
-      this.addLocation(item)
-        .then();
-    }
-  }
-
-  async addLocation(location) {
+  syncLocations(locations: LocationModel[]) {
     const tx = this.db.transaction([this.objectStoreLocation], GlobalConstants.idbReadWrite);
     const store = tx.objectStore(this.objectStoreLocation);
 
-    await store.put({
-      name: location.name,
-      storeLocation: location.storeLocation
-    });
+    for (const location of locations) {
+      store.put(location);
+    }
 
-    tx.oncomplete = () => {};
+    tx.oncomplete = () => {
+      console.log('All locations saved.');
+    };
     tx.onerror = (error) => {
       console.error('Error add location data to indexedDB ', error);
     };
-    await tx.done;
   }
 
   getProductNameListByComponent(ingredientName) {
