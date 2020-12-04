@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit} from '@angular/core';
+import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {Recipe} from '../recipe';
 import {RecipeListService} from './shared/recipe-list.service';
@@ -36,6 +36,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   isLoadingNameListSecond: boolean;
   isLoadingLocation: boolean;
 
+  @ViewChild('autocompleteFirst') autocompleteFirst;
+
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService,
               private errorService: ErrorService) { }
@@ -66,7 +68,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   selectEvent(item: { name: string; labelKey: string}) {
-    this.saveLocationsToIdb();
     this.productSizeStrengths = {};
     this.idbService.getProductSizeNicStrength(item.labelKey).subscribe(
       (data) => {
@@ -140,11 +141,15 @@ export class RecipeListComponent implements OnInit, OnDestroy {
             labelKey: nameList.labelKey
           });
           this.isLoadingNameListFirst = false;
+          setTimeout(() => {
+            this.autocompleteFirst.focus();
+          }, 1000);
         });
   }
 
   onChangeSearchSecond(search: string) {
     this.isLoadingNameListSecond = true;
+    this.searchItem = '';
     this.secondNameList = [];
 
     if (search.length > 0) {
@@ -180,15 +185,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.secondNameList = [];
     this.searchItem = '';
     this.resetSizeStrengthRecipes();
-    // this.resetSizeStrengthRecipesSecond();
   }
 
   saveRecipesToIdb(): void {
     this.recipeListService.saveRecipesToIdb();
-  }
-
-  saveLocationsToIdb(): void {
-    this.recipeListService.saveLocationsToIdb();
   }
 
   notExistInArray(arr: any, key: string, value: string) {

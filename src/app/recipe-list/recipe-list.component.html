@@ -11,10 +11,10 @@
             </div>
           </div>
           <span class="fas fa-search icon"></span>
-          <ng-autocomplete class="form-control input-field"
+          <ng-autocomplete class="form-control input-field" #autocompleteFirst
                            [data]="firstNameList"
                            [searchKeyword]="nameListKey"
-                           [placeHolder]="'Searched by juice' "
+                           [placeHolder]="'Searched by Juice' "
                            (selected)="selectEvent($event)"
                            (inputChanged)="onChangeSearch($event)"
                            (inputCleared)="onInputCleared()"
@@ -68,7 +68,7 @@
           <ng-autocomplete class="form-control input-field"
                            [data]="secondNameList"
                            [searchKeyword]="nameListKey"
-                           [placeHolder]="'Search By Ingredients'"
+                           [placeHolder]="'Searched By Ingredients'"
                            (selected)="selectEventSecond($event)"
                            (inputChanged)="onChangeSearchSecond($event)"
                            (inputFocused)="onFocusedSecond()"
@@ -173,8 +173,8 @@
             <tbody>
             <tr *ngFor="let recipe of recipes">
               <td class="d-flex"><span class="fas fa-circle ing-icon ing-color-{{recipe.color}}"></span> <span class="d-flex">{{recipe.ingredients}}</span></td>
-              <td>{{recipe.quantity}}mL</td>
-              <td>{{recipe.percentage * 100}}%</td>
+              <td>{{recipe.color === 'bottle' ? recipe.quantity : recipe.quantity + 'mL'}}</td>
+              <td>{{recipe.color === 'bottle' ? '' : recipe.percentage * 100 + '%'}}</td>
             </tr>
             </tbody>
           </table>

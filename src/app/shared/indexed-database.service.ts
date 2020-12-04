@@ -158,22 +158,33 @@ export class IndexedDatabaseService {
     const getRequest = index.get(key);
     getRequest.onsuccess = () => {
       for (const item of getRequest.result.ingredients) {
-        if (item.name.toLowerCase().indexOf('nicotine') >= 0) {
-          tmpColor = 'nicotine';
+        if (item.name.toLowerCase().indexOf('bottle') >= 0) {
+          recipes.unshift({
+            ingredients: item.name,
+            quantity: item.quantity,
+            percentage: 0,
+            color: 'bottle'
+          });
         } else {
-          tmpColor = (colorIdx % colorTotal).toString();
+          if (item.name.toLowerCase().indexOf('nicotine') >= 0) {
+            tmpColor = 'nicotine';
+          } else {
+            tmpColor = (colorIdx % colorTotal).toString();
+          }
+          recipes.push({
+            ingredients: item.name,
+            quantity: item.quantity,
+            percentage: 0,
+            color: tmpColor
+          });
+          quantitySum += parseFloat(item.quantity);
+          colorIdx++;
         }
-        recipes.push({
-          ingredients: item.name,
-          quantity: item.quantity,
-          percentage: 0,
-          color: tmpColor
-        });
-        quantitySum += parseFloat(item.quantity);
-        colorIdx++;
       }
       for (const item of recipes) {
-        item.percentage = (item.quantity / quantitySum).toFixed(2);
+        if (item.ingredients.toLowerCase().indexOf('bottle') < 0) {
+          item.percentage = (item.quantity / quantitySum).toFixed(2);
+        }
       }
     };
     return recipes;
@@ -359,7 +370,7 @@ export class IndexedDatabaseService {
       batchId: scanData.batchId,
       productSku: scanData.productSku,
       productName: scanData.productName,
-      locationName: scanData.locationName.name,
+      locationName: scanData.locationName,
       status: scanData.status
     });
 
