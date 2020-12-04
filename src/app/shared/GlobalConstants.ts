@@ -31,7 +31,7 @@ export class GlobalConstants {
 
   public static scanDataInitial = {
     eventTimestamp: '',
-    associateName: 'John Doe',
+    associateName: '',
     batchId: '4158',
     productSku: '790080',
     productName: 'Purple Worm',
@@ -40,6 +40,13 @@ export class GlobalConstants {
   };
 
   public static scanDataCheckFields = [
-     'productName', 'productSku', 'batchId', 'associateName', 'locationName'
+     'productSku', 'batchId', 'associateName'
   ];
+
+  public static appLocation = {
+    name: '',
+    storeLocation: ''
+  };
+
+  public static appLocationErrorMsg = 'App Location not set. Go to main menu AppConfig';
 }

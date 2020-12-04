@@ -1,11 +1,15 @@
 import {Component, ElementRef, Input, OnInit, ViewChild, ViewEncapsulation} from '@angular/core';
-import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import * as moment from 'moment';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
 import {GlobalConstants} from '../shared/GlobalConstants';
 import {ApiService} from '../api/api.service';
 import {BottleScanModel} from './bottle-scan.model';
+import {HeaderComponent} from '../header/header.component';
+import {ErrorService} from '../error/error.service';
+import {User} from '../shared/user.model';
+import {AuthService} from '../auth.service';
 
 @Component({
   selector: 'app-guide',
@@ -14,24 +18,32 @@ import {BottleScanModel} from './bottle-scan.model';
   encapsulation: ViewEncapsulation.None
 })
 export class BottleScanComponent implements OnInit {
+  user: User;
   closeResult: string;
   isShowAlert = false;
 
   @ViewChild('confirmModal') confirmModal: ElementRef;
 
   @Input() public scanData = GlobalConstants.scanDataInitial;
-  constructor(private modalService: NgbModal,
+  constructor(private authService: AuthService,
+              private modalService: NgbModal,
               private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService,
-              private apiService: ApiService) { }
+              private apiService: ApiService,
+              private headerComponent: HeaderComponent,
+              private errorService: ErrorService) { }
 
   ngOnInit(): void {
+    this.authService.authorized().subscribe(
+      user => { this.user = user; }
+    );
   }
 
   openBottleScan(content) {
     this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyLocation).subscribe(
       location => {
-        this.scanData.locationName = location;
+        this.scanData.locationName = location.name;
+        this.scanData.associateName = this.user.name;
 
         let postData: BottleScanModel;
         const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
@@ -55,13 +67,14 @@ export class BottleScanComponent implements OnInit {
             this.openBottleScanConfirmation(postData);
           },
           (reason) => {
-            this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+            this.closeResult = `Dismissed ${this.headerComponent.getDismissReason(reason)}`;
             console.log(this.closeResult);
             this.isShowAlert = false;
           });
       },
       error => {
         console.log(error);
+        this.errorService.add(GlobalConstants.appLocationErrorMsg);
       }
     );
   }
@@ -73,7 +86,7 @@ export class BottleScanComponent implements OnInit {
         this.postBottleScanData(postData);
       },
       (reason) => {
-        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+        this.closeResult = `Dismissed ${this.headerComponent.getDismissReason(reason)}`;
         console.log(this.closeResult);
       }
     );
@@ -87,7 +100,7 @@ export class BottleScanComponent implements OnInit {
         this.idbService.addBottleScan(this.scanData);
       },
       error => {
-        console.log(error);
+        this.errorService.add(error);
         this.scanData.status = GlobalConstants.bottleScanCommit;
         this.idbService.addBottleScan(this.scanData);
       }
@@ -109,21 +122,11 @@ export class BottleScanComponent implements OnInit {
             this.idbService.updateBottleScan(data.id);
           },
           error => {
-            console.log(error);
+            this.errorService.add(error);
           }
         );
       }
     );
-  }
-
-  getDismissReason(reason: any): string {
-    if (reason === ModalDismissReasons.ESC) {
-      return 'by pressing ESC';
-    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
-      return 'by clicking on a backdrop';
-    } else {
-      return `with: ${reason}`;
-    }
   }
 
   isScanDataValid(data) {

@@ -7,6 +7,7 @@ import {ProgressService} from '../../progress-bar/shared/progress.service';
 import {RecipeListModel} from './recipe-list.model';
 import {RecipeModel} from './recipe.model';
 import {LocationModel, LocationResponseListModel} from '../../shared/location.model';
+import {ErrorService} from '../../error/error.service';
 
 @Injectable({
   providedIn: 'root'
@@ -15,7 +16,8 @@ import {LocationModel, LocationResponseListModel} from '../../shared/location.mo
 export class RecipeListService {
   constructor(private api: ApiService,
               private progress: ProgressService,
-              private idbService: IndexedDatabaseService) { }
+              private idbService: IndexedDatabaseService,
+              private errorService: ErrorService) { }
 
   private retrieveAllRecipes(): Observable<RecipeModel[]> {
     let allRecipes: RecipeModel[] = [];
@@ -71,7 +73,7 @@ export class RecipeListService {
             console.log(products.length + ' products saved to idb');
             this.progress.loading = false;
           }, error => {
-            // Use error message modal here please...
+            this.errorService.add(error);
             this.progress.loading = false;
           }
         );
@@ -105,7 +107,7 @@ export class RecipeListService {
         allLocationsSubject.next(allLocations);
       },
       error => {
-        console.log('Fetch API Locations: ', error.message);
+        this.errorService.add('Fetch API Locations: ' + error.message);
       }
     );
     return allLocationsSubject;

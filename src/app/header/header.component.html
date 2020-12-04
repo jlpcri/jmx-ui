@@ -5,7 +5,7 @@
         <a href="#" class="site-title">JMX - Juice App</a>
       </div>
       <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
-        {{appLocation}}
+        {{appLocation.name}}
       </div>
       <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
         <div ngbDropdown class="d-inline-block">
@@ -89,7 +89,7 @@
                          [minQueryLength]=""
                          [itemTemplate]="itemTemplate"
                          [notFoundTemplate]="notFoundTemplate"
-                         [(ngModel)]="appLocation">
+                         [(ngModel)]="locationSelect">
         </ng-autocomplete>
         <ng-template #itemTemplate let-item>
           <a [innerHTML]="item.name"></a>
@@ -105,6 +105,6 @@
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.close(appLocation)">Save</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close(locationSelect)">Save</button>
   </div>
 </ng-template>

@@ -1,23 +1,29 @@
-import {Component, ElementRef, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injectable, OnInit, ViewChild} from '@angular/core';
 import {User} from '../shared/user.model';
 import {AuthService} from '../auth.service';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
-import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {LocationModel} from '../shared/location.model';
 import {GlobalConstants} from '../shared/GlobalConstants';
+import {ErrorService} from '../error/error.service';
 
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
+
+@Injectable({
+  providedIn: 'root'
+})
 export class HeaderComponent implements OnInit {
   user: User;
   closeResult: string;
   storeLocations: LocationModel[] = [];
   locationLoadedFlag = false;
-  appLocation = '';
+  locationSelect = '';
+  appLocation = GlobalConstants.appLocation;
   isLoading: boolean;
   isShowAlert = false;
 
@@ -26,7 +32,8 @@ export class HeaderComponent implements OnInit {
   constructor(private auth: AuthService,
               private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService,
-              private modalService: NgbModal) { }
+              private modalService: NgbModal,
+              private errorService: ErrorService) { }
 
   ngOnInit(): void {
     this.auth.authorized().subscribe(
@@ -86,7 +93,7 @@ export class HeaderComponent implements OnInit {
       this.getStoreLocationsFromIdb();
     }
 
-    let newValue = '';
+    this.locationSelect = this.appLocation.name;
     const modalRef = this.modalService.open(this.appConfigModal, {ariaLabelledBy: 'modal-appConfig-title', size: 'lg'});
     modalRef.result.then(
       (location) => {
@@ -96,19 +103,27 @@ export class HeaderComponent implements OnInit {
           return false;
         }
 
-        if (typeof location === 'string') {
-          newValue = location;
-        } else {
-          newValue = location.name;
+        if (location !== this.appLocation.name) {
+          this.saveAppProperty(GlobalConstants.appPropertyLocation, location);
         }
-        this.saveAppProperty(GlobalConstants.appPropertyLocation, newValue);
       },
       (reason) => {
-        console.log(reason);
+        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+        console.log(this.closeResult);
         this.getAppProperty(GlobalConstants.appPropertyLocation);
         this.isShowAlert = false;
       }
     );
+  }
+
+  getDismissReason(reason: any): string {
+    if (reason === ModalDismissReasons.ESC) {
+      return 'by pressing ESC';
+    } else if (reason === ModalDismissReasons.BACKDROP_CLICK) {
+      return 'by clicking on a backdrop';
+    } else {
+      return `with: ${reason}`;
+    }
   }
 
   getStoreLocationsFromIdb(): void {
@@ -132,7 +147,7 @@ export class HeaderComponent implements OnInit {
         this.appLocation = value;
       },
       error => {
-        console.log(error);
+        this.errorService.add(GlobalConstants.appLocationErrorMsg);
       }
     );
   }
@@ -143,7 +158,7 @@ export class HeaderComponent implements OnInit {
         this.appLocation = location;
       },
       error => {
-        console.log(error);
+        this.errorService.add(error);
       }
     );
   }
