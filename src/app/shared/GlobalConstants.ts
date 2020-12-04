@@ -12,6 +12,8 @@ export class GlobalConstants {
   public static idbReadWrite = 'readwrite';
   public static bottleScanCommit = 'commit';
   public static bottleScanSend = 'send';
+  public static appPropertyNotExist = 'app property not exist: ';
+  public static appPropertyLocation = 'location';
 
   public static nameListInitial = [{
     id: 0,

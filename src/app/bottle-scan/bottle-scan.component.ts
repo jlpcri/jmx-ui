@@ -15,10 +15,6 @@ import {BottleScanModel} from './bottle-scan.model';
 })
 export class BottleScanComponent implements OnInit {
   closeResult: string;
-  storeLocations: any[] = [];
-  locationLoadedFlag = false;
-  scanDataLocationName: any;
-  isLoading: boolean;
   isShowAlert = false;
 
   @ViewChild('confirmModal') confirmModal: ElementRef;
@@ -33,44 +29,41 @@ export class BottleScanComponent implements OnInit {
   }
 
   openBottleScan(content) {
-    if (!this.locationLoadedFlag) {
-      this.recipeListService.saveLocationsToIdb();
-      this.locationLoadedFlag = true;
-    }
+    this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyLocation).subscribe(
+      location => {
+        this.scanData.locationName = location;
 
-    if (this.storeLocations.length === 0) {
-      this.getStoreLocationsFromIdb();
-    }
+        let postData: BottleScanModel;
+        const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
+        modalRef.result.then(
+          (inputData) => {
+            if (!this.isScanDataValid(inputData)) {
+              this.isShowAlert = true;
+              this.openBottleScan(content);
+              return false;
+            }
+            this.scanData.eventTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZ');
 
-    this.scanDataLocationName = '';
-    this.scanData.locationName = '';
-
-    let postData: BottleScanModel;
-    const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
-    modalRef.result.then(
-      (inputData) => {
-        if (!this.isScanDataValid(inputData)) {
-          this.isShowAlert = true;
-          this.openBottleScan(content);
-          return false;
-        }
-        this.scanData.eventTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZ');
-
-        postData = {
-          eventTimestamp: this.scanData.eventTimestamp,
-          associateName: this.scanData.associateName,
-          batchId: this.scanData.batchId,
-          locationName: this.scanData.locationName,
-          productName: this.scanData.productName,
-          productSku: this.scanData.productSku
-        };
-        this.openBottleScanConfirmation(postData);
+            postData = {
+              eventTimestamp: this.scanData.eventTimestamp,
+              associateName: this.scanData.associateName,
+              batchId: this.scanData.batchId,
+              locationName: this.scanData.locationName,
+              productName: this.scanData.productName,
+              productSku: this.scanData.productSku
+            };
+            this.openBottleScanConfirmation(postData);
+          },
+          (reason) => {
+            this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
+            console.log(this.closeResult);
+            this.isShowAlert = false;
+          });
       },
-      (reason) => {
-        this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
-        console.log(this.closeResult);
-        this.isShowAlert = false;
-      });
+      error => {
+        console.log(error);
+      }
+    );
   }
 
   openBottleScanConfirmation(postData) {
@@ -131,26 +124,6 @@ export class BottleScanComponent implements OnInit {
     } else {
       return `with: ${reason}`;
     }
-  }
-
-  getStoreLocationsFromIdb(): void {
-    if (this.storeLocations.length === 0) {
-      this.isLoading = true;
-      this.idbService.getLocationsFromIdb().subscribe(
-        data => {
-          this.storeLocations.push({
-            name: data.name,
-            storeLocation: data.storeLocation
-          });
-          this.isLoading = false;
-        }
-      );
-    }
-  }
-
-  selectEvent(event) {
-    this.scanData.locationName = event.name;
-    this.isShowAlert = false;
   }
 
   isScanDataValid(data) {

@@ -424,4 +424,64 @@ export class IndexedDatabaseService {
 
   }
 
+  getAppPropertyFromIdb(property): Observable<any> {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreAppConfig], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreAppConfig);
+    const index = store.index(GlobalConstants.indexAppProperty);
+    const getRequest = index.get(property);
+
+    getRequest.onsuccess = () => {
+      if (getRequest.result === undefined) {
+        subject.error(GlobalConstants.appPropertyNotExist + property);
+      } else {
+        subject.next(getRequest.result.value);
+      }
+    };
+
+    getRequest.onerror = (error) => {
+      console.log('indexReg error: ', error);
+    };
+
+    return subject;
+
+  }
+
+  saveAppPropertyToIdb(property, value) {
+    const subject = new Subject<any>();
+    const tx = this.db.transaction([this.objectStoreAppConfig], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreAppConfig);
+    const index = store.index(GlobalConstants.indexAppProperty);
+    const keyRange = IDBKeyRange.only(property);
+    const getRequest = index.openCursor(keyRange);
+
+    getRequest.onsuccess = event => {
+      const cursor = event.target.result;
+      if (cursor) {
+        const updateData = cursor.value;
+        updateData.value = value;
+        const updateRequest = cursor.update(updateData);
+
+        updateRequest.onsuccess = () => {
+          subject.next(value);
+          console.log('App Location is updated.');
+        };
+
+        updateRequest.onerror = error => {
+          console.log('App Location update error.', error);
+        };
+      } else {
+        store.add({
+          property,
+          value
+        });
+        subject.next(value);
+        console.log('App Location is added.');
+      }
+    };
+
+    return subject;
+  }
+
 }
