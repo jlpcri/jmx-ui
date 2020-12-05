@@ -3,40 +3,20 @@
   <div class="container search-container">
     <div class="row">
       <div class="col-md-8 form-group">
-        <div class="row margin-bottom">
-          <div class="help-container">
-            <span class="far fa-question-circle hover-help-icon"></span>
-            <div class="hover-help">
-              Select which option you would like to use to search for a recipe.
-            </div>
-          </div>
-          <div class="col-md-4 form-check custom-radio" *ngFor="let each of searchOptions">
-            <input class="form-check-input custom-control-input"
-                   type="radio" id="search_{{each.value}}"
-                   name="searchOptions"
-                   (change)="onChangeSelectOption($event)"
-                   value="{{each.value}}" [(ngModel)]="searchOptionSelected">
-            <label class="form-check-label custom-control-label" for="search_{{each.value}}">{{each.value}} Name</label>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="row">
-      <div class="col-md-8 form-group">
         <div class="row input-icons">
           <div class="help-container">
             <span class="far fa-question-circle hover-help-icon"></span>
             <div class="hover-help">
-              Type in the name of the recipe or ingredient that you are looking for. Then click on the recipe in the options below the search field.
+              Type in the juice name that you are looking for. Then select desired juice from option list.
             </div>
           </div>
           <span class="fas fa-search icon"></span>
-          <ng-autocomplete class="form-control input-field"
+          <ng-autocomplete class="form-control input-field" #autocompleteFirst
                            [data]="firstNameList"
                            [searchKeyword]="nameListKey"
-                           [placeHolder]=" searchOptionSelected === 'Recipe' ? 'Search Recipe(Product) Name': 'Search Ingredients(Component) Name' "
-                           (selected)="selectEvent($event, searchOptionSelected)"
-                           (inputChanged)="onChangeSearch($event, searchOptionSelected)"
+                           [placeHolder]="'Searched by Juice' "
+                           (selected)="selectEvent($event)"
+                           (inputChanged)="onChangeSearch($event)"
                            (inputCleared)="onInputCleared()"
                            (inputFocused)="onFocused()"
                            [historyIdentifier]="firstNameListHistory"
@@ -57,7 +37,7 @@
 
       </div>
 
-      <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
+      <div class="col-md-2 form-group">
         <label for="bottleSizeSelected" class="custom-label-title">Bottle Size</label>
         <select class="custom-select" id="bottleSizeSelected"
                 (change)="changeSize(bottleSizeSelected)"
@@ -65,7 +45,7 @@
           <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
         </select>
       </div>
-      <div class="col-md-2 form-group" *ngIf="searchOptionSelected === 'Recipe'">
+      <div class="col-md-2 form-group">
         <label for="nicStrengthSelected" class="custom-label-title">Nicotine Strength</label>
         <select class="custom-select" id="nicStrengthSelected"
                 (change)="changeStrength(nicStrengthSelected)"
@@ -74,78 +54,41 @@
         </select>
       </div>
     </div>
-  </div>
-</div>
 
-<div class="container container-search-results" *ngIf="searchOptionSelected === 'Recipe'">
-  <div class="help-container">
-    <span class="far fa-question-circle hover-help-icon"></span>
-    <div class="hover-help">
-      The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
-    </div>
-  </div>
+    <div class="row">
+      <div class="col-md-8 form-group">
+        <div class="row input-icons">
+          <div class="help-container">
+            <span class="far fa-question-circle hover-help-icon"></span>
+            <div class="hover-help">
+              Type in the ingredients name that you are looking for. Then select ingredient from option list.
+            </div>
+          </div>
+          <span class="fas fa-search icon"></span>
+          <ng-autocomplete class="form-control input-field"
+                           [data]="secondNameList"
+                           [searchKeyword]="nameListKey"
+                           [placeHolder]="'Searched By Ingredients'"
+                           (selected)="selectEventSecond($event)"
+                           (inputChanged)="onChangeSearchSecond($event)"
+                           (inputFocused)="onFocusedSecond()"
+                           (inputCleared)="onInputClearedSecond()"
+                           [historyIdentifier]="secondNameListHistory"
+                           [debounceTime]="400"
+                           [isLoading]="isLoadingNameListSecond"
+                           [itemTemplate]="itemTemplate"
+                           [notFoundTemplate]="notFoundTemplate"
+                           [(ngModel)]="searchItemSecond">
+          </ng-autocomplete>
+        </div>
 
-  <div class="row search-results">
-    <div class="col-md-8">
-      <span class="custom-label-title">{{searchOptionSelected}} Name:</span><br>
-      <h2 class="font-weight-bold">{{searchItem.name}}</h2>
-    </div>
-    <div class="col-md-2">
-      <span class="custom-label-title">Bottle Size:</span><br>
-      <h2 class="font-weight-bold" *ngIf="bottleSizeSelected.length > 0; else sizeStrengthNoValue">{{bottleSizeSelected}}mL</h2>
-    </div>
-    <div class="col-md-2">
-      <span class="custom-label-title">Nicotine Strength:</span><br>
-      <h2 class="font-weight-bold" *ngIf="nicStrengthSelected.length > 0; else sizeStrengthNoValue">{{nicStrengthSelected}}mg</h2>
-    </div>
-    <ng-template #sizeStrengthNoValue></ng-template>
-  </div>
-</div>
-
-<div class="container" *ngIf="searchOptionSelected === 'Ingredients'">
-  <div class="row">
-    <div class="col-md-8 form-group">
-      <div class="row input-icons">
-        <span class="fas fa-search icon"></span>
-        <ng-autocomplete class="form-control input-field"
-                         [data]="secondNameList"
-                         [searchKeyword]="nameListKey"
-                         [placeHolder]="'Search Recipe(Product) Name'"
-                         (selected)="selectEventSecond($event)"
-                         (inputChanged)="onChangeSearchSecond()"
-                         (inputFocused)="onFocusedSecond()"
-                         (inputCleared)="onInputClearedSecond()"
-                         [historyIdentifier]="secondNameListHistory"
-                         [debounceTime]="400"
-                         [isLoading]="isLoadingNameListSecond"
-                         [itemTemplate]="itemTemplate"
-                         [notFoundTemplate]="notFoundTemplate"
-                         [(ngModel)]="searchItemSecond">
-        </ng-autocomplete>
       </div>
-
-    </div>
-
-    <div class="col-md-2 form-group">
-      <label for="bottleSizeSelectedSecond" class="custom-label-title">Bottle Size</label>
-      <select class="custom-select" id="bottleSizeSelectedSecond"
-              (change)="changeSizeSecond(bottleSizeSelectedSecond)"
-              [(ngModel)]="bottleSizeSelectedSecond">
-        <option *ngFor="let each of sizeRadioButtonsSecond" [value]="each">{{each}}mL</option>
-      </select>
-    </div>
-
-    <div class="col-md-2 form-group">
-      <label for="nicStrengthSelectedSecond" class="custom-label-title">Nicotine Strength</label>
-      <select class="custom-select" id="nicStrengthSelectedSecond"
-              (change)="changeStrengthSecond(nicStrengthSelectedSecond)"
-              [(ngModel)]="nicStrengthSelectedSecond">
-        <option *ngFor="let each of strengthRadioButtonsSecond" [value]="each">{{each}}mg</option>
-      </select>
     </div>
 
   </div>
+</div>
 
+<div class="container" >
   <div class="container">
     <div class="help-container">
       <span class="far fa-question-circle hover-help-icon"></span>
@@ -156,15 +99,15 @@
     <div class="row search-results">
       <div class="col-md-8">
         <span class="custom-label-title">Recipe Name:</span><br>
-        <h2 class="font-weight-bold">{{searchItemSecond.name}}</h2>
+        <h2 class="font-weight-bold">{{searchItem.name}}</h2>
       </div>
       <div class="col-md-2">
         <span class="custom-label-title">Bottle Size:</span><br>
-        <h2 class="font-weight-bold" *ngIf="bottleSizeSelectedSecond.length > 0; else sizeStrengthNoValue">{{bottleSizeSelectedSecond}}mL</h2>
+        <h2 class="font-weight-bold" *ngIf="bottleSizeSelected.length > 0; else sizeStrengthNoValue">{{bottleSizeSelected}}mL</h2>
       </div>
       <div class="col-md-2">
         <span class="custom-label-title">Nicotine Strength:</span><br>
-        <h2 class="font-weight-bold" *ngIf="nicStrengthSelectedSecond.length > 0; else sizeStrengthNoValue">{{nicStrengthSelectedSecond}}mg</h2>
+        <h2 class="font-weight-bold" *ngIf="nicStrengthSelected.length > 0; else sizeStrengthNoValue">{{nicStrengthSelected}}mg</h2>
       </div>
       <ng-template #sizeStrengthNoValue></ng-template>
     </div>
@@ -230,12 +173,13 @@
             <tbody>
             <tr *ngFor="let recipe of recipes">
               <td class="d-flex"><span class="fas fa-circle ing-icon ing-color-{{recipe.color}}"></span> <span class="d-flex">{{recipe.ingredients}}</span></td>
-              <td>{{recipe.quantity}}mL</td>
-              <td>{{recipe.percentage * 100}}%</td>
+              <td>{{recipe.color === 'bottle' ? recipe.quantity : recipe.quantity + 'mL'}}</td>
+              <td>{{recipe.color === 'bottle' ? '' : recipe.percentage * 100 + '%'}}</td>
             </tr>
             </tbody>
           </table>
         </div>
+        <ngx-spinner name="{{spinnerName}}"><p style="color: white">Please Wait.</p></ngx-spinner>
       </div>
     </div>
   </div>
@@ -253,26 +197,10 @@
           <div class="help-container">
             <span class="far fa-question-circle hover-help-icon"></span>
             <div class="hover-help">
-              Search for the location that you are creating the recipe for. Use the Export Label button to create a printable label.<br>
-              Print button will be disable until you select store name.
+              Use the Export Label button to create a printable label.<br>
+              Print button will be disable until you select store name from main menu.
             </div>
           </div>
-          <span class="fas fa-search icon"></span>
-          <ng-autocomplete class="form-control input-field"
-                           [data]="printLocations"
-                           [searchKeyword]="nameListKey"
-                           [placeHolder]="'Search Store name'"
-                           (selected)="selectEventLocation($event)"
-                           (inputChanged)="onChangeSearchLocation()"
-                           (inputCleared)="onInputClearedLocation()"
-                           [historyIdentifier]="firstNameListHistory"
-                           [debounceTime]="400"
-                           [isLoading]="isLoadingLocation"
-                           [minQueryLength]=""
-                           [itemTemplate]="itemTemplate"
-                           [notFoundTemplate]="notFoundTemplate"
-                           [(ngModel)]="searchStoreName">
-          </ng-autocomplete>
         </div>
 
         <div class="table-wrapper" id="printSection">

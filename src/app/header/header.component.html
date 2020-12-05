@@ -1,14 +1,18 @@
 <header>
   <div class="container light">
     <div class="row">
-      <div class="col-header col-md-8 d-flex justify-content-start align-items-center">
+      <div class="col-header col-md-4 d-flex justify-content-start align-items-center">
         <a href="#" class="site-title">JMX - Juice App</a>
+      </div>
+      <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
+        {{appLocation.name}}
       </div>
       <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
         <div ngbDropdown class="d-inline-block">
           <button class="btn btn-account" id="dropdownMenu" ngbDropdownToggle *ngIf="user; else notLogin">{{user.name}}</button>
           <div ngbDropdownMenu aria-labelledby="dropdownMenu">
             <button ngbDropdownItem (click)="openHelp(helpTemplate)">Help</button>
+            <button ngbDropdownItem (click)="openAppConfig()">AppConfig</button>
             <button ngbDropdownItem (click)="logout()">Logout</button>
             <button ngbDropdownItem (click)="saveRecipesToIdb()" *ngIf="isAdmin()">LoadRecipes</button>
             <button ngbDropdownItem (click)="saveLocationsToIdb()" *ngIf="isAdmin()">LoadLocations</button>
@@ -60,5 +64,47 @@
   </div>
   <div class="modal-footer">
     <button type="button" class="btn btn-light" (click)="modal.close('Close click')">Close</button>
+  </div>
+</ng-template>
+
+<ng-template #appConfigModal let-modal>
+  <div class="modal-header">
+    <h4 class="modal-title" id="modal-appConfig-title">JMX App Config</h4>
+    <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  <div class="modal-body">
+    <form>
+      <div class="form-group">
+        <label for="location">Store Location</label>
+        <ng-autocomplete name="location" id="location"
+                         [data]="storeLocations"
+                         [searchKeyword]="'name'"
+                         [placeHolder]="'Search Store Name'"
+                         (selected)="selectEvent($event)"
+                         [historyIdentifier]=""
+                         [debounceTime]="400"
+                         [isLoading]="isLoading"
+                         [minQueryLength]=""
+                         [itemTemplate]="itemTemplate"
+                         [notFoundTemplate]="notFoundTemplate"
+                         [(ngModel)]="locationSelect">
+        </ng-autocomplete>
+        <ng-template #itemTemplate let-item>
+          <a [innerHTML]="item.name"></a>
+        </ng-template>
+        <ng-template #notFoundTemplate let-notFound>
+          <div [innerHTML]="notFound"></div>
+        </ng-template>
+
+        <br>
+        <div class="form-control" style='float: left; color: red' *ngIf="isShowAlert"><strong>Error: </strong>input field Empty.</div>
+
+      </div>
+    </form>
+  </div>
+  <div class="modal-footer">
+    <button type="button" class="btn btn-secondary" (click)="modal.close(locationSelect)">Save</button>
   </div>
 </ng-template>

@@ -6,6 +6,8 @@ import {Observable, Subject} from 'rxjs';
 import {ProgressService} from '../../progress-bar/shared/progress.service';
 import {RecipeListModel} from './recipe-list.model';
 import {RecipeModel} from './recipe.model';
+import {LocationModel, LocationResponseListModel} from '../../shared/location.model';
+import {ErrorService} from '../../error/error.service';
 
 @Injectable({
   providedIn: 'root'
@@ -14,9 +16,10 @@ import {RecipeModel} from './recipe.model';
 export class RecipeListService {
   constructor(private api: ApiService,
               private progress: ProgressService,
-              private idbService: IndexedDatabaseService) { }
+              private idbService: IndexedDatabaseService,
+              private errorService: ErrorService) { }
 
-  retrieveAllRecipes(): Observable<RecipeModel[]> {
+  private retrieveAllRecipes(): Observable<RecipeModel[]> {
     let allRecipes: RecipeModel[] = [];
     const allRecipesSubject: Subject<any> = new Subject<any>();
     this.progress.loading = true;
@@ -45,13 +48,11 @@ export class RecipeListService {
           if (allRecipes.length < resp.totalRecipes) {
             getNext();
           } else {
-            self.progress.loading = false;
             console.log('loaded ' + allRecipes.length + ' recipes');
             allRecipesSubject.next(allRecipes);
           }
         }, error => {
           console.log(error);
-          self.progress.loading = false;
           allRecipes = [];
           allRecipesSubject.next(allRecipes);
         }
@@ -63,15 +64,25 @@ export class RecipeListService {
   }
 
   saveRecipesToIdb() {
+    this.progress.loading = true;
     this.retrieveAllRecipes().subscribe(
       data => {
-        this.idbService.syncRecipes(data);
+        this.progress.progressMessage = 'Saving Recipes...';
+        this.idbService.syncRecipes(data).subscribe(
+          products => {
+            console.log(products.length + ' products saved to idb');
+            this.progress.loading = false;
+          }, error => {
+            this.errorService.add(error);
+            this.progress.loading = false;
+          }
+        );
       }
     );
   }
 
   retrieveLocations() {
-    const allLocations: any[] = [];
+    const allLocations: LocationModel[] = [];
     const allLocationsSubject: Subject<any> = new Subject<any>();
     let fullAddr = '';
     const options = {
@@ -79,9 +90,9 @@ export class RecipeListService {
         .set('size', '1000')
         .set('sort', 'name')
     };
-    this.api.getAllPages('/locations', options).subscribe(
+    this.api.get<LocationResponseListModel>('/locations', options).subscribe(
       resp => {
-        for (const item of resp) {
+        for (const item of resp.content) {
           if (item.addrLine1 === '') {
             fullAddr = '';
           } else {
@@ -96,7 +107,7 @@ export class RecipeListService {
         allLocationsSubject.next(allLocations);
       },
       error => {
-        console.log('Fetch API Locations: ', error.message);
+        this.errorService.add('Fetch API Locations: ' + error.message);
       }
     );
     return allLocationsSubject;

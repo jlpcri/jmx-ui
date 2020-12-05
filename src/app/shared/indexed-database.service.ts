@@ -1,8 +1,9 @@
 import {Injectable} from '@angular/core';
 import {MessageService} from './message.service';
-import {Subject} from 'rxjs';
+import {Observable, Subject} from 'rxjs';
 import {GlobalConstants} from './GlobalConstants';
 import {RecipeModel} from '../recipe-list/shared/recipe.model';
+import {LocationModel} from './location.model';
 
 @Injectable({
   providedIn: 'root'
@@ -15,6 +16,7 @@ export class IndexedDatabaseService {
   private objectStoreName = 'recipes';
   private objectStoreLocation = 'locations';
   private objectStoreBottleScan = 'bottleScans';
+  private objectStoreAppConfig = 'appConfig';
 
   constructor(private messageService: MessageService) {
   }
@@ -52,66 +54,48 @@ export class IndexedDatabaseService {
       objectStoreBottleScan.createIndex(GlobalConstants.indexProductName, 'productName', {unique: false});
       objectStoreBottleScan.createIndex(GlobalConstants.indexProductSku, 'productSku', {unique: false});
 
+      const objectStoreAppConfig = db.createObjectStore(this.objectStoreAppConfig, {keyPath: 'id', autoIncrement: true});
+      objectStoreAppConfig.createIndex(GlobalConstants.indexAppProperty, 'property', {unique: true});
+
       dbExisted = false;
 
     };
   }
 
-  syncRecipes(data) {
-    for (const item of data) {
-      this.addRecipe(item)
-        .then();
-    }
-  }
-
-  async addRecipe(product: RecipeModel) {
-    const tmp = {
-      sku: product.sku,
-      name: product.name,
-      label: product.label,
-      labelKey: product.labelKey,
-      nicStrength: product.nicStrength,
-      bottleSize: product.bottleSize,
-      key: product.key,
-      ingredients: product.ingredients,
-      saltNic: product.saltNic
-    };
-
+  syncRecipes(recipes: RecipeModel[]): Observable<RecipeModel[]> {
+    const syncRecipesSubject = new Subject<RecipeModel[]>();
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadWrite);
+    const products: RecipeModel[] = [];
+    tx.oncomplete = () => {
+      console.log('all recipes saved');
+      syncRecipesSubject.next(products);
+    };
+    tx.onerror = (error) => {
+      console.error('Error adding recipes data to indexedDB ', error);
+      syncRecipesSubject.error(error);
+    };
     const store = tx.objectStore(this.objectStoreName);
-
-    await store.put(tmp);
-
-    tx.oncomplete = () => {};
-    tx.onerror = onerror;
-    await tx.done;
-
-    function onerror(error) {
-      console.error('Error add recipes data to indexedDB ', error);
+    for (const recipe of recipes) {
+        store.put(recipe);
+        products.push(recipe);
     }
+    return syncRecipesSubject;
   }
 
-  syncLocations(data) {
-    for (const item of data) {
-      this.addLocation(item)
-        .then();
-    }
-  }
-
-  async addLocation(location) {
+  syncLocations(locations: LocationModel[]) {
     const tx = this.db.transaction([this.objectStoreLocation], GlobalConstants.idbReadWrite);
     const store = tx.objectStore(this.objectStoreLocation);
 
-    await store.put({
-      name: location.name,
-      storeLocation: location.storeLocation
-    });
+    for (const location of locations) {
+      store.put(location);
+    }
 
-    tx.oncomplete = () => {};
+    tx.oncomplete = () => {
+      console.log('All locations saved.');
+    };
     tx.onerror = (error) => {
       console.error('Error add location data to indexedDB ', error);
     };
-    await tx.done;
   }
 
   getProductNameListByComponent(ingredientName) {
@@ -174,22 +158,33 @@ export class IndexedDatabaseService {
     const getRequest = index.get(key);
     getRequest.onsuccess = () => {
       for (const item of getRequest.result.ingredients) {
-        if (item.name.toLowerCase().indexOf('nicotine') >= 0) {
-          tmpColor = 'nicotine';
+        if (item.name.toLowerCase().indexOf('bottle') >= 0) {
+          recipes.unshift({
+            ingredients: item.name,
+            quantity: item.quantity,
+            percentage: 0,
+            color: 'bottle'
+          });
         } else {
-          tmpColor = (colorIdx % colorTotal).toString();
+          if (item.name.toLowerCase().indexOf('nicotine') >= 0) {
+            tmpColor = 'nicotine';
+          } else {
+            tmpColor = (colorIdx % colorTotal).toString();
+          }
+          recipes.push({
+            ingredients: item.name,
+            quantity: item.quantity,
+            percentage: 0,
+            color: tmpColor
+          });
+          quantitySum += parseFloat(item.quantity);
+          colorIdx++;
         }
-        recipes.push({
-          ingredients: item.name,
-          quantity: item.quantity,
-          percentage: 0,
-          color: tmpColor
-        });
-        quantitySum += parseFloat(item.quantity);
-        colorIdx++;
       }
       for (const item of recipes) {
-        item.percentage = (item.quantity / quantitySum).toFixed(2);
+        if (item.ingredients.toLowerCase().indexOf('bottle') < 0) {
+          item.percentage = (item.quantity / quantitySum).toFixed(2);
+        }
       }
     };
     return recipes;
@@ -375,7 +370,7 @@ export class IndexedDatabaseService {
       batchId: scanData.batchId,
       productSku: scanData.productSku,
       productName: scanData.productName,
-      locationName: scanData.locationName.name,
+      locationName: scanData.locationName,
       status: scanData.status
     });
 
@@ -438,6 +433,66 @@ export class IndexedDatabaseService {
       console.log(error);
     };
 
+  }
+
+  getAppPropertyFromIdb(property): Observable<any> {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([this.objectStoreAppConfig], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreAppConfig);
+    const index = store.index(GlobalConstants.indexAppProperty);
+    const getRequest = index.get(property);
+
+    getRequest.onsuccess = () => {
+      if (getRequest.result === undefined) {
+        subject.error(GlobalConstants.appPropertyNotExist + property);
+      } else {
+        subject.next(getRequest.result.value);
+      }
+    };
+
+    getRequest.onerror = (error) => {
+      console.log('indexReg error: ', error);
+    };
+
+    return subject;
+
+  }
+
+  saveAppPropertyToIdb(property, value) {
+    const subject = new Subject<any>();
+    const tx = this.db.transaction([this.objectStoreAppConfig], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreAppConfig);
+    const index = store.index(GlobalConstants.indexAppProperty);
+    const keyRange = IDBKeyRange.only(property);
+    const getRequest = index.openCursor(keyRange);
+
+    getRequest.onsuccess = event => {
+      const cursor = event.target.result;
+      if (cursor) {
+        const updateData = cursor.value;
+        updateData.value = value;
+        const updateRequest = cursor.update(updateData);
+
+        updateRequest.onsuccess = () => {
+          subject.next(value);
+          console.log('App Location is updated.');
+        };
+
+        updateRequest.onerror = error => {
+          console.log('App Location update error.', error);
+        };
+      } else {
+        store.add({
+          property,
+          value
+        });
+        subject.next(value);
+        console.log('App Location is added.');
+      }
+    };
+
+    return subject;
   }
 
 }

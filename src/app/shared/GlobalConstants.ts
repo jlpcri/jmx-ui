@@ -6,11 +6,15 @@ export class GlobalConstants {
   public static indexLocation = 'name';
   public static indexLabelKey = 'labelKey';
   public static indexProductKey = 'productKey';
+  public static indexAppProperty = 'property';
   public static nextUnique = 'nextunique';
   public static idbReadOnly = 'readonly';
   public static idbReadWrite = 'readwrite';
   public static bottleScanCommit = 'commit';
   public static bottleScanSend = 'send';
+  public static appPropertyNotExist = 'app property not exist: ';
+  public static appPropertyLocation = 'location';
+  public static spinnerName = 'ingredientsTable';
 
   public static nameListInitial = [{
     id: 0,
@@ -28,7 +32,7 @@ export class GlobalConstants {
 
   public static scanDataInitial = {
     eventTimestamp: '',
-    associateName: 'John Doe',
+    associateName: '',
     batchId: '4158',
     productSku: '790080',
     productName: 'Purple Worm',
@@ -37,6 +41,13 @@ export class GlobalConstants {
   };
 
   public static scanDataCheckFields = [
-     'productName', 'productSku', 'batchId', 'associateName', 'locationName'
+     'productSku', 'batchId', 'associateName'
   ];
+
+  public static appLocation = {
+    name: '',
+    storeLocation: ''
+  };
+
+  public static appLocationErrorMsg = 'App Location not set. Go to main menu AppConfig';
 }

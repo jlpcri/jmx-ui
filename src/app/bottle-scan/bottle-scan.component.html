@@ -22,7 +22,7 @@
             </p>
 
             <label for="scanProductName">Product Name</label>
-            <input id="scanProductName" [(ngModel)]="scanData.productName" name="scanProductName" class="form-control" placeholder="Product Name">
+            <input id="scanProductName" [(ngModel)]="scanData.productName" name="scanProductName" class="form-control" placeholder="Product Name" readonly>
 
             <label for="scanProductSku">Product SKU</label>
             <input id="scanProductSku" [(ngModel)]="scanData.productSku" name="scanProductSku" class="form-control" placeholder="Product SKU">
@@ -31,28 +31,10 @@
             <input id="scanProductBar" [(ngModel)]="scanData.batchId" name="scanProductBar" class="form-control" placeholder="Product Barcode">
 
             <label for="scanEmployeeName">Associate Name</label>
-            <input id="scanEmployeeName" [(ngModel)]="scanData.associateName" name="scanEmployee" class="form-control" placeholder="Associate Name">
+            <input id="scanEmployeeName" [(ngModel)]="scanData.associateName" name="scanEmployee" class="form-control" placeholder="Associate Name" readonly>
 
-            <label for="location">Store Location</label>
-            <ng-autocomplete name="location" id="location"
-                             [data]="storeLocations"
-                             [searchKeyword]="'name'"
-                             [placeHolder]="'Search Store Name'"
-                             (selected)="selectEvent($event)"
-                             [historyIdentifier]=""
-                             [debounceTime]="400"
-                             [isLoading]="isLoading"
-                             [minQueryLength]=""
-                             [itemTemplate]="itemTemplate"
-                             [notFoundTemplate]="notFoundTemplate"
-                             [(ngModel)]="scanDataLocationName">
-            </ng-autocomplete>
-            <ng-template #itemTemplate let-item>
-              <a [innerHTML]="item.name"></a>
-            </ng-template>
-            <ng-template #notFoundTemplate let-notFound>
-              <div [innerHTML]="notFound"></div>
-            </ng-template>
+            <label for="locationName">Store Location</label>
+            <input id="locationName" [(ngModel)]="scanData.locationName" name="scanLocation" class="form-control" placeholder="Location Name" readonly>
 
             <br>
             <div class="form-control" style='float: left; color: red' *ngIf="isShowAlert"><strong>Error: </strong>At least one input field Empty.</div>
@@ -73,7 +55,7 @@
         </button>
       </div>
       <div class="modal-body">
-        <p><strong>Are you sure you want to save product as followed?</strong></p>
+        <p><strong>Are you sure you want to save product as follows?</strong></p>
         <table class="table table-striped" aria-describedby="bottleScanTable">
           <thead>
             <tr>
