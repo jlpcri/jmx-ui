@@ -27,6 +27,7 @@
     "bootstrap": "^4.5.3",
     "moment": "^2.29.1",
     "ngx-print": "^1.2.0-beta.5",
+    "ngx-spinner": "^10.0.1",
     "rxjs": "~6.5.4",
     "tslib": "^1.14.1",
     "zone.js": "~0.10.2"

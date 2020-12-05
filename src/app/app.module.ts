@@ -13,9 +13,13 @@ import { ProgressBarComponent } from './progress-bar/progress-bar.component';
 import { ErrorTestComponent } from './error/error-test.component';
 import { ErrorComponent } from './error/error.component';
 
-import { NgbDropdownModule, NgbProgressbarModule, NgbAlertModule, NgbModalModule, NgbDatepickerModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
+import {
+  NgbDropdownModule, NgbProgressbarModule,
+  NgbAlertModule, NgbModalModule,
+  NgbDatepickerModule, NgbPopoverModule } from '@ng-bootstrap/ng-bootstrap';
 import { QRCodeModule } from 'angularx-qrcode';
 import {NgxPrintModule} from 'ngx-print';
+import {NgxSpinnerModule} from 'ngx-spinner';
 
 @NgModule({
   declarations: [
@@ -27,20 +31,21 @@ import {NgxPrintModule} from 'ngx-print';
     ErrorTestComponent,
     ErrorComponent
   ],
-  imports: [
-    BrowserModule,
-    HttpClientModule,
-    FormsModule,
-    AutocompleteLibModule,
-    NgbProgressbarModule,
-    NgbDropdownModule,
-    QRCodeModule,
-    NgbAlertModule,
-    NgbModalModule,
-    NgbDatepickerModule,
-    NgbPopoverModule,
-    NgxPrintModule
-  ],
+    imports: [
+        BrowserModule,
+        HttpClientModule,
+        FormsModule,
+        AutocompleteLibModule,
+        NgbProgressbarModule,
+        NgbDropdownModule,
+        QRCodeModule,
+        NgbAlertModule,
+        NgbModalModule,
+        NgbDatepickerModule,
+        NgbPopoverModule,
+        NgxPrintModule,
+        NgxSpinnerModule
+    ],
   providers: [],
   bootstrap: [AppComponent]
 })

@@ -14,6 +14,7 @@ export class GlobalConstants {
   public static bottleScanSend = 'send';
   public static appPropertyNotExist = 'app property not exist: ';
   public static appPropertyLocation = 'location';
+  public static spinnerName = 'ingredientsTable';
 
   public static nameListInitial = [{
     id: 0,

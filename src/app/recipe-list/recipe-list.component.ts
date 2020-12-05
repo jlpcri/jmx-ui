@@ -6,6 +6,7 @@ import {IndexedDatabaseService} from '../shared/indexed-database.service';
 import {GlobalConstants} from '../shared/GlobalConstants';
 import {Product} from '../product';
 import {ErrorService} from '../error/error.service';
+import {NgxSpinnerService} from 'ngx-spinner';
 
 @Component({
   selector: 'app-recipe-list',
@@ -36,11 +37,14 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   isLoadingNameListSecond: boolean;
   isLoadingLocation: boolean;
 
+  spinnerName = GlobalConstants.spinnerName;
+
   @ViewChild('autocompleteFirst') autocompleteFirst;
 
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService,
-              private errorService: ErrorService) { }
+              private errorService: ErrorService,
+              private spinnerService: NgxSpinnerService) { }
 
   ngOnInit(): void {
     this.firstNameList = [GlobalConstants.nameListInitial];
@@ -69,6 +73,12 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   selectEvent(item: { name: string; labelKey: string}) {
     this.productSizeStrengths = {};
+    this.spinnerService.show(this.spinnerName, {
+      type: 'ball-spin-fade-rotating',
+      size: 'default',
+      bdColor: 'rgba(51, 51, 51, 0.8)',
+      fullScreen: false
+    });
     this.idbService.getProductSizeNicStrength(item.labelKey).subscribe(
       (data) => {
         if (!this.productSizeStrengths.hasOwnProperty(data.bottleSize)) {
@@ -82,6 +92,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.strengthRadioButtons = this.productSizeStrengths[this.bottleSizeSelected].sort((a, b) => a - b);
         this.nicStrengthSelected = this.strengthRadioButtons[0];
         this.getRecipeContents(item.labelKey, this.bottleSizeSelected, this.nicStrengthSelected);
+        this.spinnerService.hide(this.spinnerName);
       },
       (error) => {
         this.errorService.add(error);
