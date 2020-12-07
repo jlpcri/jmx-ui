@@ -104,11 +104,6 @@ button.btn-secondary:hover,
 /* end - secondary */
 /*** END - Buttons ***/
 
-/* autocomplete search field */
-.autocomplete-container::ng-deep {
-  box-shadow: none!important;
-}
-
 /*** START - Containers ***/
 .row {
   margin-right: 0px!important;
