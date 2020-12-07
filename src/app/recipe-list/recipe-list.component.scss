@@ -158,19 +158,6 @@ label {
     outline: 0;
     box-shadow: none;
 }
-
-.ng-autocomplete::ng-deep .autocomplete-container {
-  box-shadow: none!important;
-}
-
-.ng-autocomplete::ng-deep .autocomplete-container .input-container input {
-  font-size: 1.5rem;
-  color: #031111;
-}
-
-.ng-autocomplete::ng-deep .autocomplete-container .not-found {
-  margin-top: 8px;
-}
 /* end - custom search field */
 
 /* start - custom drop down */
