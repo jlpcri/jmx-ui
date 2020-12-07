@@ -4,6 +4,7 @@ import {Observable, Subject} from 'rxjs';
 import {GlobalConstants} from './GlobalConstants';
 import {RecipeModel} from '../recipe-list/shared/recipe.model';
 import {LocationModel} from './location.model';
+import {Recipe} from '../recipe';
 
 @Injectable({
   providedIn: 'root'
@@ -143,17 +144,17 @@ export class IndexedDatabaseService {
     };
   }
 
-  getRecipesFromIdb(indexName: string, key: string) {
-    const recipes = [];
+  getRecipesFromIdb(indexName: string, key: string): Observable<Recipe[]> {
+    const subject = new Subject<any>();
+    const recipes: Recipe[] = [];
     let colorIdx = 1;
     const colorTotal = 20;
     let tmpColor = '';
     let quantitySum = 0;
 
-    const index = this.db
-      .transaction([this.objectStoreName], GlobalConstants.idbReadOnly)
-      .objectStore(this.objectStoreName)
-      .index(indexName);
+    const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(this.objectStoreName);
+    const index = store.index(indexName);
 
     const getRequest = index.get(key);
     getRequest.onsuccess = () => {
@@ -183,11 +184,16 @@ export class IndexedDatabaseService {
       }
       for (const item of recipes) {
         if (item.ingredients.toLowerCase().indexOf('bottle') < 0) {
-          item.percentage = (item.quantity / quantitySum).toFixed(2);
+          item.percentage = Number((item.quantity / quantitySum).toFixed(2));
         }
       }
     };
-    return recipes;
+
+    tx.oncomplete = () => {
+      subject.next(recipes);
+    };
+
+    return subject;
 
   }
 
@@ -274,10 +280,15 @@ export class IndexedDatabaseService {
 
   }
 
-  getProductSizeNicStrength(search) {
+  getProductSizeNicStrength(search): Observable<any> {
     const subject = new Subject<any>();
+    const result = [];
 
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
+    tx.oncomplete = () => {
+      subject.next(result);
+    };
+
     const store = tx.objectStore(this.objectStoreName);
     const index = store.index(GlobalConstants.indexLabelKey);
     const myCursor = index.openCursor(null);
@@ -289,7 +300,7 @@ export class IndexedDatabaseService {
       if (cursor) {
         labelKey = cursor.value.labelKey;
         if (labelKey === search) {
-          subject.next({
+          result.push({
             bottleSize: cursor.value.bottleSize,
             nicStrength: cursor.value.nicStrength
           });

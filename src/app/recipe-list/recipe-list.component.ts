@@ -21,6 +21,14 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   printData: Product = GlobalConstants.printDataInitial;
   isPrintLocationEmpty = false;
 
+  recipeRectangles = [];
+  recipeRectX = 26;
+  recipeRectY = 230;
+  recipeRectRx = 10;
+  recipeRectRy = 10;
+  recipeRectWidth = 156;
+  recipeRectHeight = 470;
+
   firstNameList: any[];
   secondNameList: any[];
   nameListKey = 'name';
@@ -61,7 +69,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
           this.printData.storeName = location.name;
           this.printData.storeLocation = location.storeLocation;
         },
-        error => {
+        () => {
           this.isPrintLocationEmpty = true;
         }
       );
@@ -79,27 +87,31 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       bdColor: 'rgba(51, 51, 51, 0.8)',
       fullScreen: false
     });
-    this.idbService.getProductSizeNicStrength(item.labelKey).subscribe(
-      (data) => {
-        if (!this.productSizeStrengths.hasOwnProperty(data.bottleSize)) {
-          this.productSizeStrengths[data.bottleSize] = [];
+    this.idbService.getProductSizeNicStrength(item.labelKey)
+      .subscribe(
+      (dataAll) => {
+        for (const data of dataAll) {
+          if (!this.productSizeStrengths.hasOwnProperty(data.bottleSize)) {
+            this.productSizeStrengths[data.bottleSize] = [];
+          }
+          if (this.productSizeStrengths[data.bottleSize].indexOf(data.nicStrength.toString()) === -1) {
+            this.productSizeStrengths[data.bottleSize].push(data.nicStrength.toString());
+          }
+          this.sizeRadioButtons = Object.keys(this.productSizeStrengths);
+          this.bottleSizeSelected = this.sizeRadioButtons[0];
+          this.strengthRadioButtons = this.productSizeStrengths[this.bottleSizeSelected].sort((a, b) => a - b);
+          this.nicStrengthSelected = this.strengthRadioButtons[0];
         }
-        if (this.productSizeStrengths[data.bottleSize].indexOf(data.nicStrength.toString()) === -1) {
-          this.productSizeStrengths[data.bottleSize].push(data.nicStrength.toString());
-        }
-        this.sizeRadioButtons = Object.keys(this.productSizeStrengths);
-        this.bottleSizeSelected = this.sizeRadioButtons[0];
-        this.strengthRadioButtons = this.productSizeStrengths[this.bottleSizeSelected].sort((a, b) => a - b);
-        this.nicStrengthSelected = this.strengthRadioButtons[0];
         this.getRecipeContents(item.labelKey, this.bottleSizeSelected, this.nicStrengthSelected);
         this.spinnerService.hide(this.spinnerName);
       },
       (error) => {
         this.errorService.add(error);
+        this.spinnerService.hide(this.spinnerName);
       },
-      () => {
+        () => {
         console.log('Job done');
-      }
+        }
     );
   }
 
@@ -224,9 +236,34 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   getRecipeContents(labelKey: string, size: string, strength: string) {
+    this.recipeRectangles = [];
+    let previousHeight = 0;
     const searchName = labelKey + ':' + size + ':' + strength;
 
-    this.recipes = this.idbService.getRecipesFromIdb(GlobalConstants.indexProductKey, searchName);
+    this.idbService.getRecipesFromIdb(GlobalConstants.indexProductKey, searchName).subscribe(
+      data => {
+        this.recipes = data;
+        for (const item of data) {
+          if (item.ingredients.toLowerCase().indexOf('bottle') >= 0 || item.percentage === 0) {
+            continue;
+          }
+          this.recipeRectangles.push({
+            x: this.recipeRectX,
+            y: this.recipeRectY + previousHeight,
+            rx: this.recipeRectRx,
+            ry: this.recipeRectRy,
+            height: Math.round(this.recipeRectHeight * item.percentage),
+            width: this.recipeRectWidth,
+            fill: item.ingredients.toLowerCase().indexOf('nicotine') >= 0
+              ? GlobalConstants.recipeColorsNicotine : GlobalConstants.recipeColors[Number(item.color) - 1]
+          });
+          previousHeight = previousHeight + Math.round(this.recipeRectHeight * item.percentage);
+        }
+      },
+      error => {
+        this.errorService.add(error);
+      }
+    );
 
     this.idbService.getProductPrintData(searchName).subscribe(
       data => {
