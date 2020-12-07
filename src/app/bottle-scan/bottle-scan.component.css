@@ -147,11 +147,6 @@ button.btn-account:not(:disabled):not(.disabled):active:focus {
 }
 /*** END - Modal ***/
 
-.modal-body .ng-autocomplete::ng-deep .autocomplete-container,
-.autocomplete-container::ng-deep {
-  box-shadow: none!important;
-}
-
 .modal-body input.ng-pristine {
   border: 1px solid #031111!important;
   border-radius: 4px;
