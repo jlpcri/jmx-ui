@@ -179,8 +179,8 @@
             <tbody>
             <tr *ngFor="let recipe of recipes">
               <td class="d-flex"><span class="fas fa-circle ing-icon ing-color-{{recipe.color}}"></span> <span class="d-flex">{{recipe.ingredients}}</span></td>
-              <td>{{recipe.color === 'bottle' ? recipe.quantity : recipe.quantity + 'mL'}}</td>
-              <td>{{recipe.color === 'bottle' ? '' : recipe.percentage * 100 + '%'}}</td>
+              <td>{{recipe.color === 'bottle' ? recipe.quantity : recipe.quantity + ' mL'}}</td>
+              <td>{{recipe.color === 'bottle' ? '' : recipe.percentage | percent }}</td>
             </tr>
             </tbody>
           </table>
