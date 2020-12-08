@@ -61,6 +61,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.idbService.init(dbExisted => {
       if (!dbExisted) {
         this.saveRecipesToIdb();
+        this.saveLocationsToIdb();
       }
     });
     setTimeout( () => {
@@ -212,6 +213,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   saveRecipesToIdb(): void {
     this.recipeListService.saveRecipesToIdb();
+  }
+
+  saveLocationsToIdb(): void {
+    this.recipeListService.saveLocationsToIdb();
   }
 
   notExistInArray(arr: any, key: string, value: string) {

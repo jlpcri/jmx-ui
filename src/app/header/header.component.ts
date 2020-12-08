@@ -7,6 +7,7 @@ import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {LocationModel} from '../shared/location.model';
 import {GlobalConstants} from '../shared/GlobalConstants';
 import {ErrorService} from '../error/error.service';
+import {ProgressService} from '../progress-bar/shared/progress.service';
 
 @Component({
   selector: 'app-header',
@@ -21,7 +22,6 @@ export class HeaderComponent implements OnInit {
   user: User;
   closeResult: string;
   storeLocations: LocationModel[] = [];
-  locationLoadedFlag = false;
   locationSelect = '';
   appLocation = GlobalConstants.appLocation;
   isLoading: boolean;
@@ -33,7 +33,8 @@ export class HeaderComponent implements OnInit {
               private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService,
               private modalService: NgbModal,
-              private errorService: ErrorService) { }
+              private errorService: ErrorService,
+              private progressService: ProgressService) { }
 
   ngOnInit(): void {
     this.auth.authorized().subscribe(
@@ -84,11 +85,6 @@ export class HeaderComponent implements OnInit {
   selectEvent(event) {}
 
   openAppConfig() {
-    if (!this.locationLoadedFlag) {
-      this.recipeListService.saveLocationsToIdb();
-      this.locationLoadedFlag = true;
-    }
-
     if (this.storeLocations.length === 0) {
       this.getStoreLocationsFromIdb();
     }
@@ -97,15 +93,17 @@ export class HeaderComponent implements OnInit {
     const modalRef = this.modalService.open(this.appConfigModal, {ariaLabelledBy: 'modal-appConfig-title', size: 'lg'});
     modalRef.result.then(
       (location) => {
-        if (location === '') {
+        if (location === undefined || location === ''
+          || (typeof location === 'string' && location !== '' && location !== this.appLocation.name)) {
           this.isShowAlert = true;
           this.openAppConfig();
           return false;
         }
 
-        if (location !== this.appLocation.name) {
+        if (typeof location === 'object') {
           this.saveAppProperty(GlobalConstants.appPropertyLocation, location);
         }
+        this.isShowAlert = false;
       },
       (reason) => {
         this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
@@ -147,7 +145,9 @@ export class HeaderComponent implements OnInit {
         this.appLocation = value;
       },
       error => {
-        this.errorService.add(GlobalConstants.appLocationErrorMsg);
+        if (!this.progressService.loading) {
+          this.errorService.add(GlobalConstants.appLocationErrorMsg);
+        }
       }
     );
   }
