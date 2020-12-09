@@ -64,17 +64,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.saveLocationsToIdb();
       }
     });
-    setTimeout( () => {
-      this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyLocation).subscribe(
-        location => {
-          this.printData.storeName = location.name;
-          this.printData.storeLocation = location.storeLocation;
-        },
-        () => {
-          this.isPrintLocationEmpty = true;
-        }
-      );
-    }, 1000);
   }
 
   ngOnDestroy(): void {
@@ -85,7 +74,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.spinnerService.show(this.spinnerName, {
       type: 'ball-spin-fade-rotating',
       size: 'default',
-      bdColor: 'rgba(51, 51, 51, 0.8)',
+      bdColor: 'rgba(51, 51, 51, 0.2)',
       fullScreen: false
     });
     this.idbService.getProductSizeNicStrength(item.labelKey)
@@ -144,8 +133,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   onInputCleared() {
-    this.firstNameList = [];
-    this.secondNameList = [];
     this.searchItemSecond = '';
     this.resetSizeStrengthRecipes();
   }
@@ -205,8 +192,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   onInputClearedSecond() {
-    this.firstNameList = [];
-    this.secondNameList = [];
     this.searchItem = '';
     this.resetSizeStrengthRecipes();
   }
@@ -281,6 +266,17 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.errorService.add(error);
       }
     );
+
+    this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyLocation).subscribe(
+      location => {
+        this.printData.storeName = location.name;
+        this.printData.storeLocation = location.storeLocation;
+        this.isPrintLocationEmpty = false;
+      },
+      () => {
+        this.isPrintLocationEmpty = true;
+      }
+    );
   }
 
   resetSizeStrengthRecipes() {
@@ -289,7 +285,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.sizeRadioButtons = [];
     this.strengthRadioButtons = [];
 
+    this.firstNameList = [GlobalConstants.nameListInitial];
+    this.secondNameList = [];
     this.recipes = [];
+    this.recipeRectangles = [];
     this.printData.name = '';
   }
 
