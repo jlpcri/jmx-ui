@@ -20,6 +20,7 @@ import {
 import { QRCodeModule } from 'angularx-qrcode';
 import {NgxPrintModule} from 'ngx-print';
 import {NgxSpinnerModule} from 'ngx-spinner';
+import {BrowserAnimationsModule} from '@angular/platform-browser/animations';
 
 @NgModule({
   declarations: [
@@ -44,7 +45,8 @@ import {NgxSpinnerModule} from 'ngx-spinner';
         NgbDatepickerModule,
         NgbPopoverModule,
         NgxPrintModule,
-        NgxSpinnerModule
+        NgxSpinnerModule,
+        BrowserAnimationsModule
     ],
   providers: [],
   bootstrap: [AppComponent]
