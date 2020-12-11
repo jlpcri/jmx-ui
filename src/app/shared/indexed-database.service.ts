@@ -88,6 +88,9 @@ export class IndexedDatabaseService {
     const store = tx.objectStore(this.objectStoreLocation);
 
     for (const location of locations) {
+      if (location.name.toLowerCase().indexOf('not in use') >= 0 || location.name.toLowerCase().indexOf('not used') >= 0) {
+        continue;
+      }
       store.put(location);
     }
 
