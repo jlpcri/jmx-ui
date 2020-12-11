@@ -8,6 +8,7 @@ import {LocationModel} from '../shared/location.model';
 import {GlobalConstants} from '../shared/GlobalConstants';
 import {ErrorService} from '../error/error.service';
 import {ProgressService} from '../progress-bar/shared/progress.service';
+import {Subject} from 'rxjs';
 
 @Component({
   selector: 'app-header',
@@ -27,6 +28,10 @@ export class HeaderComponent implements OnInit {
   isLoading: boolean;
   isShowAlert = false;
 
+  appAssociate = GlobalConstants.appAssociate;
+  associateList = [];
+  associateSelect = '';
+
   @ViewChild('appConfigModal') appConfigModal: ElementRef;
 
   constructor(private auth: AuthService,
@@ -38,11 +43,27 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.auth.authorized().subscribe(
-      user => { this.user = user; }
+      user => {
+        this.user = user;
+      },
+      error => {
+        console.log('Use local db user data', error);
+        setTimeout(() => {
+          this.getAppProperty(GlobalConstants.appPropertyUser).subscribe(
+            user => {
+              this.user = user;
+            }
+          );
+        }, 500);
+      }
     );
 
     setTimeout( () => {
-      this.getAppProperty(GlobalConstants.appPropertyLocation);
+      this.getAppProperty(GlobalConstants.appPropertyLocation).subscribe(
+        data => {
+          this.appLocation = data;
+        }
+      );
     }, 500);
   }
 
@@ -74,7 +95,7 @@ export class HeaderComponent implements OnInit {
     } else if (this.user.roles === undefined || this.user.roles.length === 0) {
       return false;
     } else {
-      return this.user.roles.indexOf('GROUP - Alohma Admin') >= 0;
+      return this.user.roles.indexOf(GlobalConstants.rolesNameAdmin) >= 0;
     }
   }
 
@@ -86,13 +107,19 @@ export class HeaderComponent implements OnInit {
 
   openAppConfig() {
     if (this.storeLocations.length === 0) {
-      this.getStoreLocationsFromIdb();
+      this.storeLocations = this.getStoreLocationsFromIdb(this.idbService.objectStoreLocation);
+    }
+    if (this.associateList.length === 0) {
+      this.associateList = this.getStoreLocationsFromIdb(this.idbService.objectStoreUser);
     }
 
     this.locationSelect = this.appLocation.name;
+    this.associateSelect = this.user.name;
     const modalRef = this.modalService.open(this.appConfigModal, {ariaLabelledBy: 'modal-appConfig-title', size: 'lg'});
     modalRef.result.then(
-      (location) => {
+      (data) => {
+        const location = data.location;
+        const associate = data.associate;
         if (location === undefined || location === ''
           || (typeof location === 'string' && location !== '' && location !== this.appLocation.name)) {
           this.isShowAlert = true;
@@ -103,12 +130,19 @@ export class HeaderComponent implements OnInit {
         if (typeof location === 'object') {
           this.saveAppProperty(GlobalConstants.appPropertyLocation, location);
         }
+        if (typeof associate === 'object') {
+          this.saveAppProperty(GlobalConstants.appPropertyUser, associate);
+        }
         this.isShowAlert = false;
       },
       (reason) => {
         this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
         console.log(this.closeResult);
-        this.getAppProperty(GlobalConstants.appPropertyLocation);
+        this.getAppProperty(GlobalConstants.appPropertyLocation).subscribe(
+          data => {
+            this.appLocation = data;
+          }
+        );
         this.isShowAlert = false;
       }
     );
@@ -124,38 +158,47 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  getStoreLocationsFromIdb(): void {
-    if (this.storeLocations.length === 0) {
-      this.isLoading = true;
-      this.idbService.getLocationsFromIdb().subscribe(
-        data => {
-          this.storeLocations.push({
-            name: data.name,
-            storeLocation: data.storeLocation
-          });
-          this.isLoading = false;
-        }
-      );
-    }
+  getStoreLocationsFromIdb(objectStore: string) {
+    const result = [];
+    this.isLoading = true;
+    this.idbService.getLocationsOrUsersFromIdb(objectStore).subscribe(
+      data => {
+        result.push(data);
+        this.isLoading = false;
+      }
+    );
+
+    return result;
   }
 
   getAppProperty(property) {
+    const subject = new Subject<any>();
     this.idbService.getAppPropertyFromIdb(property).subscribe(
       value => {
-        this.appLocation = value;
+        subject.next(value);
       },
       error => {
         if (!this.progressService.loading) {
-          this.errorService.add(GlobalConstants.appLocationErrorMsg);
+          if (property === GlobalConstants.appPropertyLocation) {
+            this.errorService.add(GlobalConstants.appLocationErrorMsg);
+          } else {
+            this.errorService.add(GlobalConstants.appUserErrorMsg);
+          }
         }
       }
     );
+
+    return subject;
   }
 
   saveAppProperty(property, value) {
     this.idbService.saveAppPropertyToIdb(property, value).subscribe(
-      location => {
-        this.appLocation = location;
+      data => {
+        if (property === GlobalConstants.appPropertyLocation) {
+          this.appLocation = data;
+        } else {
+          this.appAssociate = data;
+        }
       },
       error => {
         this.errorService.add(error);

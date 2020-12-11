@@ -34,12 +34,21 @@ export class BottleScanComponent implements OnInit {
               private errorService: ErrorService) { }
 
   ngOnInit(): void {
-    this.authService.authorized().subscribe(
-      user => { this.user = user; }
-    );
   }
 
   openBottleScan(content) {
+    this.headerComponent.getAppProperty(GlobalConstants.appPropertyUser).subscribe(
+      user => {
+        this.user = user;
+        this.openBottleScanLocation(content);
+      },
+      error => {
+        this.errorService.add(GlobalConstants.appUserErrorMsg);
+      }
+    );
+  }
+
+  openBottleScanLocation(content) {
     this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyLocation).subscribe(
       location => {
         this.scanData.locationName = location.name;

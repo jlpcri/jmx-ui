@@ -14,6 +14,7 @@ export class GlobalConstants {
   public static bottleScanSend = 'send';
   public static appPropertyNotExist = 'app property not exist: ';
   public static appPropertyLocation = 'location';
+  public static appPropertyUser = 'user';
   public static spinnerName = 'ingredientsTable';
 
   public static nameListInitial = [{
@@ -49,11 +50,19 @@ export class GlobalConstants {
     storeLocation: ''
   };
 
-  public static appLocationErrorMsg = 'App Location not set. Go to main menu AppConfig';
+  public static appAssociate = {
+    name: '',
+    roles: []
+  };
+
+  public static appLocationErrorMsg = 'App Property Location error. Go to main menu AppConfig';
+  public static appUserErrorMsg = 'App Property User error. Go to main menu AppConfig';
 
   public static recipeColors = [
     '#02C4CC', '#8DAE32', '#C6D2D0', '#614870', '#D27973', '#A2E5F3',
     '#55CDB0', '#B598F4', '#A28EAE', '#E9B191', '#A4D797', '#C35AE8',
     '#456DD5', '#868487', '#E8735A', '#588A4B', '#031111', '#155462', '#CD4631'];
   public static recipeColorsNicotine = '#F2BA02';
+
+  public static rolesNameAdmin = 'GROUP - Alohma Admin';
 }

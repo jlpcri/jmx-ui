@@ -98,6 +98,19 @@
           <div [innerHTML]="notFound"></div>
         </ng-template>
 
+        <label for="associateName">Associate Name</label>
+        <ng-autocomplete name="associateName" id="associateName"
+                         [data]="associateList"
+                         [searchKeyword]="'name'"
+                         [placeHolder]="'Search Associate Name'"
+                         [historyIdentifier]=""
+                         [debounceTime]="400"
+                         [minQueryLength]=""
+                         [itemTemplate]="itemTemplate"
+                         [notFoundTemplate]="notFoundTemplate"
+                         [(ngModel)]="associateSelect">
+        </ng-autocomplete>
+
         <br>
         <div class="form-control" style='float: left; color: red' *ngIf="isShowAlert"><strong>Error: </strong>Store Location Illegal.</div>
 
@@ -105,6 +118,6 @@
     </form>
   </div>
   <div class="modal-footer">
-    <button type="button" class="btn btn-secondary" (click)="modal.close(locationSelect)">Save</button>
+    <button type="button" class="btn btn-secondary" (click)="modal.close({location: locationSelect, associate: associateSelect})">Save</button>
   </div>
 </ng-template>
