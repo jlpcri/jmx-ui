@@ -59,8 +59,7 @@ export class IndexedDatabaseService {
       const objectStoreAppConfig = db.createObjectStore(this.objectStoreAppConfig, {keyPath: 'id', autoIncrement: true});
       objectStoreAppConfig.createIndex(GlobalConstants.indexAppProperty, 'property', {unique: true});
 
-      const objectStoreUser = db.createObjectStore(this.objectStoreUser, {keyPath: 'id', autoIncrement: true});
-      objectStoreUser.createIndex('name', 'name', {unique: true});
+      const objectStoreUser = db.createObjectStore(this.objectStoreUser, {keyPath: 'name', autoIncrement: false});
       objectStoreUser.createIndex('roles', 'roles', {unique: false});
 
       dbExisted = false;
@@ -114,10 +113,11 @@ export class IndexedDatabaseService {
     store.put(user);
 
     tx.oncomplete = () => {
-      console.log('Users data saved.');
+      this.saveAppPropertyToIdb(GlobalConstants.appPropertyUser, user);
     };
 
-    tx.onerror = () => {
+    tx.onerror = (error) => {
+      console.log('Users data save error: ', error);
     };
   }
 
@@ -505,7 +505,6 @@ export class IndexedDatabaseService {
 
         updateRequest.onsuccess = () => {
           subject.next(value);
-          console.log('App Property is updated.');
         };
 
         updateRequest.onerror = error => {
@@ -517,7 +516,6 @@ export class IndexedDatabaseService {
           value
         });
         subject.next(value);
-        console.log('App Property is added.');
       }
     };
 

@@ -42,7 +42,7 @@ export class BottleScanComponent implements OnInit {
         this.user = user;
         this.openBottleScanLocation(content);
       },
-      error => {
+      () => {
         this.errorService.add(GlobalConstants.appUserErrorMsg);
       }
     );
@@ -83,7 +83,7 @@ export class BottleScanComponent implements OnInit {
       },
       error => {
         console.log(error);
-        this.errorService.add(GlobalConstants.appLocationErrorMsg);
+        window.location.reload();
       }
     );
   }
@@ -91,7 +91,7 @@ export class BottleScanComponent implements OnInit {
   openBottleScanConfirmation(postData) {
     const modalRef = this.modalService.open(this.confirmModal, {ariaLabelledBy: 'modal-confirmation-title'});
     modalRef.result.then(
-      (confirm) => {
+      () => {
         this.postBottleScanData(postData);
       },
       (reason) => {
