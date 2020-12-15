@@ -2,8 +2,10 @@
 <div class="container-fluid">
   <div class="container search-container">
     <div class="row">
-      <div class="col-md-8 form-group">
+      <!-- START - Search Column -->
+      <div class="col-md-6 form-group">
         <div class="row input-icons">
+          <!-- START - Juice Search -->
           <div class="help-container">
             <span class="far fa-question-circle hover-help-icon"></span>
             <div class="hover-help">
@@ -34,29 +36,8 @@
             <div [innerHTML]="notFound"></div>
           </ng-template>
         </div>
-
-      </div>
-
-      <div class="col-md-2 form-group">
-        <label for="bottleSizeSelected" class="custom-label-title">Bottle Size</label>
-        <select class="custom-select" id="bottleSizeSelected"
-                (change)="changeSize(bottleSizeSelected)"
-                [(ngModel)]="bottleSizeSelected">
-          <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
-        </select>
-      </div>
-      <div class="col-md-2 form-group">
-        <label for="nicStrengthSelected" class="custom-label-title">Nicotine Strength</label>
-        <select class="custom-select" id="nicStrengthSelected"
-                (change)="changeStrength(nicStrengthSelected)"
-                [(ngModel)]="nicStrengthSelected">
-          <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-8 form-group">
+        <!-- END - Juice Search -->
+        <!-- START - Ingredients Search -->
         <div class="row input-icons">
           <div class="help-container">
             <span class="far fa-question-circle hover-help-icon"></span>
@@ -81,10 +62,76 @@
                            [(ngModel)]="searchItemSecond">
           </ng-autocomplete>
         </div>
-
+        <!-- END - Ingredients Search -->
       </div>
-    </div>
+      <!-- END - Search Column -->
 
+      <!-- START - Bottle Size/Nicotine Strength Dropdowns-->
+      <div class="col-md-2 form-group">
+        <!-- START - Bottle Size -->
+        <label for="bottleSizeSelected" class="custom-label-title">Bottle Size</label>
+        <select class="custom-select" id="bottleSizeSelected"
+                (change)="changeSize(bottleSizeSelected)"
+                [(ngModel)]="bottleSizeSelected">
+          <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
+        </select>
+        <!-- END - Bottle Size -->
+        <label for="nicStrengthSelected" class="custom-label-title">Nicotine Strength</label>
+        <select class="custom-select" id="nicStrengthSelected"
+                (change)="changeStrength(nicStrengthSelected)"
+                [(ngModel)]="nicStrengthSelected">
+          <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
+        </select>
+      </div>
+      <!-- END - Bottle Size/Nicotine Strength Dropdowns-->
+
+      <!-- START - Print Label Column -->
+      <div class="col-md-4">
+        <div class="input-icons">
+          <div class="help-container">
+            <span class="far fa-question-circle hover-help-icon"></span>
+            <div class="hover-help">
+              Use the Export Label button to create a printable label.<br>
+              Print button will be disable until you select store name from main menu.
+            </div>
+          </div>
+        </div>
+
+        <div class="table-wrapper" id="printSection">
+          <table aria-describedby="printSection">
+            <tr>
+              <th scope="col"></th>
+            </tr>
+            <tr style="font-weight: bold">{{printData.storeName}}</tr>
+            <tr>{{printData.storeLocation}}</tr>
+            <tr></tr>
+            <tr>
+              <td>
+                <strong>{{printData.name}}</strong><br>
+                {{printData.size}}ml&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}mg<br>
+                {{printData.currentDate}}<br>
+                {{printData.sku}}
+              </td>
+              <td>
+                <qrcode [qrdata]="printData.sku"
+                        [elementType]="'img'"
+                        width="10"
+                        [errorCorrectionLevel]="'M'"></qrcode>
+              </td>
+            </tr>
+            <tr style="text-align: center">Lot #{{printData.batchId}}</tr>
+          </table>
+        </div>
+
+        <div class="ml-auto">
+          <button class="btn btn-secondary-custom btn-lg" style="float: right;"
+                  [disabled]="isPrintLocationEmpty"
+                  printSectionId="printSection"
+                  ngxPrint>PRINT LABEL</button>
+        </div>
+      </div>
+      <!-- END - Print Label Column -->
+    </div>
   </div>
 </div>
 
