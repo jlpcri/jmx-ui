@@ -29,7 +29,16 @@ button.btn-primary:hover,
 }
 
 .search-container {
-  padding-left: 15px;
+  // padding-left: 15px;
+}
+
+.search-input-container {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.row-spacing {
+  margin-bottom: 16px;
 }
 /** search results **/
 .search-results {
@@ -164,7 +173,7 @@ label {
 /* start - custom drop down */
 .custom-select {
   border: 2px solid #031111;
-  margin-bottom: 24px;
+  margin-bottom: 16px;
 }
 /* end - custom drop down */
 /*** END - Forms ***/

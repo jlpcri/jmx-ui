@@ -2,90 +2,102 @@
 <div class="container-fluid">
   <div class="container search-container">
     <div class="row">
-      <!-- START - Search Column -->
-      <div class="col-md-6 form-group">
-        <div class="row input-icons">
-          <!-- START - Juice Search -->
-          <div class="help-container">
-            <span class="far fa-question-circle hover-help-icon"></span>
-            <div class="hover-help">
-              Type in the juice name that you are looking for. Then select desired juice from option list.
-            </div>
-          </div>
-          <span class="fas fa-search icon"></span>
-          <ng-autocomplete class="form-control input-field" #autocompleteFirst
-                           [data]="firstNameList"
-                           [searchKeyword]="nameListKey"
-                           [placeHolder]="'Searched by Juice' "
-                           (selected)="selectEvent($event)"
-                           (inputChanged)="onChangeSearch($event)"
-                           (inputCleared)="onInputCleared()"
-                           (inputFocused)="onFocused()"
-                           [historyIdentifier]="firstNameListHistory"
-                           [debounceTime]="400"
-                           [isLoading]="isLoadingNameListFirst"
-                           [minQueryLength]="0"
-                           [itemTemplate]="itemTemplate"
-                           [notFoundTemplate]="notFoundTemplate"
-                           [(ngModel)]="searchItem">
-          </ng-autocomplete>
-          <ng-template #itemTemplate let-item>
-            <a [innerHTML]="item.name"></a>
-          </ng-template>
-          <ng-template #notFoundTemplate let-notFound>
-            <div [innerHTML]="notFound"></div>
-          </ng-template>
-        </div>
-        <!-- END - Juice Search -->
-        <!-- START - Ingredients Search -->
-        <div class="row input-icons">
-          <div class="help-container">
-            <span class="far fa-question-circle hover-help-icon"></span>
-            <div class="hover-help">
-              Type in the ingredients name that you are looking for. Then select ingredient from option list.
-            </div>
-          </div>
-          <span class="fas fa-search icon"></span>
-          <ng-autocomplete class="form-control input-field"
-                           [data]="secondNameList"
-                           [searchKeyword]="nameListKey"
-                           [placeHolder]="'Searched By Ingredients'"
-                           (selected)="selectEventSecond($event)"
-                           (inputChanged)="onChangeSearchSecond($event)"
-                           (inputFocused)="onFocusedSecond()"
-                           (inputCleared)="onInputClearedSecond()"
-                           [historyIdentifier]="secondNameListHistory"
-                           [debounceTime]="400"
-                           [isLoading]="isLoadingNameListSecond"
-                           [itemTemplate]="itemTemplate"
-                           [notFoundTemplate]="notFoundTemplate"
-                           [(ngModel)]="searchItemSecond">
-          </ng-autocomplete>
-        </div>
-        <!-- END - Ingredients Search -->
-      </div>
-      <!-- END - Search Column -->
 
-      <!-- START - Bottle Size/Nicotine Strength Dropdowns-->
-      <div class="col-md-2 form-group">
-        <!-- START - Bottle Size -->
-        <label for="bottleSizeSelected" class="custom-label-title">Bottle Size</label>
-        <select class="custom-select" id="bottleSizeSelected"
-                (change)="changeSize(bottleSizeSelected)"
-                [(ngModel)]="bottleSizeSelected">
-          <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
-        </select>
-        <!-- END - Bottle Size -->
-        <label for="nicStrengthSelected" class="custom-label-title">Nicotine Strength</label>
-        <select class="custom-select" id="nicStrengthSelected"
-                (change)="changeStrength(nicStrengthSelected)"
-                [(ngModel)]="nicStrengthSelected">
-          <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
-        </select>
-      </div>
-      <!-- END - Bottle Size/Nicotine Strength Dropdowns-->
+      <!-- search info -->
+      <div class="col-md-8 form-group">
+        <!-- add scan button -->
+        <div class="row row-spacing">
+          <button type="button" class="btn btn-primary-custom btn-lg" (click)="openBottleScan(bottleScan)">SCAN NEW BOTTLE</button>
+        </div>
 
-      <!-- START - Print Label Column -->
+        <!-- search fields container -->
+        <div class="row input-icons">
+          <!-- search fields column -->
+          <div class="col-md-8">
+            <!-- START - Juice Search -->
+            <div class="search-input-container">
+              <div class="help-container">
+                <span class="far fa-question-circle hover-help-icon"></span>
+                <div class="hover-help">
+                  Type in the juice name that you are looking for. Then select desired juice from option list.
+                </div>
+              </div>
+              <span class="fas fa-search icon"></span>
+              <ng-autocomplete class="form-control input-field" #autocompleteFirst
+                               [data]="firstNameList"
+                               [searchKeyword]="nameListKey"
+                               [placeHolder]="'Searched by Juice' "
+                               (selected)="selectEvent($event)"
+                               (inputChanged)="onChangeSearch($event)"
+                               (inputCleared)="onInputCleared()"
+                               (inputFocused)="onFocused()"
+                               [historyIdentifier]="firstNameListHistory"
+                               [debounceTime]="400"
+                               [isLoading]="isLoadingNameListFirst"
+                               [minQueryLength]="0"
+                               [itemTemplate]="itemTemplate"
+                               [notFoundTemplate]="notFoundTemplate"
+                               [(ngModel)]="searchItem">
+              </ng-autocomplete>
+              <ng-template #itemTemplate let-item>
+                <a [innerHTML]="item.name"></a>
+              </ng-template>
+              <ng-template #notFoundTemplate let-notFound>
+                <div [innerHTML]="notFound"></div>
+              </ng-template>
+            </div>
+            <!-- END - Juice Search -->
+
+            <!-- START - Ingredients Search -->
+            <div class="search-input-container">
+              <div class="help-container">
+                <span class="far fa-question-circle hover-help-icon"></span>
+                <div class="hover-help">
+                  Type in the ingredients name that you are looking for. Then select ingredient from option list.
+                </div>
+              </div>
+              <span class="fas fa-search icon"></span>
+              <ng-autocomplete class="form-control input-field"
+                               [data]="secondNameList"
+                               [searchKeyword]="nameListKey"
+                               [placeHolder]="'Searched By Ingredients'"
+                               (selected)="selectEventSecond($event)"
+                               (inputChanged)="onChangeSearchSecond($event)"
+                               (inputFocused)="onFocusedSecond()"
+                               (inputCleared)="onInputClearedSecond()"
+                               [historyIdentifier]="secondNameListHistory"
+                               [debounceTime]="400"
+                               [isLoading]="isLoadingNameListSecond"
+                               [itemTemplate]="itemTemplate"
+                               [notFoundTemplate]="notFoundTemplate"
+                               [(ngModel)]="searchItemSecond">
+              </ng-autocomplete>
+            </div>
+            <!-- END - Ingredients Search -->
+          </div>
+          <!-- search dropdowns -->
+          <div class="col-md-4">
+            <!-- START - Bottle Size -->
+            <label for="bottleSizeSelected" class="custom-label-title">Bottle Size</label>
+            <select class="custom-select" id="bottleSizeSelected"
+                    (change)="changeSize(bottleSizeSelected)"
+                    [(ngModel)]="bottleSizeSelected">
+              <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
+            </select>
+            <!-- END - Bottle Size -->
+            <!-- START - Nicotine Strength -->
+            <label for="nicStrengthSelected" class="custom-label-title">Nicotine Strength</label>
+            <select class="custom-select" id="nicStrengthSelected"
+                    (change)="changeStrength(nicStrengthSelected)"
+                    [(ngModel)]="nicStrengthSelected">
+              <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
+            </select>
+            <!-- END - Nicotine Strenth -->
+          </div>
+        </div>
+      </div>
+
+      <!-- label info -->
       <div class="col-md-4">
         <div class="input-icons">
           <div class="help-container">
@@ -130,10 +142,10 @@
                   ngxPrint>PRINT LABEL</button>
         </div>
       </div>
-      <!-- END - Print Label Column -->
-    </div>
-  </div>
-</div>
+
+
+      <!-- old structure below this -->
+      
 
 <div class="container" >
   <div class="container">
