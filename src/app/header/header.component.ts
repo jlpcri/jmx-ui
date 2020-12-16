@@ -1,5 +1,4 @@
-import {Component, ElementRef, Injectable, OnInit, ViewChild} from '@angular/core';
-import {User} from '../shared/user.model';
+import {Component, ElementRef, Injectable, isDevMode, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
@@ -9,6 +8,7 @@ import {GlobalConstants} from '../shared/GlobalConstants';
 import {ErrorService} from '../error/error.service';
 import {ProgressService} from '../progress-bar/shared/progress.service';
 import {Subject} from 'rxjs';
+import {ConnectionService} from 'ngx-connection-service';
 
 @Component({
   selector: 'app-header',
@@ -20,7 +20,6 @@ import {Subject} from 'rxjs';
   providedIn: 'root'
 })
 export class HeaderComponent implements OnInit {
-  user: User;
   closeResult: string;
   storeLocations: LocationModel[] = [];
   locationSelect = '';
@@ -31,6 +30,10 @@ export class HeaderComponent implements OnInit {
   appAssociate = GlobalConstants.appAssociate;
   associateList = [];
 
+  internetConnection: boolean;
+  internetAccess: boolean;
+  internetStatus: boolean;
+
   @ViewChild('appLocationModal') appLocationModal: ElementRef;
 
   constructor(private auth: AuthService,
@@ -38,27 +41,35 @@ export class HeaderComponent implements OnInit {
               private idbService: IndexedDatabaseService,
               private modalService: NgbModal,
               private errorService: ErrorService,
-              private progressService: ProgressService) { }
-
-  ngOnInit(): void {
-    this.auth.authorized().subscribe(
-      user => {
-        this.user = user;
-        this.appAssociate.name = user.name;
-        this.appAssociate.roles = user.roles;
-      },
-      error => {
-        console.log('Use local db user data', error);
-        setTimeout(() => {
-          this.getAppProperty(GlobalConstants.appPropertyUser).subscribe(
-            user => {
-              this.user = user;
-              this.appAssociate = user;
-            }
-          );
-        }, 500);
+              private progressService: ProgressService,
+              private connectionService: ConnectionService) {
+    this.connectionService.monitor().subscribe(
+      currentState => {
+        this.internetConnection = currentState.hasNetworkConnection;
+        this.internetAccess = currentState.hasInternetAccess;
+        this.internetStatus = this.internetConnection && this.internetAccess;
       }
     );
+  }
+
+  ngOnInit(): void {
+    setTimeout(() => {
+      if (this.internetStatus) {
+        this.auth.authorized().subscribe(
+          user => {
+            this.appAssociate.name = user.name;
+            this.appAssociate.roles = user.roles;
+          }
+        );
+      } else {
+        console.log('Use local db user data');
+        this.getAppProperty(GlobalConstants.appPropertyUser).subscribe(
+          user => {
+            this.appAssociate = user;
+          }
+        );
+      }
+    }, 500);
 
     setTimeout( () => {
       this.getAppProperty(GlobalConstants.appPropertyLocation).subscribe(
@@ -86,12 +97,12 @@ export class HeaderComponent implements OnInit {
   }
 
   isAdmin(): boolean {
-    if (this.user === undefined) {
+    if (this.appAssociate === undefined) {
       return false;
-    } else if (this.user.roles === undefined || this.user.roles.length === 0) {
+    } else if (this.appAssociate.roles === undefined || this.appAssociate.roles.length === 0) {
       return false;
     } else {
-      return this.user.name.indexOf(GlobalConstants.rolesNameAdmin) >= 0;
+      return (this.appAssociate.roles.indexOf(GlobalConstants.rolesNameAdmin) >= 0) && isDevMode();
     }
   }
 
@@ -107,7 +118,7 @@ export class HeaderComponent implements OnInit {
     }
 
     this.locationSelect = this.appLocation.name;
-    const modalRef = this.modalService.open(this.appLocationModal, {ariaLabelledBy: 'modal-appConfig-title', size: 'lg'});
+    const modalRef = this.modalService.open(this.appLocationModal, {ariaLabelledBy: 'modal-appLocation-title', size: 'lg'});
     modalRef.result.then(
       (location) => {
         if ( this.isAppConfigInputError(location) ) {
@@ -171,7 +182,6 @@ export class HeaderComponent implements OnInit {
       () => {
         if (!this.progressService.loading) {
           if (property === GlobalConstants.appPropertyLocation) {
-            // this.errorService.add(GlobalConstants.appLocationErrorMsg);
             this.openAppLocation();
           }
         }
@@ -197,7 +207,11 @@ export class HeaderComponent implements OnInit {
   }
 
   switchAppUser(user) {
-    this.saveAppProperty(GlobalConstants.appPropertyUser, user);
-    this.appAssociate = user;
+    if (this.internetStatus) {
+      this.logout();
+    } else {
+      this.saveAppProperty(GlobalConstants.appPropertyUser, user);
+      this.appAssociate = user;
+    }
   }
 }

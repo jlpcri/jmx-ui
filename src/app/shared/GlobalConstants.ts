@@ -64,5 +64,5 @@ export class GlobalConstants {
     '#456DD5', '#868487', '#E8735A', '#588A4B', '#031111', '#155462', '#CD4631'];
   public static recipeColorsNicotine = '#F2BA02';
 
-  public static rolesNameAdmin = 'Songqing';
+  public static rolesNameAdmin = 'GROUP - Alohma Admin';
 }

@@ -8,16 +8,16 @@
         <a href="#" class="site-subtitle" (click)="openAppLocation()"> {{appLocation.name}} </a>
       </div>
       <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
-        <div ngbDropdown class="d-inline-block">
+        <div ngbDropdown class="d-inline-block" role="group">
           <button class="btn btn-account" id="dropdownMenu" ngbDropdownToggle *ngIf="appAssociate; else notLogin">{{appAssociate.name}}</button>
           <div ngbDropdownMenu aria-labelledby="dropdownMenu" >
-            <button ngbDropdownItem (click)="logout()" *ngIf="isAdmin()">Logout</button>
             <button ngbDropdownItem (click)="eraseIdbData()" *ngIf="isAdmin()">EraseDB</button>
             <div class="dropdown-divider" *ngIf="isAdmin()"></div>
 
             <button ngbDropdownItem *ngFor="let item of associateList" (click)="switchAppUser(item)">{{item.name}}</button>
           </div>
         </div>
+        &nbsp;&nbsp;<a href="#" class="site-subtitle" (click)="logout()"><i class="fas fa-sign-out-alt"></i></a>
       </div>
 
       <ng-template #notLogin>
@@ -68,7 +68,7 @@
 
 <ng-template #appLocationModal let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-appConfig-title">Choose Store Location</h4>
+    <h4 class="modal-title" id="modal-appLocation-title">Choose Store Location</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
