@@ -8,7 +8,7 @@ import {GlobalConstants} from '../shared/GlobalConstants';
 import {ErrorService} from '../error/error.service';
 import {ProgressService} from '../progress-bar/shared/progress.service';
 import {Subject} from 'rxjs';
-import {ConnectionService} from 'ngx-connection-service';
+import {NgConnection} from 'ng-connection';
 
 @Component({
   selector: 'app-header',
@@ -30,9 +30,7 @@ export class HeaderComponent implements OnInit {
   appAssociate = GlobalConstants.appAssociate;
   associateList = [];
 
-  internetConnection: boolean;
-  internetAccess: boolean;
-  internetStatus: boolean;
+  networkStatus: boolean;
 
   @ViewChild('appLocationModal') appLocationModal: ElementRef;
 
@@ -42,19 +40,16 @@ export class HeaderComponent implements OnInit {
               private modalService: NgbModal,
               private errorService: ErrorService,
               private progressService: ProgressService,
-              private connectionService: ConnectionService) {
-    this.connectionService.monitor().subscribe(
-      currentState => {
-        this.internetConnection = currentState.hasNetworkConnection;
-        this.internetAccess = currentState.hasInternetAccess;
-        this.internetStatus = this.internetConnection && this.internetAccess;
-      }
-    );
-  }
+              private ngConnection: NgConnection) { }
 
   ngOnInit(): void {
+    this.ngConnection.connectivity().subscribe(
+      status => {
+        this.networkStatus = status;
+      });
+
     setTimeout(() => {
-      if (this.internetStatus) {
+      if (this.networkStatus) {
         this.auth.authorized().subscribe(
           user => {
             this.appAssociate.name = user.name;
@@ -207,7 +202,7 @@ export class HeaderComponent implements OnInit {
   }
 
   switchAppUser(user) {
-    if (this.internetStatus) {
+    if (this.networkStatus) {
       this.logout();
     } else {
       this.saveAppProperty(GlobalConstants.appPropertyUser, user);
