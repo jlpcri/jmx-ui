@@ -29,7 +29,16 @@ button.btn-primary:hover,
 }
 
 .search-container {
-  padding-left: 15px;
+  // padding-left: 15px;
+}
+
+.search-input-container {
+  margin-top: 8px;
+  margin-bottom: 24px;
+}
+
+.row-spacing {
+  margin-bottom: 16px;
 }
 /** search results **/
 .search-results {
@@ -39,6 +48,10 @@ button.btn-primary:hover,
   background: #031111;
   color: #ffffff;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.print-label-container h3 {
+  font-size: 1.25rem;
 }
 /*** END - Sections ***/
 
@@ -81,6 +94,7 @@ label {
 .input-icons {
   width: 100%;
   margin-top: 10px;
+  margin-bottom: 0px;
 }
 
 .icon {
@@ -163,6 +177,7 @@ label {
 /* start - custom drop down */
 .custom-select {
   border: 2px solid #031111;
+  margin-bottom: 16px;
 }
 /* end - custom drop down */
 /*** END - Forms ***/
