@@ -2,7 +2,6 @@
 <div class="container-fluid">
   <div class="container search-container">
     <div class="row">
-
       <!-- search info -->
       <div class="col-md-8 form-group">
         <!-- add scan button -->
@@ -98,7 +97,7 @@
       </div>
 
       <!-- label info -->
-      <div class="col-md-4">
+      <div class="col-md-4 print-label-container">
         <div class="input-icons">
           <div class="help-container">
             <span class="far fa-question-circle hover-help-icon"></span>
@@ -108,7 +107,30 @@
             </div>
           </div>
         </div>
-
+        <div class="row">
+          <div class="col-sm-6">
+            <h3>Store Name</h3>
+            <ul>
+              <li>{{printData.storeName}}</li>
+              <li>{{printData.storeLocation}}</li>
+            </ul>
+            <div class="qr-code">
+              QR CODE GOES HERE
+            </div>
+          </div>
+          <div class="col-sm-6">
+            <h3>Recipe Info</h3>
+            <ul>
+              <li>{{printData.name}}</li>
+              <li>{{printData.size}}ml</li>
+              <li>{{printData.strength}}mg</li>
+              <li>{{printData.currentDate}}</li>
+              <li>{{printData.sku}}</li>
+              <li>Lot #{{printData.batchId}}</li>
+            </ul>
+          </div>
+        </div>
+        <!--
         <div class="table-wrapper" id="printSection">
           <table aria-describedby="printSection">
             <tr>
@@ -133,7 +155,7 @@
             </tr>
             <tr style="text-align: center">Lot #{{printData.batchId}}</tr>
           </table>
-        </div>
+        </div> -->
 
         <div class="ml-auto">
           <button class="btn btn-secondary-custom btn-lg" style="float: right;"
@@ -143,35 +165,28 @@
         </div>
       </div>
 
-
-      <!-- old structure below this -->
-      
-
 <div class="container" >
-  <div class="container">
-    <div class="help-container">
-      <span class="far fa-question-circle hover-help-icon"></span>
-      <div class="hover-help">
-        The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
-      </div>
-    </div>
-    <div class="row search-results">
-      <div class="col-md-8">
-        <span class="custom-label-title">Recipe Name:</span><br>
-        <h2 class="font-weight-bold">{{searchItem.name}}</h2>
-      </div>
-      <div class="col-md-2">
-        <span class="custom-label-title">Bottle Size:</span><br>
-        <h2 class="font-weight-bold" *ngIf="bottleSizeSelected.length > 0; else sizeStrengthNoValue">{{bottleSizeSelected}}mL</h2>
-      </div>
-      <div class="col-md-2">
-        <span class="custom-label-title">Nicotine Strength:</span><br>
-        <h2 class="font-weight-bold" *ngIf="nicStrengthSelected.length > 0; else sizeStrengthNoValue">{{nicStrengthSelected}}mg</h2>
-      </div>
-      <ng-template #sizeStrengthNoValue></ng-template>
+  <div class="help-container">
+    <span class="far fa-question-circle hover-help-icon"></span>
+    <div class="hover-help">
+      The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
     </div>
   </div>
-
+  <div class="row search-results">
+    <div class="col-md-8">
+      <span class="custom-label-title">Recipe Name:</span><br>
+      <h2 class="font-weight-bold">{{searchItem.name}}</h2>
+    </div>
+    <div class="col-md-2">
+      <span class="custom-label-title">Bottle Size:</span><br>
+      <h2 class="font-weight-bold" *ngIf="bottleSizeSelected.length > 0; else sizeStrengthNoValue">{{bottleSizeSelected}}mL</h2>
+    </div>
+    <div class="col-md-2">
+      <span class="custom-label-title">Nicotine Strength:</span><br>
+      <h2 class="font-weight-bold" *ngIf="nicStrengthSelected.length > 0; else sizeStrengthNoValue">{{nicStrengthSelected}}mg</h2>
+    </div>
+    <ng-template #sizeStrengthNoValue></ng-template>
+  </div>
 </div>
 <!-- END Search Field -->
 

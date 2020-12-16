@@ -71,7 +71,7 @@ button.btn-secondary-custom {
   color: #ffffff;
   padding: 8px 40px;
   border-radius: 40px;
-  font-size: 1.5rem;
+  font-size: 1rem;
   letter-spacing: 1.75px;
   text-transform: uppercase;
   font-weight: 500;
@@ -80,6 +80,7 @@ button.btn-secondary-custom {
 button.btn-secondary-custom:hover,
 .btn-secondary-custom:not(:disabled):not(.disabled):active {
   background: #156126;
+  color: #ffffff;
   border: 2px solid #156126;
   box-shadow: 0px 2px 8px rgba(0, 0, 0, 0.25);
 }
