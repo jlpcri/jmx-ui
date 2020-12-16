@@ -12,3 +12,12 @@
 .ng-autocomplete .autocomplete-container .not-found {
   margin-top: 8px;
 }
+
+ul {
+	padding-left: 1.25rem;
+	list-style-type: none;
+}
+
+.form-group {
+	margin-bottom: 0;
+}

@@ -5,7 +5,7 @@
       <!-- search info -->
       <div class="col-md-8 form-group">
         <!-- add scan button -->
-        <div class="row row-spacing">
+        <div class="row-spacing">
           <button type="button" class="btn btn-primary-custom btn-lg" (click)="openBottleScan(bottleScan)">SCAN NEW BOTTLE</button>
         </div>
 
@@ -109,9 +109,8 @@
         </div>
         <div class="row">
           <div class="col-sm-6">
-            <h3>Store Name</h3>
+            <h3>{{printData.storeName}}</h3>
             <ul>
-              <li>{{printData.storeName}}</li>
               <li>{{printData.storeLocation}}</li>
             </ul>
             <div class="qr-code">
@@ -121,7 +120,7 @@
           <div class="col-sm-6">
             <h3>Recipe Info</h3>
             <ul>
-              <li>{{printData.name}}</li>
+              <li><strong>{{printData.name}}</strong></li>
               <li>{{printData.size}}ml</li>
               <li>{{printData.strength}}mg</li>
               <li>{{printData.currentDate}}</li>
@@ -164,7 +163,7 @@
                   ngxPrint>PRINT LABEL</button>
         </div>
       </div>
-
+  </div>
 <div class="container" >
   <div class="help-container">
     <span class="far fa-question-circle hover-help-icon"></span>
