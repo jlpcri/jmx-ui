@@ -13,7 +13,6 @@
           <div ngbDropdownMenu aria-labelledby="dropdownMenu" >
             <button ngbDropdownItem (click)="eraseIdbData()" *ngIf="isAdmin()">EraseDB</button>
             <div class="dropdown-divider" *ngIf="isAdmin()"></div>
-
             <button ngbDropdownItem *ngFor="let item of associateList" (click)="switchAppUser(item)">{{item.name}}</button>
           </div>
         </div>

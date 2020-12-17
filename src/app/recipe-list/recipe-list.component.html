@@ -25,7 +25,7 @@
               <ng-autocomplete class="form-control input-field" #autocompleteFirst
                                [data]="firstNameList"
                                [searchKeyword]="nameListKey"
-                               [placeHolder]="'Searched by Juice' "
+                               [placeHolder]="'Search by Juice' "
                                (selected)="selectEvent($event)"
                                (inputChanged)="onChangeSearch($event)"
                                (inputCleared)="onInputCleared()"
@@ -59,7 +59,7 @@
               <ng-autocomplete class="form-control input-field"
                                [data]="secondNameList"
                                [searchKeyword]="nameListKey"
-                               [placeHolder]="'Searched By Ingredients'"
+                               [placeHolder]="'Search By Ingredients'"
                                (selected)="selectEventSecond($event)"
                                (inputChanged)="onChangeSearchSecond($event)"
                                (inputFocused)="onFocusedSecond()"
