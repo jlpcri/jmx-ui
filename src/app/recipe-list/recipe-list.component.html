@@ -6,7 +6,7 @@
       <div class="col-md-8 form-group">
         <!-- add scan button -->
         <div class="row-spacing">
-          <button type="button" class="btn btn-primary-custom btn-lg" (click)="openBottleScan(bottleScan)">SCAN NEW BOTTLE</button>
+          <button type="button" class="btn btn-primary-custom btn-lg" (click)="openBottleScan()">SCAN NEW BOTTLE</button>
         </div>
 
         <!-- search fields container -->
@@ -107,54 +107,29 @@
             </div>
           </div>
         </div>
-        <div class="row">
+        <div class="row" id="printSection">
           <div class="col-sm-6">
             <h3>{{printData.storeName}}</h3>
             <ul>
               <li>{{printData.storeLocation}}</li>
             </ul>
-            <div class="qr-code">
-              QR CODE GOES HERE
+            <div class="qr-code" *ngIf="printData.name.length > 0">
+              <qrcode [qrdata]="printData.sku"
+                      [elementType]="'img'"
+                      width="10"
+                      [errorCorrectionLevel]="'M'"></qrcode>
             </div>
           </div>
-          <div class="col-sm-6">
-            <h3>Recipe Info</h3>
+          <div class="col-sm-6" *ngIf="printData.name.length > 0">
+            <h3>{{printData.name}}</h3>
             <ul>
-              <li><strong>{{printData.name}}</strong></li>
-              <li>{{printData.size}}ml</li>
-              <li>{{printData.strength}}mg</li>
+              <li>{{printData.size}}ml&nbsp;&nbsp;{{printData.strength}}mg</li>
               <li>{{printData.currentDate}}</li>
               <li>{{printData.sku}}</li>
               <li>Lot #{{printData.batchId}}</li>
             </ul>
           </div>
         </div>
-        <!--
-        <div class="table-wrapper" id="printSection">
-          <table aria-describedby="printSection">
-            <tr>
-              <th scope="col"></th>
-            </tr>
-            <tr style="font-weight: bold">{{printData.storeName}}</tr>
-            <tr>{{printData.storeLocation}}</tr>
-            <tr></tr>
-            <tr>
-              <td>
-                <strong>{{printData.name}}</strong><br>
-                {{printData.size}}ml&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}mg<br>
-                {{printData.currentDate}}<br>
-                {{printData.sku}}
-              </td>
-              <td>
-                <qrcode [qrdata]="printData.sku"
-                        [elementType]="'img'"
-                        width="10"
-                        [errorCorrectionLevel]="'M'"></qrcode>
-              </td>
-            </tr>
-            <tr style="text-align: center">Lot #{{printData.batchId}}</tr>
-          </table>
-        </div> -->
 
         <div class="ml-auto">
           <button class="btn btn-secondary-custom btn-lg" style="float: right;"
@@ -163,7 +138,10 @@
                   ngxPrint>PRINT LABEL</button>
         </div>
       </div>
+      <!-- end label info-->
+    </div>
   </div>
+</div>
 <div class="container" >
   <div class="help-container">
     <span class="far fa-question-circle hover-help-icon"></span>
@@ -200,7 +178,7 @@
         </div>
       </div>
       <!-- Juice Bottle -->
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="bottle"
+      <svg xmlns="http://www.w3.org/2000/svg" id="bottle"
            x="0px" y="0px" width="160px" height="500px" viewBox="0 0 206.1 719.1"
            enable-background="new 0 0 206.1 719.1" xml:space="preserve" class="juice-bottle">
         <path fill="none" stroke="#000000" stroke-width="4"
@@ -265,59 +243,3 @@
 </div>
 <!-- END - Recipe Display -->
 
-<!-- START - Print Section -->
-<div class="container-fluid section-padding gray-bg">
-  <div class="container">
-    <div class="row" *ngIf="printData.name.length > 0">
-      <div class="col-sm-3">
-      </div>
-      <div class="col-sm-6">
-        <div class="input-icons">
-          <div class="help-container">
-            <span class="far fa-question-circle hover-help-icon"></span>
-            <div class="hover-help">
-              Use the Export Label button to create a printable label.<br>
-              Print button will be disable until you select store name from main menu.
-            </div>
-          </div>
-        </div>
-
-        <div class="table-wrapper" id="printSection">
-          <table aria-describedby="printSection">
-            <tr>
-              <th scope="col"></th>
-            </tr>
-            <tr style="font-weight: bold">{{printData.storeName}}</tr>
-            <tr>{{printData.storeLocation}}</tr>
-            <tr></tr>
-            <tr>
-              <td>
-                <strong>{{printData.name}}</strong><br>
-                {{printData.size}}ml&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}mg<br>
-                {{printData.currentDate}}<br>
-                {{printData.sku}}
-              </td>
-              <td>
-                <qrcode [qrdata]="printData.sku"
-                        [elementType]="'img'"
-                        width="10"
-                        [errorCorrectionLevel]="'M'"></qrcode>
-              </td>
-            </tr>
-            <tr style="text-align: center">Lot #{{printData.batchId}}</tr>
-          </table>
-        </div>
-
-        <div class="ml-auto">
-          <button class="btn btn-secondary-custom btn-lg" style="float: right;"
-                  [disabled]="isPrintLocationEmpty"
-                  printSectionId="printSection"
-                  ngxPrint>PRINT LABEL</button>
-        </div>
-      </div>
-      <div class="col-sm-3">
-      </div>
-    </div>
-  </div>
-</div>
-<!-- END Print Section -->

@@ -44,9 +44,9 @@ export class HeaderComponent implements OnInit {
 
   ngOnInit(): void {
     this.ngConnection.connectivity().subscribe(
-      status => {
-        this.networkStatus = status;
-      });
+    status => {
+      this.networkStatus = status;
+    });
 
     setTimeout(() => {
       if (this.networkStatus) {
@@ -80,6 +80,11 @@ export class HeaderComponent implements OnInit {
           this.associateList.push(data);
         }
       );
+      this.idbService.getLocationsOrUsersFromIdb(this.idbService.objectStoreLocation).subscribe(
+        data => {
+          this.storeLocations.push(data);
+        }
+      );
     }, 500);
   }
 
@@ -108,10 +113,6 @@ export class HeaderComponent implements OnInit {
   selectEvent() {}
 
   openAppLocation() {
-    if (this.storeLocations.length === 0) {
-      this.storeLocations = this.getStoreLocationsOrUsersFromIdb(this.idbService.objectStoreLocation);
-    }
-
     this.locationSelect = this.appLocation.name;
     const modalRef = this.modalService.open(this.appLocationModal, {ariaLabelledBy: 'modal-appLocation-title', size: 'lg'});
     modalRef.result.then(
@@ -155,19 +156,6 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  getStoreLocationsOrUsersFromIdb(objectStore: string) {
-    const result = [];
-    this.isLoading = true;
-    this.idbService.getLocationsOrUsersFromIdb(objectStore).subscribe(
-      data => {
-        result.push(data);
-        this.isLoading = false;
-      }
-    );
-
-    return result;
-  }
-
   getAppProperty(property) {
     const subject = new Subject<any>();
     this.idbService.getAppPropertyFromIdb(property).subscribe(
@@ -190,7 +178,8 @@ export class HeaderComponent implements OnInit {
     this.idbService.saveAppPropertyToIdb(property, value).subscribe(
       data => {
         if (property === GlobalConstants.appPropertyLocation) {
-          this.appLocation = data;
+          // this.appLocation = data;
+          window.location.reload();
         } else {
           this.appAssociate = data;
         }

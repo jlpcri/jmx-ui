@@ -4,8 +4,8 @@
       <div class="col-header col-md-4 d-flex justify-content-start align-items-center">
         <a href="#" class="site-title" (click)="openHelp(helpTemplate)">JMX - Juice App</a>
       </div>
-      <div class="col-header col-md-4 d-flex justify-content-end align-items-center" title="{{appLocation.storeLocation}}">
-        <a href="#" class="site-subtitle" (click)="openAppLocation()"> {{appLocation.name}} </a>
+      <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
+        <button class="btn btn-account" (click)="openAppLocation()">{{appLocation.name}}</button>
       </div>
       <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
         <div ngbDropdown class="d-inline-block" role="group">
@@ -17,7 +17,7 @@
             <button ngbDropdownItem *ngFor="let item of associateList" (click)="switchAppUser(item)">{{item.name}}</button>
           </div>
         </div>
-        &nbsp;&nbsp;<a href="#" class="site-subtitle" (click)="logout()"><i class="fas fa-sign-out-alt"></i></a>
+        &nbsp;&nbsp;<a href="#" class="site-subtitle" (click)="logout()"><span class="fas fa-sign-out-alt"></span></a>
       </div>
 
       <ng-template #notLogin>

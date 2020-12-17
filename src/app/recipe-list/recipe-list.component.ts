@@ -64,6 +64,18 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.saveLocationsToIdb();
       }
     });
+    setTimeout(() => {
+      this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyLocation).subscribe(
+        location => {
+          this.printData.storeName = location.name;
+          this.printData.storeLocation = location.storeLocation;
+          this.isPrintLocationEmpty = false;
+        },
+        () => {
+          this.isPrintLocationEmpty = true;
+        }
+      );
+    }, 500);
   }
 
   ngOnDestroy(): void {
@@ -290,6 +302,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.recipes = [];
     this.recipeRectangles = [];
     this.printData.name = '';
+  }
+
+  openBottleScan() {
+
   }
 
 }
