@@ -7,6 +7,8 @@
 .ng-autocomplete .autocomplete-container .input-container input {
   font-size: 1rem;
   color: #031111;
+  height: initial;
+  line-height: initial;
 }
 
 .ng-autocomplete .autocomplete-container .not-found {
