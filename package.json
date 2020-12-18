@@ -26,6 +26,7 @@
     "angularx-qrcode": "~2.3.5",
     "bootstrap": "^4.5.3",
     "moment": "^2.29.1",
+    "ng-connection": "^2.0.1",
     "ngx-print": "^1.2.0-beta.5",
     "ngx-spinner": "^10.0.1",
     "rxjs": "~6.5.4",

@@ -8,6 +8,7 @@ import {RecipeListModel} from './recipe-list.model';
 import {RecipeModel} from './recipe.model';
 import {LocationModel, LocationResponseListModel} from '../../shared/location.model';
 import {ErrorService} from '../../error/error.service';
+import {User} from '../../shared/user.model';
 
 @Injectable({
   providedIn: 'root'
@@ -127,5 +128,13 @@ export class RecipeListService {
         }
       }
     );
+  }
+
+  saveUsersToIdb(user: User) {
+    this.idbService.syncUsers({
+      name: user.name,
+      roles: user.roles
+    });
+
   }
 }

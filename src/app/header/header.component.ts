@@ -1,5 +1,4 @@
-import {Component, ElementRef, Injectable, OnInit, ViewChild} from '@angular/core';
-import {User} from '../shared/user.model';
+import {Component, ElementRef, Injectable, isDevMode, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
@@ -8,6 +7,8 @@ import {LocationModel} from '../shared/location.model';
 import {GlobalConstants} from '../shared/GlobalConstants';
 import {ErrorService} from '../error/error.service';
 import {ProgressService} from '../progress-bar/shared/progress.service';
+import {Subject} from 'rxjs';
+import {NgConnection} from 'ng-connection';
 
 @Component({
   selector: 'app-header',
@@ -19,7 +20,6 @@ import {ProgressService} from '../progress-bar/shared/progress.service';
   providedIn: 'root'
 })
 export class HeaderComponent implements OnInit {
-  user: User;
   closeResult: string;
   storeLocations: LocationModel[] = [];
   locationSelect = '';
@@ -27,22 +27,64 @@ export class HeaderComponent implements OnInit {
   isLoading: boolean;
   isShowAlert = false;
 
-  @ViewChild('appConfigModal') appConfigModal: ElementRef;
+  appAssociate = GlobalConstants.appAssociate;
+  associateList = [];
+
+  networkStatus: boolean;
+
+  @ViewChild('appLocationModal') appLocationModal: ElementRef;
 
   constructor(private auth: AuthService,
               private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService,
               private modalService: NgbModal,
               private errorService: ErrorService,
-              private progressService: ProgressService) { }
+              private progressService: ProgressService,
+              private ngConnection: NgConnection) { }
 
   ngOnInit(): void {
-    this.auth.authorized().subscribe(
-      user => { this.user = user; }
-    );
+    this.ngConnection.connectivity().subscribe(
+    status => {
+      this.networkStatus = status;
+    });
+
+    setTimeout(() => {
+      if (this.networkStatus) {
+        this.auth.authorized().subscribe(
+          user => {
+            this.appAssociate.name = user.name;
+            this.appAssociate.roles = user.roles;
+          }
+        );
+      } else {
+        console.log('Use local db user data');
+        this.getAppProperty(GlobalConstants.appPropertyUser).subscribe(
+          user => {
+            this.appAssociate = user;
+          }
+        );
+      }
+    }, 500);
 
     setTimeout( () => {
-      this.getAppProperty(GlobalConstants.appPropertyLocation);
+      this.getAppProperty(GlobalConstants.appPropertyLocation).subscribe(
+        data => {
+          this.appLocation = data;
+        }
+      );
+    }, 500);
+
+    setTimeout(() => {
+      this.idbService.getLocationsOrUsersFromIdb(this.idbService.objectStoreUser).subscribe(
+        data => {
+          this.associateList.push(data);
+        }
+      );
+      this.idbService.getLocationsOrUsersFromIdb(this.idbService.objectStoreLocation).subscribe(
+        data => {
+          this.storeLocations.push(data);
+        }
+      );
     }, 500);
   }
 
@@ -50,31 +92,17 @@ export class HeaderComponent implements OnInit {
     this.auth.logout();
   }
 
-  saveRecipesToIdb() {
-    this.idbService.init(dbExisted => {
-      if (!dbExisted) {
-        this.recipeListService.saveRecipesToIdb();
-      } else {
-        console.log('ObjectStore recipes exists. No need loading');
-      }
-    });
-  }
-
-  saveLocationsToIdb() {
-    this.recipeListService.saveLocationsToIdb();
-  }
-
   eraseIdbData() {
     this.idbService.eraseIdbData();
   }
 
   isAdmin(): boolean {
-    if (this.user === undefined) {
+    if (this.appAssociate === undefined) {
       return false;
-    } else if (this.user.roles === undefined || this.user.roles.length === 0) {
+    } else if (this.appAssociate.roles === undefined || this.appAssociate.roles.length === 0) {
       return false;
     } else {
-      return this.user.roles.indexOf('GROUP - Alohma Admin') >= 0;
+      return (this.appAssociate.roles.indexOf(GlobalConstants.rolesNameAdmin) >= 0) && isDevMode();
     }
   }
 
@@ -82,21 +110,16 @@ export class HeaderComponent implements OnInit {
     this.modalService.open(content, {scrollable: true, size: 'lg'});
   }
 
-  selectEvent(event) {}
+  selectEvent() {}
 
-  openAppConfig() {
-    if (this.storeLocations.length === 0) {
-      this.getStoreLocationsFromIdb();
-    }
-
+  openAppLocation() {
     this.locationSelect = this.appLocation.name;
-    const modalRef = this.modalService.open(this.appConfigModal, {ariaLabelledBy: 'modal-appConfig-title', size: 'lg'});
+    const modalRef = this.modalService.open(this.appLocationModal, {ariaLabelledBy: 'modal-appLocation-title', size: 'lg'});
     modalRef.result.then(
       (location) => {
-        if (location === undefined || location === ''
-          || (typeof location === 'string' && location !== '' && location !== this.appLocation.name)) {
+        if ( this.isAppConfigInputError(location) ) {
           this.isShowAlert = true;
-          this.openAppConfig();
+          this.openAppLocation();
           return false;
         }
 
@@ -108,10 +131,19 @@ export class HeaderComponent implements OnInit {
       (reason) => {
         this.closeResult = `Dismissed ${this.getDismissReason(reason)}`;
         console.log(this.closeResult);
-        this.getAppProperty(GlobalConstants.appPropertyLocation);
+        this.getAppProperty(GlobalConstants.appPropertyLocation).subscribe(
+          data => {
+            this.appLocation = data;
+          }
+        );
         this.isShowAlert = false;
       }
     );
+  }
+
+  isAppConfigInputError(location) {
+    return location === undefined || location === ''
+      || (typeof location === 'string' && location !== '' && location !== this.appLocation.name);
   }
 
   getDismissReason(reason: any): string {
@@ -124,42 +156,46 @@ export class HeaderComponent implements OnInit {
     }
   }
 
-  getStoreLocationsFromIdb(): void {
-    if (this.storeLocations.length === 0) {
-      this.isLoading = true;
-      this.idbService.getLocationsFromIdb().subscribe(
-        data => {
-          this.storeLocations.push({
-            name: data.name,
-            storeLocation: data.storeLocation
-          });
-          this.isLoading = false;
-        }
-      );
-    }
-  }
-
   getAppProperty(property) {
+    const subject = new Subject<any>();
     this.idbService.getAppPropertyFromIdb(property).subscribe(
       value => {
-        this.appLocation = value;
+        subject.next(value);
       },
-      error => {
+      () => {
         if (!this.progressService.loading) {
-          this.errorService.add(GlobalConstants.appLocationErrorMsg);
+          if (property === GlobalConstants.appPropertyLocation) {
+            this.openAppLocation();
+          }
         }
       }
     );
+
+    return subject;
   }
 
   saveAppProperty(property, value) {
     this.idbService.saveAppPropertyToIdb(property, value).subscribe(
-      location => {
-        this.appLocation = location;
+      data => {
+        if (property === GlobalConstants.appPropertyLocation) {
+          // this.appLocation = data;
+          window.location.reload();
+        } else {
+          this.appAssociate = data;
+        }
       },
       error => {
         this.errorService.add(error);
       }
     );
+  }
+
+  switchAppUser(user) {
+    if (this.networkStatus) {
+      this.logout();
+    } else {
+      this.saveAppProperty(GlobalConstants.appPropertyUser, user);
+      this.appAssociate = user;
+    }
   }
 }

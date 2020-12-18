@@ -29,7 +29,16 @@ button.btn-primary:hover,
 }
 
 .search-container {
-  padding-left: 15px;
+  // padding-left: 15px;
+}
+
+.search-input-container {
+  margin-top: 32px;
+  margin-bottom: 32px;
+}
+
+.row-spacing {
+  margin-bottom: 16px;
 }
 /** search results **/
 .search-results {
@@ -39,6 +48,10 @@ button.btn-primary:hover,
   background: #031111;
   color: #ffffff;
   box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+.print-label-container h3 {
+  font-size: 1.25rem;
 }
 /*** END - Sections ***/
 
@@ -51,14 +64,14 @@ label {
   color: #737c7c;
 }
 
-.form-control {
+.search-input-container .form-control {
   display: block;
   width: 100%;
   padding: 0.375rem 1.5rem 0.375rem 3rem;
-  font-size: 2rem;
+  font-size: 1rem;
   line-height: 1.5;
   color: #031111;
-  background-color: #fff;
+  background-color: transparent;
   background-clip: padding-box;
   border: 0 solid #031111;
   border-bottom: 2px solid #031111;
@@ -66,7 +79,7 @@ label {
   transition: all 0.16s ease-in-out;
 }
 
-.form-control:focus {
+.search-input-container .form-control:focus {
   color: #031111;
   background-color: #fff;
   border-bottom: 4px solid #277C3B;
@@ -81,10 +94,11 @@ label {
 .input-icons {
   width: 100%;
   margin-top: 10px;
+  margin-bottom: 0px;
 }
 
 .icon {
-  padding: 1.25rem 0.5rem;
+  padding: 0 12px;
   font-size: 1.5rem;
   min-width: 40px;
   color: #031111;
@@ -163,6 +177,7 @@ label {
 /* start - custom drop down */
 .custom-select {
   border: 2px solid #031111;
+  margin-bottom: 16px;
 }
 /* end - custom drop down */
 /*** END - Forms ***/
@@ -263,3 +278,13 @@ $colors: #02C4CC, #8DAE32, #C6D2D0, #614870, #D27973, #A2E5F3,
   z-index: 999999;
 }
 /*** END - Help Icons ***/
+
+/* Datepicker popup icon */
+button.calendar, button.calendar:active {
+  width: 2.75rem;
+  background-image: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAACIAAAAcCAYAAAAEN20fAAAABHNCSVQICAgIfAhkiAAAAAlwSFlzAAAOxAAADsQBlSsOGwAAABl0RVh0U29mdHdhcmUAd3d3Lmlua3NjYXBlLm9yZ5vuPBoAAAEUSURBVEiJ7ZQxToVAEIY/YCHGxN6XGOIpnpaEsBSeQC9ArZbm9TZ6ADyBNzAhQGGl8Riv4BLAWAgmkpBYkH1b8FWT2WK/zJ8ZJ4qiI6XUI3ANnGKWBnht2/ZBDRK3hgVGNsCd7/ui+JkEIrKtqurLpEWaphd933+IyI3LEIdpCYCiKD6HcuOa/nwOa0ScJEnk0BJg0UTUWJRl6RxCYEzEmomsIlPU3IPW+grIAbquy+q6fluy/28RIBeRMwDXdXMgXLj/B2uimRXpui4D9sBeRLKl+1N+L+t6RwbWrZliTTTr1oxYtzVWiTQAcRxvTX+eJMnlUDaO1vpZRO5NS0x48sIwfPc87xg4B04MCzQi8hIEwe4bl1DnFMCN2zsAAAAASUVORK5CYII=') !important;
+  background-repeat: no-repeat;
+  background-size: 23px;
+  background-position: center;
+}
+

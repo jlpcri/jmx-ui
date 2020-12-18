@@ -1,4 +1,4 @@
-import {Component, OnDestroy, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Input, OnDestroy, OnInit, ViewChild} from '@angular/core';
 
 import {Recipe} from '../recipe';
 import {RecipeListService} from './shared/recipe-list.service';
@@ -7,6 +7,12 @@ import {GlobalConstants} from '../shared/GlobalConstants';
 import {Product} from '../product';
 import {ErrorService} from '../error/error.service';
 import {NgxSpinnerService} from 'ngx-spinner';
+import {User} from '../shared/user.model';
+import {BottleScanModel} from './shared/bottle-scan.model';
+import * as moment from 'moment';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import {ApiService} from '../api/api.service';
+import {HeaderComponent} from '../header/header.component';
 
 @Component({
   selector: 'app-recipe-list',
@@ -47,12 +53,22 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   spinnerName = GlobalConstants.spinnerName;
 
+  user: User;
+  closeResult: string;
+  isShowAlert = false;
+
+  @Input() public scanData = GlobalConstants.scanDataInitial;
+  @ViewChild('bottleScanModal') bottleScanModal: ElementRef;
+  @ViewChild('confirmModal') confirmModal: ElementRef;
   @ViewChild('autocompleteFirst') autocompleteFirst;
 
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService,
               private errorService: ErrorService,
-              private spinnerService: NgxSpinnerService) { }
+              private spinnerService: NgxSpinnerService,
+              private modalService: NgbModal,
+              private apiService: ApiService,
+              private headerComponent: HeaderComponent) { }
 
   ngOnInit(): void {
     this.firstNameList = [GlobalConstants.nameListInitial];
@@ -64,6 +80,18 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.saveLocationsToIdb();
       }
     });
+    setTimeout(() => {
+      this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyLocation).subscribe(
+        location => {
+          this.printData.storeName = location.name;
+          this.printData.storeLocation = location.storeLocation;
+          this.isPrintLocationEmpty = false;
+        },
+        () => {
+          this.isPrintLocationEmpty = true;
+        }
+      );
+    }, 500);
   }
 
   ngOnDestroy(): void {
@@ -290,6 +318,121 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.recipes = [];
     this.recipeRectangles = [];
     this.printData.name = '';
+  }
+
+  // Bottle Scan methods
+  openBottleScan() {
+    this.headerComponent.getAppProperty(GlobalConstants.appPropertyUser).subscribe(
+      user => {
+        this.user = user;
+        this.openBottleScanLocation(this.bottleScanModal);
+      },
+      () => {
+        this.errorService.add(GlobalConstants.appUserErrorMsg);
+      }
+    );
+  }
+
+  openBottleScanLocation(content) {
+    this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyLocation).subscribe(
+      location => {
+        this.scanData.locationName = location.name;
+        this.scanData.associateName = this.user.name;
+
+        let postData: BottleScanModel;
+        const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
+        modalRef.result.then(
+          (inputData) => {
+            if (!this.isScanDataValid(inputData)) {
+              this.isShowAlert = true;
+              this.openBottleScan();
+              return false;
+            }
+            this.scanData.eventTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZ');
+
+            postData = {
+              eventTimestamp: this.scanData.eventTimestamp,
+              associateName: this.scanData.associateName,
+              batchId: this.scanData.batchId,
+              locationName: this.scanData.locationName,
+              productName: this.scanData.productName,
+              productSku: this.scanData.productSku
+            };
+            this.openBottleScanConfirmation(postData);
+          },
+          (reason) => {
+            this.closeResult = `Dismissed ${this.headerComponent.getDismissReason(reason)}`;
+            console.log(this.closeResult);
+            this.isShowAlert = false;
+          });
+      },
+      error => {
+        console.log(error);
+        window.location.reload();
+      }
+    );
+  }
+
+  openBottleScanConfirmation(postData) {
+    const modalRef = this.modalService.open(this.confirmModal, {ariaLabelledBy: 'modal-confirmation-title'});
+    modalRef.result.then(
+      () => {
+        this.postBottleScanData(postData);
+      },
+      (reason) => {
+        this.closeResult = `Dismissed ${this.headerComponent.getDismissReason(reason)}`;
+        console.log(this.closeResult);
+      }
+    );
+  }
+
+  postBottleScanData(postData: BottleScanModel) {
+    this.apiService.post<BottleScanModel>('/bottleScanEvents', postData).subscribe(
+      data => {
+        console.log('Added bottle scan product: ', data.productName);
+        this.scanData.status = GlobalConstants.bottleScanSend;
+        this.idbService.addBottleScan(this.scanData);
+      },
+      error => {
+        this.errorService.add(error);
+        this.scanData.status = GlobalConstants.bottleScanCommit;
+        this.idbService.addBottleScan(this.scanData);
+      }
+    );
+
+    this.idbService.getBottleScan(GlobalConstants.bottleScanCommit).subscribe(
+      data => {
+        postData = {
+          eventTimestamp: data.eventTimestamp,
+          associateName: data.associateName,
+          batchId: data.batchId,
+          locationName: data.locationName.name,
+          productName: data.productName,
+          productSku: data.productSku
+        };
+        this.apiService.post<BottleScanModel>('/bottleScanEvents', postData).subscribe(
+          resp => {
+            console.log('Added bottle scan product: ', resp.productName);
+            this.idbService.updateBottleScan(data.id);
+          },
+          error => {
+            this.errorService.add(error);
+          }
+        );
+      }
+    );
+  }
+
+  isScanDataValid(data) {
+    let flag = true;
+    for (const field of GlobalConstants.scanDataCheckFields) {
+      if (data[field] === '') {
+        flag = false;
+        break;
+      }
+    }
+
+    return flag;
   }
 
 }

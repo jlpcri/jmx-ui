@@ -15,7 +15,8 @@ export class IndexedDatabaseService {
   private version = 1;
   private dbName = 'AmvRecipesDatabase';
   private objectStoreName = 'recipes';
-  private objectStoreLocation = 'locations';
+  public objectStoreLocation = 'locations';
+  public objectStoreUser = 'users';
   private objectStoreBottleScan = 'bottleScans';
   private objectStoreAppConfig = 'appConfig';
 
@@ -58,6 +59,9 @@ export class IndexedDatabaseService {
       const objectStoreAppConfig = db.createObjectStore(this.objectStoreAppConfig, {keyPath: 'id', autoIncrement: true});
       objectStoreAppConfig.createIndex(GlobalConstants.indexAppProperty, 'property', {unique: true});
 
+      const objectStoreUser = db.createObjectStore(this.objectStoreUser, {keyPath: 'name', autoIncrement: false});
+      objectStoreUser.createIndex('roles', 'roles', {unique: false});
+
       dbExisted = false;
 
     };
@@ -99,6 +103,21 @@ export class IndexedDatabaseService {
     };
     tx.onerror = (error) => {
       console.error('Error add location data to indexedDB ', error);
+    };
+  }
+
+  syncUsers(user) {
+    const tx = this.db.transaction([this.objectStoreUser], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(this.objectStoreUser);
+
+    store.put(user);
+
+    tx.oncomplete = () => {
+      this.saveAppPropertyToIdb(GlobalConstants.appPropertyUser, user);
+    };
+
+    tx.onerror = (error) => {
+      console.log('Users data save error: ', error);
     };
   }
 
@@ -336,20 +355,16 @@ export class IndexedDatabaseService {
     return subject;
   }
 
-  getLocationsFromIdb() {
+  getLocationsOrUsersFromIdb(objectStore: string) {
     const subject = new Subject<any>();
 
-    const tx = this.db.transaction([this.objectStoreLocation], GlobalConstants.idbReadOnly);
-    const store = tx.objectStore(this.objectStoreLocation);
-    // const index = store.index('name');
+    const tx = this.db.transaction([objectStore], GlobalConstants.idbReadOnly);
+    const store = tx.objectStore(objectStore);
 
     const getRequest = store.getAll();
     getRequest.onsuccess = () => {
       for (const item of getRequest.result) {
-        subject.next({
-          name: item.name,
-          storeLocation: item.storeLocation
-        });
+        subject.next(item);
       }
     };
 
@@ -490,11 +505,10 @@ export class IndexedDatabaseService {
 
         updateRequest.onsuccess = () => {
           subject.next(value);
-          console.log('App Location is updated.');
         };
 
         updateRequest.onerror = error => {
-          console.log('App Location update error.', error);
+          console.log('App Property update error.', error);
         };
       } else {
         store.add({
@@ -502,7 +516,6 @@ export class IndexedDatabaseService {
           value
         });
         subject.next(value);
-        console.log('App Location is added.');
       }
     };
 

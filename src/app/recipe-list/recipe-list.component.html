@@ -2,117 +2,168 @@
 <div class="container-fluid">
   <div class="container search-container">
     <div class="row">
+      <!-- search info -->
       <div class="col-md-8 form-group">
+        <!-- add scan button -->
+        <div class="row-spacing">
+          <button type="button" class="btn btn-primary-custom btn-lg" (click)="openBottleScan()">SCAN NEW BOTTLE</button>
+        </div>
+
+        <!-- search fields container -->
         <div class="row input-icons">
+          <!-- search fields column -->
+          <div class="col-md-8">
+            <!-- START - Juice Search -->
+            <div class="search-input-container">
+              <div class="help-container">
+                <span class="far fa-question-circle hover-help-icon"></span>
+                <div class="hover-help">
+                  Type in the juice name that you are looking for. Then select desired juice from option list.
+                </div>
+              </div>
+              <span class="fas fa-search icon"></span>
+              <ng-autocomplete class="form-control input-field" #autocompleteFirst
+                               [data]="firstNameList"
+                               [searchKeyword]="nameListKey"
+                               [placeHolder]="'Search by Juice' "
+                               (selected)="selectEvent($event)"
+                               (inputChanged)="onChangeSearch($event)"
+                               (inputCleared)="onInputCleared()"
+                               (inputFocused)="onFocused()"
+                               [historyIdentifier]="firstNameListHistory"
+                               [debounceTime]="400"
+                               [isLoading]="isLoadingNameListFirst"
+                               [minQueryLength]="0"
+                               [itemTemplate]="itemTemplate"
+                               [notFoundTemplate]="notFoundTemplate"
+                               [(ngModel)]="searchItem">
+              </ng-autocomplete>
+              <ng-template #itemTemplate let-item>
+                <a [innerHTML]="item.name"></a>
+              </ng-template>
+              <ng-template #notFoundTemplate let-notFound>
+                <div [innerHTML]="notFound"></div>
+              </ng-template>
+            </div>
+            <!-- END - Juice Search -->
+
+            <!-- START - Ingredients Search -->
+            <div class="search-input-container">
+              <div class="help-container">
+                <span class="far fa-question-circle hover-help-icon"></span>
+                <div class="hover-help">
+                  Type in the ingredients name that you are looking for. Then select ingredient from option list.
+                </div>
+              </div>
+              <span class="fas fa-search icon"></span>
+              <ng-autocomplete class="form-control input-field"
+                               [data]="secondNameList"
+                               [searchKeyword]="nameListKey"
+                               [placeHolder]="'Search By Ingredients'"
+                               (selected)="selectEventSecond($event)"
+                               (inputChanged)="onChangeSearchSecond($event)"
+                               (inputFocused)="onFocusedSecond()"
+                               (inputCleared)="onInputClearedSecond()"
+                               [historyIdentifier]="secondNameListHistory"
+                               [debounceTime]="400"
+                               [isLoading]="isLoadingNameListSecond"
+                               [itemTemplate]="itemTemplate"
+                               [notFoundTemplate]="notFoundTemplate"
+                               [(ngModel)]="searchItemSecond">
+              </ng-autocomplete>
+            </div>
+            <!-- END - Ingredients Search -->
+          </div>
+          <!-- search dropdowns -->
+          <div class="col-md-4">
+            <!-- START - Bottle Size -->
+            <label for="bottleSizeSelected" class="custom-label-title">Bottle Size</label>
+            <select class="custom-select" id="bottleSizeSelected"
+                    (change)="changeSize(bottleSizeSelected)"
+                    [(ngModel)]="bottleSizeSelected">
+              <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
+            </select>
+            <!-- END - Bottle Size -->
+            <!-- START - Nicotine Strength -->
+            <label for="nicStrengthSelected" class="custom-label-title">Nicotine Strength</label>
+            <select class="custom-select" id="nicStrengthSelected"
+                    (change)="changeStrength(nicStrengthSelected)"
+                    [(ngModel)]="nicStrengthSelected">
+              <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
+            </select>
+            <!-- END - Nicotine Strenth -->
+          </div>
+        </div>
+      </div>
+
+      <!-- label info -->
+      <div class="col-md-4 print-label-container">
+        <div class="input-icons">
           <div class="help-container">
             <span class="far fa-question-circle hover-help-icon"></span>
             <div class="hover-help">
-              Type in the juice name that you are looking for. Then select desired juice from option list.
+              Use the Export Label button to create a printable label.<br>
+              Print button will be disable until you select store name from main menu.
             </div>
           </div>
-          <span class="fas fa-search icon"></span>
-          <ng-autocomplete class="form-control input-field" #autocompleteFirst
-                           [data]="firstNameList"
-                           [searchKeyword]="nameListKey"
-                           [placeHolder]="'Searched by Juice' "
-                           (selected)="selectEvent($event)"
-                           (inputChanged)="onChangeSearch($event)"
-                           (inputCleared)="onInputCleared()"
-                           (inputFocused)="onFocused()"
-                           [historyIdentifier]="firstNameListHistory"
-                           [debounceTime]="400"
-                           [isLoading]="isLoadingNameListFirst"
-                           [minQueryLength]="0"
-                           [itemTemplate]="itemTemplate"
-                           [notFoundTemplate]="notFoundTemplate"
-                           [(ngModel)]="searchItem">
-          </ng-autocomplete>
-          <ng-template #itemTemplate let-item>
-            <a [innerHTML]="item.name"></a>
-          </ng-template>
-          <ng-template #notFoundTemplate let-notFound>
-            <div [innerHTML]="notFound"></div>
-          </ng-template>
         </div>
-
-      </div>
-
-      <div class="col-md-2 form-group">
-        <label for="bottleSizeSelected" class="custom-label-title">Bottle Size</label>
-        <select class="custom-select" id="bottleSizeSelected"
-                (change)="changeSize(bottleSizeSelected)"
-                [(ngModel)]="bottleSizeSelected">
-          <option *ngFor="let each of sizeRadioButtons" [value]="each">{{each}}mL</option>
-        </select>
-      </div>
-      <div class="col-md-2 form-group">
-        <label for="nicStrengthSelected" class="custom-label-title">Nicotine Strength</label>
-        <select class="custom-select" id="nicStrengthSelected"
-                (change)="changeStrength(nicStrengthSelected)"
-                [(ngModel)]="nicStrengthSelected">
-          <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
-        </select>
-      </div>
-    </div>
-
-    <div class="row">
-      <div class="col-md-8 form-group">
-        <div class="row input-icons">
-          <div class="help-container">
-            <span class="far fa-question-circle hover-help-icon"></span>
-            <div class="hover-help">
-              Type in the ingredients name that you are looking for. Then select ingredient from option list.
+        <div class="row" id="printSection">
+          <div class="col-sm-6">
+            <h3>{{printData.storeName}}</h3>
+            <ul>
+              <li>{{printData.storeLocation}}</li>
+            </ul>
+            <div class="qr-code" *ngIf="printData.name.length > 0">
+              <qrcode [qrdata]="printData.sku"
+                      [elementType]="'img'"
+                      width="10"
+                      [errorCorrectionLevel]="'M'"></qrcode>
             </div>
           </div>
-          <span class="fas fa-search icon"></span>
-          <ng-autocomplete class="form-control input-field"
-                           [data]="secondNameList"
-                           [searchKeyword]="nameListKey"
-                           [placeHolder]="'Searched By Ingredients'"
-                           (selected)="selectEventSecond($event)"
-                           (inputChanged)="onChangeSearchSecond($event)"
-                           (inputFocused)="onFocusedSecond()"
-                           (inputCleared)="onInputClearedSecond()"
-                           [historyIdentifier]="secondNameListHistory"
-                           [debounceTime]="400"
-                           [isLoading]="isLoadingNameListSecond"
-                           [itemTemplate]="itemTemplate"
-                           [notFoundTemplate]="notFoundTemplate"
-                           [(ngModel)]="searchItemSecond">
-          </ng-autocomplete>
+          <div class="col-sm-6" *ngIf="printData.name.length > 0">
+            <h3>{{printData.name}}</h3>
+            <ul>
+              <li>{{printData.size}}ml&nbsp;&nbsp;{{printData.strength}}mg</li>
+              <li>{{printData.currentDate}}</li>
+              <li>{{printData.sku}}</li>
+              <li>Lot #{{printData.batchId}}</li>
+            </ul>
+          </div>
         </div>
 
+        <div class="ml-auto">
+          <button class="btn btn-secondary-custom btn-lg" style="float: right;"
+                  [disabled]="isPrintLocationEmpty"
+                  printSectionId="printSection"
+                  ngxPrint>PRINT LABEL</button>
+        </div>
       </div>
+      <!-- end label info-->
     </div>
-
   </div>
 </div>
-
 <div class="container" >
-  <div class="container">
-    <div class="help-container">
-      <span class="far fa-question-circle hover-help-icon"></span>
-      <div class="hover-help">
-        The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
-      </div>
-    </div>
-    <div class="row search-results">
-      <div class="col-md-8">
-        <span class="custom-label-title">Recipe Name:</span><br>
-        <h2 class="font-weight-bold">{{searchItem.name}}</h2>
-      </div>
-      <div class="col-md-2">
-        <span class="custom-label-title">Bottle Size:</span><br>
-        <h2 class="font-weight-bold" *ngIf="bottleSizeSelected.length > 0; else sizeStrengthNoValue">{{bottleSizeSelected}}mL</h2>
-      </div>
-      <div class="col-md-2">
-        <span class="custom-label-title">Nicotine Strength:</span><br>
-        <h2 class="font-weight-bold" *ngIf="nicStrengthSelected.length > 0; else sizeStrengthNoValue">{{nicStrengthSelected}}mg</h2>
-      </div>
-      <ng-template #sizeStrengthNoValue></ng-template>
+  <div class="help-container">
+    <span class="far fa-question-circle hover-help-icon"></span>
+    <div class="hover-help">
+      The recipe you have selected will display in this section. It will reflect the recipe name, bottle size, and nicotine strength of the recipe.
     </div>
   </div>
-
+  <div class="row search-results">
+    <div class="col-md-8">
+      <span class="custom-label-title">Recipe Name:</span><br>
+      <h2 class="font-weight-bold">{{searchItem.name}}</h2>
+    </div>
+    <div class="col-md-2">
+      <span class="custom-label-title">Bottle Size:</span><br>
+      <h2 class="font-weight-bold" *ngIf="bottleSizeSelected.length > 0; else sizeStrengthNoValue">{{bottleSizeSelected}}mL</h2>
+    </div>
+    <div class="col-md-2">
+      <span class="custom-label-title">Nicotine Strength:</span><br>
+      <h2 class="font-weight-bold" *ngIf="nicStrengthSelected.length > 0; else sizeStrengthNoValue">{{nicStrengthSelected}}mg</h2>
+    </div>
+    <ng-template #sizeStrengthNoValue></ng-template>
+  </div>
 </div>
 <!-- END Search Field -->
 
@@ -127,7 +178,7 @@
         </div>
       </div>
       <!-- Juice Bottle -->
-      <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" id="bottle"
+      <svg xmlns="http://www.w3.org/2000/svg" id="bottle"
            x="0px" y="0px" width="160px" height="500px" viewBox="0 0 206.1 719.1"
            enable-background="new 0 0 206.1 719.1" xml:space="preserve" class="juice-bottle">
         <path fill="none" stroke="#000000" stroke-width="4"
@@ -192,59 +243,95 @@
 </div>
 <!-- END - Recipe Display -->
 
-<!-- START - Print Section -->
-<div class="container-fluid section-padding gray-bg">
-  <div class="container">
-    <div class="row" *ngIf="printData.name.length > 0">
-      <div class="col-sm-3">
-      </div>
-      <div class="col-sm-6">
-        <div class="input-icons">
-          <div class="help-container">
-            <span class="far fa-question-circle hover-help-icon"></span>
-            <div class="hover-help">
-              Use the Export Label button to create a printable label.<br>
-              Print button will be disable until you select store name from main menu.
-            </div>
-          </div>
-        </div>
-
-        <div class="table-wrapper" id="printSection">
-          <table aria-describedby="printSection">
-            <tr>
-              <th scope="col"></th>
-            </tr>
-            <tr style="font-weight: bold">{{printData.storeName}}</tr>
-            <tr>{{printData.storeLocation}}</tr>
-            <tr></tr>
-            <tr>
-              <td>
-                <strong>{{printData.name}}</strong><br>
-                {{printData.size}}ml&nbsp;&nbsp;&nbsp;&nbsp;{{printData.strength}}mg<br>
-                {{printData.currentDate}}<br>
-                {{printData.sku}}
-              </td>
-              <td>
-                <qrcode [qrdata]="printData.sku"
-                        [elementType]="'img'"
-                        width="10"
-                        [errorCorrectionLevel]="'M'"></qrcode>
-              </td>
-            </tr>
-            <tr style="text-align: center">Lot #{{printData.batchId}}</tr>
-          </table>
-        </div>
-
-        <div class="ml-auto">
-          <button class="btn btn-secondary-custom btn-lg" style="float: right;"
-                  [disabled]="isPrintLocationEmpty"
-                  printSectionId="printSection"
-                  ngxPrint>PRINT LABEL</button>
-        </div>
-      </div>
-      <div class="col-sm-3">
-      </div>
+<!-- START - Bottle Scan Modal -->
+<div class="container">
+  <ng-template #bottleScanModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-bottleScan-title">Scan A New 960mL Bottle</h4>
+      <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
-  </div>
+    <div class="modal-body">
+      <form>
+        <div class="form-group">
+          <p>
+            Look for a label on the new 960mL liquid bottle. It should be located on the bottom of the bottle. Scan the barcode.<br>
+            <strong>Note: If the barcode isn't scanning, you can enter in the barcode manually.</strong>
+          </p>
+
+          <label for="scanProductName">Product Name</label>
+          <input id="scanProductName" [(ngModel)]="scanData.productName" name="scanProductName" class="form-control" placeholder="Product Name" readonly>
+
+          <label for="scanProductSku">Product SKU</label>
+          <input id="scanProductSku" [(ngModel)]="scanData.productSku" name="scanProductSku" class="form-control" placeholder="Product SKU">
+
+          <label for="scanProductBar">Product BatchID</label>
+          <input id="scanProductBar" [(ngModel)]="scanData.batchId" name="scanProductBar" class="form-control" placeholder="Product Barcode">
+
+          <label for="scanEmployeeName">Associate Name</label>
+          <input id="scanEmployeeName" [(ngModel)]="scanData.associateName" name="scanEmployee" class="form-control" placeholder="Associate Name" readonly>
+
+          <label for="locationName">Store Location</label>
+          <input id="locationName" [(ngModel)]="scanData.locationName" name="scanLocation" class="form-control" placeholder="Location Name" readonly>
+
+          <br>
+          <div class="form-control" style='float: left; color: red' *ngIf="isShowAlert"><strong>Error: </strong>At least one input field Empty.</div>
+
+        </div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-secondary" (click)="modal.close(scanData)">Save</button>
+    </div>
+  </ng-template>
+
+  <ng-template #confirmModal let-modal>
+    <div class="modal-header">
+      <h4 class="modal-title" id="modal-confirmation-title">Saving Bottle Scan</h4>
+      <button type="button" class="close" aria-label="Close button" aria-describedby="modal-title" (click)="modal.dismiss('Cross click')">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+    <div class="modal-body">
+      <p><strong>Are you sure you want to save product as follows?</strong></p>
+      <table class="table table-striped" aria-describedby="bottleScanTable">
+        <thead>
+        <tr>
+          <th scope="col"></th>
+          <th scope="col"></th>
+        </tr>
+        </thead>
+        <tbody>
+        <tr>
+          <td style="font-weight: bold">Product Name</td>
+          <td>{{scanData.productName}}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold">Product SKU</td>
+          <td>{{scanData.productSku}}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold">Product BatchID</td>
+          <td>{{scanData.batchId}}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold">Associate Name</td>
+          <td>{{scanData.associateName}}</td>
+        </tr>
+        <tr>
+          <td style="font-weight: bold">Store Name</td>
+          <td>{{scanData.locationName}}</td>
+        </tr>
+        </tbody>
+      </table>
+      <p>All information associated to this bottle scan will be permanently saved.</p>
+      <p><span class="text-danger" style="font-weight:bold;">This operation cannot be undone.</span></p>
+    </div>
+    <div class="modal-footer">
+      <button type="button" class="btn btn-outline-secondary" (click)="modal.dismiss('cancel click')">Cancel</button>
+      <button type="button" ngbAutofocus class="btn btn-danger" (click)="modal.close('Ok click')">Ok</button>
+    </div>
+  </ng-template>
 </div>
-<!-- END Print Section -->
+<!-- END - Bottle Scan Modal -->

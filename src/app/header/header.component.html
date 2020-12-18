@@ -2,30 +2,30 @@
   <div class="container light">
     <div class="row">
       <div class="col-header col-md-4 d-flex justify-content-start align-items-center">
-        <a href="#" class="site-title">JMX - Juice App</a>
-      </div>
-      <div class="col-header col-md-4 d-flex justify-content-end align-items-center" title="{{appLocation.storeLocation}}">
-        {{appLocation.name}}
+        <button class="btn btn-account site-title" (click)="openHelp(helpTemplate)">JMX - Juice App</button>
       </div>
       <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
-        <div ngbDropdown class="d-inline-block">
-          <button class="btn btn-account" id="dropdownMenu" ngbDropdownToggle *ngIf="user; else notLogin">{{user.name}}</button>
-          <div ngbDropdownMenu aria-labelledby="dropdownMenu">
-            <button ngbDropdownItem (click)="openHelp(helpTemplate)">Help</button>
-            <button ngbDropdownItem (click)="openAppConfig()">AppConfig</button>
-            <button ngbDropdownItem (click)="logout()">Logout</button>
-            <button ngbDropdownItem (click)="saveRecipesToIdb()" *ngIf="isAdmin()">LoadRecipes</button>
-            <button ngbDropdownItem (click)="saveLocationsToIdb()" *ngIf="isAdmin()">LoadLocations</button>
+        <button class="btn btn-account" (click)="openAppLocation()">{{appLocation.name}}</button>
+      </div>
+      <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
+        <div ngbDropdown class="d-inline-block" role="group">
+          <button class="btn btn-account" id="dropdownMenu" ngbDropdownToggle *ngIf="appAssociate; else notLogin">{{appAssociate.name}}</button>
+          <div ngbDropdownMenu aria-labelledby="dropdownMenu" >
             <button ngbDropdownItem (click)="eraseIdbData()" *ngIf="isAdmin()">EraseDB</button>
+            <div class="dropdown-divider" *ngIf="isAdmin()"></div>
+            <ng-container *ngFor="let item of associateList">
+              <button ngbDropdownItem (click)="switchAppUser(item)" *ngIf="item.name !== appAssociate.name">{{item.name}}</button>
+            </ng-container>
           </div>
         </div>
+        &nbsp;&nbsp;<a href="#" class="site-subtitle" (click)="logout()"><span class="fas fa-sign-out-alt"></span></a>
       </div>
 
       <ng-template #notLogin>
         <div ngbDropdown class="d-inline-block">
           <button class="btn btn-account" id="dropdownMenuNotLogin" ngbDropdownToggle>Hello, Guest</button>
           <div ngbDropdownMenu aria-labelledby="dropdownMenuNotLogin">
-            <button ngbDropdownItem (click)="openHelp(helpTemplate)">Help</button>
+            <button ngbDropdownItem *ngFor="let item of associateList" (click)="switchAppUser(item)">{{item.name}}</button>
           </div>
         </div>
       </ng-template>
@@ -67,9 +67,9 @@
   </div>
 </ng-template>
 
-<ng-template #appConfigModal let-modal>
+<ng-template #appLocationModal let-modal>
   <div class="modal-header">
-    <h4 class="modal-title" id="modal-appConfig-title">JMX App Config</h4>
+    <h4 class="modal-title" id="modal-appLocation-title">Choose Store Location</h4>
     <button type="button" class="close" aria-label="Close" (click)="modal.dismiss('Cross click')">
       <span aria-hidden="true">&times;</span>
     </button>
@@ -82,7 +82,7 @@
                          [data]="storeLocations"
                          [searchKeyword]="'name'"
                          [placeHolder]="'Search Store Name'"
-                         (selected)="selectEvent($event)"
+                         (selected)="selectEvent()"
                          [historyIdentifier]=""
                          [debounceTime]="400"
                          [isLoading]="isLoading"
