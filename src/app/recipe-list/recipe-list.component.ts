@@ -25,7 +25,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   recipes: Recipe[] = [];
   printData: Product = GlobalConstants.printDataInitial;
-  isPrintLocationEmpty = false;
 
   recipeRectangles = [];
   recipeRectX = 26;
@@ -85,10 +84,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         location => {
           this.printData.storeName = location.name;
           this.printData.storeLocation = location.storeLocation;
-          this.isPrintLocationEmpty = false;
         },
         () => {
-          this.isPrintLocationEmpty = true;
         }
       );
     }, 500);
@@ -299,10 +296,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       location => {
         this.printData.storeName = location.name;
         this.printData.storeLocation = location.storeLocation;
-        this.isPrintLocationEmpty = false;
       },
       () => {
-        this.isPrintLocationEmpty = true;
       }
     );
   }
