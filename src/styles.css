@@ -28,6 +28,11 @@ input.form-control {
 	font-size: 16px;
 }
 
+/* fix for modal input fields */
+.modal-body .ng-autocomplete .autocomplete-container .input-container input {
+  padding: 8px;
+}
+
 /*** START - Buttons ***/
 /* start - primary */
 button.btn-primary-custom {

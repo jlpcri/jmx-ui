@@ -64,14 +64,14 @@ label {
   color: #737c7c;
 }
 
-.form-control {
+.search-input-container .form-control {
   display: block;
   width: 100%;
   padding: 0.375rem 1.5rem 0.375rem 3rem;
   font-size: 1rem;
   line-height: 1.5;
   color: #031111;
-  background-color: #fff;
+  background-color: transparent;
   background-clip: padding-box;
   border: 0 solid #031111;
   border-bottom: 2px solid #031111;
@@ -79,7 +79,7 @@ label {
   transition: all 0.16s ease-in-out;
 }
 
-.form-control:focus {
+.search-input-container .form-control:focus {
   color: #031111;
   background-color: #fff;
   border-bottom: 4px solid #277C3B;
