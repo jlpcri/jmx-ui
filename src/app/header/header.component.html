@@ -2,7 +2,7 @@
   <div class="container light">
     <div class="row">
       <div class="col-header col-md-4 d-flex justify-content-start align-items-center">
-        <a href="#" class="site-title" (click)="openHelp(helpTemplate)">JMX - Juice App</a>
+        <button class="btn btn-account site-title" (click)="openHelp(helpTemplate)">JMX - Juice App</button>
       </div>
       <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
         <button class="btn btn-account" (click)="openAppLocation()">{{appLocation.name}}</button>
@@ -13,7 +13,9 @@
           <div ngbDropdownMenu aria-labelledby="dropdownMenu" >
             <button ngbDropdownItem (click)="eraseIdbData()" *ngIf="isAdmin()">EraseDB</button>
             <div class="dropdown-divider" *ngIf="isAdmin()"></div>
-            <button ngbDropdownItem *ngFor="let item of associateList" (click)="switchAppUser(item)">{{item.name}}</button>
+            <ng-container *ngFor="let item of associateList">
+              <button ngbDropdownItem (click)="switchAppUser(item)" *ngIf="item.name !== appAssociate.name">{{item.name}}</button>
+            </ng-container>
           </div>
         </div>
         &nbsp;&nbsp;<a href="#" class="site-subtitle" (click)="logout()"><span class="fas fa-sign-out-alt"></span></a>
