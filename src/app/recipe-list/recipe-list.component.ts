@@ -298,6 +298,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.printData.storeLocation = location.storeLocation;
       },
       () => {
+        window.location.reload();
       }
     );
   }
