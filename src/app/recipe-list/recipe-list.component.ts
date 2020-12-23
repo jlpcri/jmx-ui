@@ -77,6 +77,15 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       if (!dbExisted) {
         this.saveRecipesToIdb();
         this.saveLocationsToIdb();
+      } else {
+        this.idbService.getLocationsObjectStoreCount().subscribe(
+          count => {
+            if (count === 0) {
+              this.saveRecipesToIdb();
+              this.saveLocationsToIdb();
+            }
+          }
+        );
       }
     });
     setTimeout(() => {
