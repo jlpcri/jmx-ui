@@ -25,7 +25,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   recipes: Recipe[] = [];
   printData: Product = GlobalConstants.printDataInitial;
-  isPrintLocationEmpty = false;
 
   recipeRectangles = [];
   recipeRectX = 26;
@@ -78,6 +77,15 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       if (!dbExisted) {
         this.saveRecipesToIdb();
         this.saveLocationsToIdb();
+      } else {
+        this.idbService.getLocationsObjectStoreCount().subscribe(
+          count => {
+            if (count === 0) {
+              this.saveRecipesToIdb();
+              this.saveLocationsToIdb();
+            }
+          }
+        );
       }
     });
     setTimeout(() => {
@@ -85,10 +93,8 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         location => {
           this.printData.storeName = location.name;
           this.printData.storeLocation = location.storeLocation;
-          this.isPrintLocationEmpty = false;
         },
         () => {
-          this.isPrintLocationEmpty = true;
         }
       );
     }, 500);
@@ -299,10 +305,9 @@ export class RecipeListComponent implements OnInit, OnDestroy {
       location => {
         this.printData.storeName = location.name;
         this.printData.storeLocation = location.storeLocation;
-        this.isPrintLocationEmpty = false;
       },
       () => {
-        this.isPrintLocationEmpty = true;
+        window.location.reload();
       }
     );
   }

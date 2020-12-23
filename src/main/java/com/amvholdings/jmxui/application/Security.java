@@ -31,5 +31,8 @@ public class Security extends WebSecurityConfigurerAdapter {
                 .userInfoEndpoint()
                 .oidcUserService(oidcUserRequest)
         ;
+        http.logout()
+          .invalidateHttpSession(true)
+          .deleteCookies("JSESSIONID");
     }
 }

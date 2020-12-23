@@ -45,26 +45,32 @@ export class IndexedDatabaseService {
 
     request.onupgradeneeded = (event: any) => {
       const db = event.target.result;
-      const objectStore = db.createObjectStore(this.objectStoreName, {keyPath: 'id', autoIncrement: true});
-      objectStore.createIndex(GlobalConstants.indexProductName, 'name', {unique: false});
-      objectStore.createIndex(GlobalConstants.indexLabelKey, 'labelKey', {unique: false});
-      objectStore.createIndex(GlobalConstants.indexProductKey, 'key', {unique: false});
 
-      const objectStoreLocation = db.createObjectStore(this.objectStoreLocation, {keyPath: 'id', autoIncrement: true});
-      objectStoreLocation.createIndex(GlobalConstants.indexLocation, 'name', {unique: false});
-      const objectStoreBottleScan = db.createObjectStore(this.objectStoreBottleScan, {keyPath: 'id', autoIncrement: true});
-      objectStoreBottleScan.createIndex(GlobalConstants.indexProductName, 'productName', {unique: false});
-      objectStoreBottleScan.createIndex(GlobalConstants.indexProductSku, 'productSku', {unique: false});
-
-      const objectStoreAppConfig = db.createObjectStore(this.objectStoreAppConfig, {keyPath: 'id', autoIncrement: true});
-      objectStoreAppConfig.createIndex(GlobalConstants.indexAppProperty, 'property', {unique: true});
-
-      const objectStoreUser = db.createObjectStore(this.objectStoreUser, {keyPath: 'name', autoIncrement: false});
-      objectStoreUser.createIndex('roles', 'roles', {unique: false});
-
-      dbExisted = false;
+      if (event.oldVersion < 1) {
+        this.initializeObjectStores(db);
+        dbExisted = false;
+      }
 
     };
+  }
+
+  initializeObjectStores(db) {
+    const objectStore = db.createObjectStore(this.objectStoreName, {keyPath: 'id', autoIncrement: true});
+    objectStore.createIndex(GlobalConstants.indexProductName, 'name', {unique: false});
+    objectStore.createIndex(GlobalConstants.indexLabelKey, 'labelKey', {unique: false});
+    objectStore.createIndex(GlobalConstants.indexProductKey, 'key', {unique: false});
+
+    const objectStoreLocation = db.createObjectStore(this.objectStoreLocation, {keyPath: 'id', autoIncrement: true});
+    objectStoreLocation.createIndex(GlobalConstants.indexLocation, 'name', {unique: false});
+    const objectStoreBottleScan = db.createObjectStore(this.objectStoreBottleScan, {keyPath: 'id', autoIncrement: true});
+    objectStoreBottleScan.createIndex(GlobalConstants.indexProductName, 'productName', {unique: false});
+    objectStoreBottleScan.createIndex(GlobalConstants.indexProductSku, 'productSku', {unique: false});
+
+    const objectStoreAppConfig = db.createObjectStore(this.objectStoreAppConfig, {keyPath: 'id', autoIncrement: true});
+    objectStoreAppConfig.createIndex(GlobalConstants.indexAppProperty, 'property', {unique: true});
+
+    const objectStoreUser = db.createObjectStore(this.objectStoreUser, {keyPath: 'name', autoIncrement: false});
+    objectStoreUser.createIndex('roles', 'roles', {unique: false});
   }
 
   syncRecipes(recipes: RecipeModel[]): Observable<RecipeModel[]> {
