@@ -442,7 +442,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
           eventTimestamp: data.eventTimestamp,
           associateName: data.associateName,
           batchId: data.batchId,
-          locationName: data.locationName.name,
+          locationName: data.locationName,
           productName: data.productName,
           productSku: data.productSku
         };

@@ -212,12 +212,11 @@ export class HeaderComponent implements OnInit {
 
   isRefreshMoreThanOneDay() {
     const subject = new Subject();
-    const refreshFrequencyHours = 24;
 
     this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyIdbLastUpdate).subscribe(
       lastUpdate => {
         const hours = moment().diff(lastUpdate, 'hours');
-        subject.next(hours >= refreshFrequencyHours);
+        subject.next(hours >= GlobalConstants.refreshFrequencyHours);
       },
       () => {
         subject.error(false);
