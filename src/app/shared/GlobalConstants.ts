@@ -15,7 +15,9 @@ export class GlobalConstants {
   public static appPropertyNotExist = 'app property not exist: ';
   public static appPropertyLocation = 'location';
   public static appPropertyUser = 'user';
+  public static appPropertyIdbLastUpdate = 'idbLastUpdate';
   public static spinnerName = 'ingredientsTable';
+  public static timestampFormat = 'YYYY-MM-DDTHH:mm:ssZ';
 
   public static nameListInitial = [{
     id: 0,

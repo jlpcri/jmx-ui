@@ -5,6 +5,7 @@ import {GlobalConstants} from './GlobalConstants';
 import {RecipeModel} from '../recipe-list/shared/recipe.model';
 import {LocationModel} from './location.model';
 import {Recipe} from '../recipe';
+import * as moment from 'moment';
 
 @Injectable({
   providedIn: 'root'
@@ -14,7 +15,7 @@ export class IndexedDatabaseService {
   public db;
   private version = 1;
   private dbName = 'AmvRecipesDatabase';
-  private objectStoreName = 'recipes';
+  public objectStoreName = 'recipes';
   public objectStoreLocation = 'locations';
   public objectStoreUser = 'users';
   private objectStoreBottleScan = 'bottleScans';
@@ -80,6 +81,7 @@ export class IndexedDatabaseService {
     tx.oncomplete = () => {
       console.log('all recipes saved');
       syncRecipesSubject.next(products);
+      this.saveAppPropertyToIdb(GlobalConstants.appPropertyIdbLastUpdate, moment().format(GlobalConstants.timestampFormat));
     };
     tx.onerror = (error) => {
       console.error('Error adding recipes data to indexedDB ', error);
@@ -523,6 +525,24 @@ export class IndexedDatabaseService {
         });
         subject.next(value);
       }
+    };
+
+    return subject;
+  }
+
+  clearObjectStoreData(objStore) {
+    const subject = new Subject<any>();
+
+    const tx = this.db.transaction([objStore], GlobalConstants.idbReadWrite);
+    const store = tx.objectStore(objStore);
+    const clearRequest = store.clear();
+
+    clearRequest.onsuccess = () => {
+      subject.next(objStore + ' objectStore cleared.');
+    };
+
+    clearRequest.onerror = (error) => {
+      subject.error(error);
     };
 
     return subject;

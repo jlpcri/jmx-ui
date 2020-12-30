@@ -9,6 +9,7 @@ import {ErrorService} from '../error/error.service';
 import {ProgressService} from '../progress-bar/shared/progress.service';
 import {Subject} from 'rxjs';
 import {NgConnection} from 'ng-connection';
+import * as moment from 'moment';
 
 @Component({
   selector: 'app-header',
@@ -198,4 +199,55 @@ export class HeaderComponent implements OnInit {
       this.appAssociate = user;
     }
   }
+
+  refreshIdbData() {
+    this.isRefreshMoreThanOneDay().subscribe(
+      flag => {
+        if (flag) {
+          this.refreshObjectStores();
+        }
+      }
+    );
+  }
+
+  isRefreshMoreThanOneDay() {
+    const subject = new Subject();
+    const refreshFrequencyHours = 24;
+
+    this.idbService.getAppPropertyFromIdb(GlobalConstants.appPropertyIdbLastUpdate).subscribe(
+      lastUpdate => {
+        const hours = moment().diff(lastUpdate, 'hours');
+        subject.next(hours >= refreshFrequencyHours);
+      },
+      () => {
+        subject.error(false);
+      }
+    );
+
+    return subject;
+
+  }
+
+  refreshObjectStores() {
+    this.idbService.clearObjectStoreData(this.idbService.objectStoreName).subscribe(
+      (msg) => {
+        console.log(msg);
+        this.recipeListService.saveRecipesToIdb();
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+
+    this.idbService.clearObjectStoreData(this.idbService.objectStoreLocation).subscribe(
+      (msg) => {
+        console.log(msg);
+        this.recipeListService.saveLocationsToIdb();
+      },
+      (error) => {
+        console.log(error);
+      }
+    );
+  }
+
 }

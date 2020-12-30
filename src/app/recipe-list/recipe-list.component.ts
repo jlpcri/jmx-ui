@@ -104,6 +104,22 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   }
 
   selectEvent(item: { name: string; labelKey: string}) {
+    this.headerComponent.isRefreshMoreThanOneDay().subscribe(
+      flag => {
+        if (flag) {
+          this.headerComponent.refreshObjectStores();
+        } else {
+          this.selectEventFetchData(item);
+        }
+      },
+      () => {
+        this.selectEventFetchData(item);
+      }
+    );
+  }
+
+
+  selectEventFetchData(item: { name: string; labelKey: string}) {
     this.productSizeStrengths = {};
     this.spinnerService.show(this.spinnerName, {
       type: 'ball-spin-fade-rotating',
@@ -327,6 +343,21 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   // Bottle Scan methods
   openBottleScan() {
+    this.headerComponent.isRefreshMoreThanOneDay().subscribe(
+      flag => {
+        if (flag) {
+          this.headerComponent.refreshObjectStores();
+        } else {
+          this.openBottleScanUser();
+        }
+      },
+      () => {
+        this.openBottleScanUser();
+      }
+    );
+  }
+
+  openBottleScanUser() {
     this.headerComponent.getAppProperty(GlobalConstants.appPropertyUser).subscribe(
       user => {
         this.user = user;
@@ -353,7 +384,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
               this.openBottleScan();
               return false;
             }
-            this.scanData.eventTimestamp = moment().format('YYYY-MM-DDTHH:mm:ssZ');
+            this.scanData.eventTimestamp = moment().format(GlobalConstants.timestampFormat);
 
             postData = {
               eventTimestamp: this.scanData.eventTimestamp,
@@ -438,6 +469,10 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     }
 
     return flag;
+  }
+
+  refreshIdbData() {
+    this.headerComponent.refreshIdbData();
   }
 
 }
