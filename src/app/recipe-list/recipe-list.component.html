@@ -6,7 +6,7 @@
       <div class="col-md-8 form-group">
         <!-- add scan button -->
         <div class="row-spacing">
-          <button type="button" class="btn btn-primary-custom btn-lg" (click)="openBottleScan()">SCAN NEW BOTTLE</button>
+          <button type="button" class="btn btn-primary-custom btn-lg" (click)="openBottleScan()">OPEN NEW BOTTLE</button>
         </div>
 
         <!-- search fields container -->
@@ -223,10 +223,7 @@
           </p>
 
           <label for="scanProductName">Product Name</label>
-          <input id="scanProductName" [(ngModel)]="scanData.productName" name="scanProductName" class="form-control" placeholder="Product Name" readonly>
-
-          <label for="scanProductSku">Product SKU</label>
-          <input id="scanProductSku" [(ngModel)]="scanData.productSku" name="scanProductSku" class="form-control" placeholder="Product SKU">
+          <input id="scanProductName" [(ngModel)]="scanData.productName" name="scanProductName" class="form-control" placeholder="Product Name">
 
           <label for="scanProductBar">Product BatchID</label>
           <input id="scanProductBar" [(ngModel)]="scanData.batchId" name="scanProductBar" class="form-control" placeholder="Product Barcode">
@@ -268,10 +265,6 @@
         <tr>
           <td style="font-weight: bold">Product Name</td>
           <td>{{scanData.productName}}</td>
-        </tr>
-        <tr>
-          <td style="font-weight: bold">Product SKU</td>
-          <td>{{scanData.productSku}}</td>
         </tr>
         <tr>
           <td style="font-weight: bold">Product BatchID</td>
@@ -339,7 +332,7 @@
   </div>
 
   <div class="ml-auto">
-    <button class="btn btn-secondary-custom btn-lg" style="float: right;"
+    <button class="btn btn-secondary-custom btn-lg" style="position: absolute; right: 0; bottom: -2rem;"
     [disabled]="printData.name.length === 0"
     printSectionId="printLabelTable"
     ngxPrint>PRINT LABEL</button>

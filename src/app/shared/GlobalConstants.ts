@@ -15,7 +15,10 @@ export class GlobalConstants {
   public static appPropertyNotExist = 'app property not exist: ';
   public static appPropertyLocation = 'location';
   public static appPropertyUser = 'user';
+  public static appPropertyIdbLastUpdate = 'idbLastUpdate';
   public static spinnerName = 'ingredientsTable';
+  public static timestampFormat = 'YYYY-MM-DDTHH:mm:ssZ';
+  public static refreshFrequencyHours = 24;
 
   public static nameListInitial = [{
     id: 0,
@@ -35,14 +38,14 @@ export class GlobalConstants {
     eventTimestamp: '',
     associateName: '',
     batchId: '4158',
-    productSku: '790080',
+    productSku: '',
     productName: 'Purple Worm',
     locationName: '',
     status: '',
   };
 
   public static scanDataCheckFields = [
-     'productSku', 'batchId', 'associateName'
+     'productName', 'batchId', 'associateName'
   ];
 
   public static appLocation = {
