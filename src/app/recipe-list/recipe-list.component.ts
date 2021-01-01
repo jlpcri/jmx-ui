@@ -113,7 +113,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         }
       },
       () => {
-        this.selectEventFetchData(item);
+        this.headerComponent.refreshObjectStores();
       }
     );
   }
@@ -352,7 +352,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         }
       },
       () => {
-        this.openBottleScanUser();
+        this.headerComponent.refreshObjectStores();
       }
     );
   }
