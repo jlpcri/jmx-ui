@@ -218,8 +218,8 @@ export class HeaderComponent implements OnInit {
         const hours = moment().diff(lastUpdate, 'hours');
         subject.next(hours >= GlobalConstants.refreshFrequencyHours);
       },
-      () => {
-        subject.error(false);
+      (error) => {
+        subject.error(error);
       }
     );
 
