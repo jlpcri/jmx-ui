@@ -7,6 +7,9 @@ export class GlobalConstants {
   public static indexLabelKey = 'labelKey';
   public static indexProductKey = 'productKey';
   public static indexAppProperty = 'property';
+  public static indexBatchId = 'batchId';
+  public static indexAssociateName = 'associateName';
+  public static indexLocationName = 'locationName';
   public static nextUnique = 'nextunique';
   public static idbReadOnly = 'readonly';
   public static idbReadWrite = 'readwrite';
@@ -37,15 +40,15 @@ export class GlobalConstants {
   public static scanDataInitial = {
     eventTimestamp: '',
     associateName: '',
-    batchId: '4158',
+    batchId: '',
     productSku: '',
-    productName: 'Purple Worm',
+    productName: '',
     locationName: '',
     status: '',
   };
 
   public static scanDataCheckFields = [
-     'productName', 'batchId', 'associateName'
+     'batchId', 'associateName'
   ];
 
   public static appLocation = {
