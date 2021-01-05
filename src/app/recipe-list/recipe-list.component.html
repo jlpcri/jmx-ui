@@ -222,9 +222,6 @@
             <strong>Note: If the barcode isn't scanning, you can enter in the barcode manually.</strong>
           </p>
 
-          <label for="scanProductName">Product Name</label>
-          <input id="scanProductName" [(ngModel)]="scanData.productName" name="scanProductName" class="form-control" placeholder="Product Name">
-
           <label for="scanProductBar">Product BatchID</label>
           <input id="scanProductBar" [(ngModel)]="scanData.batchId" name="scanProductBar" class="form-control" placeholder="Product Barcode">
 
@@ -235,7 +232,7 @@
           <input id="locationName" [(ngModel)]="scanData.locationName" name="scanLocation" class="form-control" placeholder="Location Name" readonly>
 
           <br>
-          <div class="form-control" style='float: left; color: red' *ngIf="isShowAlert"><strong>Error: </strong>At least one input field Empty.</div>
+          <div class="form-control" style='float: left; color: red' *ngIf="isShowAlert"><strong>Error: </strong>Product BatchId input field Empty.</div>
 
         </div>
       </form>
@@ -263,10 +260,6 @@
         </thead>
         <tbody>
         <tr>
-          <td style="font-weight: bold">Product Name</td>
-          <td>{{scanData.productName}}</td>
-        </tr>
-        <tr>
           <td style="font-weight: bold">Product BatchID</td>
           <td>{{scanData.batchId}}</td>
         </tr>
@@ -280,7 +273,7 @@
         </tr>
         </tbody>
       </table>
-      <p>All information associated to this newly open bottle will be permanently saved.</p>
+      <p style="margin-top: 1.5rem;">All information associated to this newly open bottle will be permanently saved.</p>
       <p><span class="text-danger" style="font-weight:bold;">This operation cannot be undone.</span></p>
     </div>
     <div class="modal-footer">
