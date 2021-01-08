@@ -91,7 +91,7 @@
                     [(ngModel)]="nicStrengthSelected">
               <option *ngFor="let each of strengthRadioButtons" [value]="each">{{each}}mg</option>
             </select>
-            <!-- END - Nicotine Strenth -->
+            <!-- END - Nicotine Strength -->
           </div>
         </div>
       </div>
@@ -289,7 +289,8 @@
     <div class="help-container">
       <span class="far fa-question-circle hover-help-icon"></span>
       <div class="hover-help">
-        Use the Export Label button to create a printable label.<br>
+        Use the Print Label button to get a printable label.<br>
+        LabelSize: 1.125x0.875, Scale: 30%
         Print button will be disable until you select juice.
       </div>
     </div>
@@ -305,7 +306,6 @@
         </td>
       </tr>
       <tr>{{printData.storeLocation}}</tr>
-      <tr></tr>
       <tr *ngIf="printData.name.length > 0">
         <td>
           <h3>{{printData.name}}</h3>
@@ -320,8 +320,8 @@
           [errorCorrectionLevel]="'M'"></qrcode>
         </td>
       </tr>
-      <tr style="text-align: center" *ngIf="printData.name.length > 0">Lot #{{printData.batchId}}</tr>
     </table>
+    <p style="text-align: center" *ngIf="printData.name.length > 0">Lot #{{printData.batchId}}</p>
   </div>
 
   <div class="ml-auto">
@@ -332,44 +332,3 @@
   </div>
 </ng-template>
 
-<ng-template #label>
-  <div class="input-icons">
-    <div class="help-container">
-      <span class="far fa-question-circle hover-help-icon"></span>
-      <div class="hover-help">
-        Use the Export Label button to create a printable label.<br>
-        Print button will be disable until you select juice.
-      </div>
-    </div>
-  </div>
-  <div class="row" id="printLabel">
-    <div class="col-sm-6">
-      <h3>{{printData.storeName}}</h3>
-      <ul>
-        <li>{{printData.storeLocation}}</li>
-      </ul>
-      <div class="qr-code" *ngIf="printData.name.length > 0">
-        <qrcode [qrdata]="printData.sku"
-                [elementType]="'img'"
-                width="10"
-                [errorCorrectionLevel]="'M'"></qrcode>
-      </div>
-    </div>
-    <div class="col-sm-6" *ngIf="printData.name.length > 0">
-      <h3>{{printData.name}}</h3>
-      <ul>
-        <li>{{printData.size}}ml&nbsp;&nbsp;{{printData.strength}}mg</li>
-        <li>{{printData.currentDate}}</li>
-        <li>{{printData.sku}}</li>
-        <li>Lot #{{printData.batchId}}</li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="ml-auto">
-    <button class="btn btn-secondary-custom btn-lg" style="float: right;"
-            [disabled]="printData.name.length === 0"
-            printSectionId="printLabel"
-            ngxPrint>PRINT LABEL</button>
-  </div>
-</ng-template>
