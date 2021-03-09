@@ -375,6 +375,16 @@ export class RecipeListComponent implements OnInit, OnDestroy {
         this.scanData.locationName = location.name;
         this.scanData.associateName = this.user.name;
 
+        // scanCode: (01)***********002(10)25852
+        if (this.scanData.scanCode) {
+          let tmpScanCode = this.scanData.scanCode.split(/[\s(*)]+/);
+
+          if (tmpScanCode.length > 4) {
+            this.scanData.productSku = tmpScanCode[2]
+            this.scanData.batchId = tmpScanCode[4]
+          }
+        }
+
         let postData: BottleScanModel;
         const modalRef = this.modalService.open(content, {ariaLabelledBy: 'modal-bottleScan-title', size: 'lg'});
         modalRef.result.then(

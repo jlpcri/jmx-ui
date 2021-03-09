@@ -45,6 +45,7 @@ export class GlobalConstants {
     productName: '',
     locationName: '',
     status: '',
+    scanCode: '(01)**********0002(10)25852'
   };
 
   public static scanDataCheckFields = [
