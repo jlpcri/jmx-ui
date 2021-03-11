@@ -72,4 +72,5 @@ export class GlobalConstants {
   public static recipeColorsNicotine = '#F2BA02';
 
   public static rolesNameAdmin = 'GROUP - Alohma Admin';
+  public static rolesNameJmxApp = 'JMX App';
 }

@@ -159,6 +159,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     this.isLoadingNameListFirst = true;
     this.firstNameList = [];
 
+    search = search.replace(/[\s,]+/g, '-');
     if (search.length > 0) {
       this.idbService.getProductNameList(search)
         .subscribe(
