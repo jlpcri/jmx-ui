@@ -184,6 +184,10 @@ export class IndexedDatabaseService {
     let tmpColor = '';
     let quantitySum = 0;
 
+    let nicIngredients;
+    let nicQuantity;
+    let nicColor;
+
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
     const store = tx.objectStore(this.objectStoreName);
     const index = store.index(indexName);
@@ -200,20 +204,31 @@ export class IndexedDatabaseService {
           });
         } else {
           if (item.name.toLowerCase().indexOf('nicotine') >= 0) {
-            tmpColor = 'nicotine';
+            nicIngredients = item.name;
+            nicQuantity = item.quantity;
+            nicColor = 'nicotine';
           } else {
             tmpColor = (colorIdx % colorTotal).toString();
+            recipes.push({
+              ingredients: item.name,
+              quantity: item.quantity,
+              percentage: 0,
+              color: tmpColor
+            });
+            quantitySum += parseFloat(item.quantity);
+            colorIdx++;
           }
-          recipes.push({
-            ingredients: item.name,
-            quantity: item.quantity,
-            percentage: 0,
-            color: tmpColor
-          });
-          quantitySum += parseFloat(item.quantity);
-          colorIdx++;
         }
       }
+
+      recipes.push({
+        ingredients: nicIngredients,
+        quantity: nicQuantity,
+        percentage: 0,
+        color: nicColor
+      });
+      quantitySum += parseFloat(nicQuantity);
+
       for (const item of recipes) {
         if (item.ingredients.toLowerCase().indexOf('bottle') < 0) {
           item.percentage = Number((item.quantity / quantitySum).toFixed(2));

@@ -8,6 +8,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.oauth2.client.oidc.userinfo.OidcUserRequest;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
+import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 
 @Configuration
 @EnableWebSecurity
@@ -32,7 +33,9 @@ public class Security extends WebSecurityConfigurerAdapter {
                 .oidcUserService(oidcUserRequest)
         ;
         http.logout()
-          .invalidateHttpSession(true)
-          .deleteCookies("JSESSIONID");
+          .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+          .logoutSuccessUrl("/logout")
+          .deleteCookies("JSESSIONID")
+          .invalidateHttpSession(true);
     }
 }
