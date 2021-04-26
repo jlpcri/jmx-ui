@@ -3,8 +3,8 @@ import {User} from './shared/user.model';
 import {HttpClient} from '@angular/common/http';
 import {Observable, of, Subject} from 'rxjs';
 import {RecipeListService} from './recipe-list/shared/recipe-list.service';
-import {GlobalConstants} from "./shared/GlobalConstants";
-import {ErrorService} from "./error/error.service";
+import {GlobalConstants} from './shared/GlobalConstants';
+import {ErrorService} from './error/error.service';
 
 @Injectable({
   providedIn: 'root'
@@ -25,10 +25,10 @@ export class AuthService {
     this.http.get<User>('/jmx-ui/user/user-info').subscribe(
       user => {
         if (user.roles.indexOf(GlobalConstants.rolesNameJmxApp) < 0) {
-          this.errorService.add('No permission to access JMX Application.')
+          this.errorService.add('No permission to access JMX Application.');
           setTimeout(() => {
             this.logout();
-          }, 2000)
+          }, 2000);
         } else {
           this.user = user;
           setTimeout(() => {
@@ -42,7 +42,7 @@ export class AuthService {
         }
         subject.error(error);
       }
-    ) ;
+    );
     return subject;
   }
 

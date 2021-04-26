@@ -27,15 +27,16 @@ public class Security extends WebSecurityConfigurerAdapter {
                 .antMatchers("/api/**")
                 .authenticated()
                 .and()
-                .oauth2Login()
+              .logout()
+                .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
+                .logoutSuccessUrl("/")
+                .deleteCookies("JSESSIONID")
+                .invalidateHttpSession(true)
+                .and()
+              .oauth2Login()
                 .loginPage("/login/login.html")
                 .userInfoEndpoint()
                 .oidcUserService(oidcUserRequest)
         ;
-        http.logout()
-          .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
-          .logoutSuccessUrl("/logout")
-          .deleteCookies("JSESSIONID")
-          .invalidateHttpSession(true);
     }
 }
