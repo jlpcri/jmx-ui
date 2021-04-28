@@ -25,7 +25,7 @@ public class Security extends WebSecurityConfigurerAdapter {
                 .antMatchers("/user/user-info")
                 .authenticated()
                 .antMatchers("/api/**")
-                .authenticated()
+                .hasRole("JMX App")
                 .and()
               .logout()
                 .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))

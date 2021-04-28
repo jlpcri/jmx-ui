@@ -192,12 +192,8 @@ export class HeaderComponent implements OnInit {
   }
 
   switchAppUser(user) {
-    if (this.networkStatus) {
-      this.logout();
-    } else {
-      this.saveAppProperty(GlobalConstants.appPropertyUser, user);
-      this.appAssociate = user;
-    }
+    this.saveAppProperty(GlobalConstants.appPropertyUser, user);
+    this.appAssociate = user;
   }
 
   refreshIdbData() {
