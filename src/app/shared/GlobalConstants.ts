@@ -45,6 +45,7 @@ export class GlobalConstants {
     productName: '',
     locationName: '',
     status: '',
+    scanCode: '(01)**********0002(10)25852'
   };
 
   public static scanDataCheckFields = [
@@ -71,4 +72,5 @@ export class GlobalConstants {
   public static recipeColorsNicotine = '#F2BA02';
 
   public static rolesNameAdmin = 'GROUP - Alohma Admin';
+  public static rolesNameJmxApp = 'JMX App';
 }

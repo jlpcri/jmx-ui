@@ -3,6 +3,7 @@ import {User} from './shared/user.model';
 import {HttpClient} from '@angular/common/http';
 import {Observable, of, Subject} from 'rxjs';
 import {RecipeListService} from './recipe-list/shared/recipe-list.service';
+import {ErrorService} from './error/error.service';
 
 @Injectable({
   providedIn: 'root'
@@ -12,7 +13,8 @@ export class AuthService {
   private user: User = null;
 
   constructor(private http: HttpClient,
-              private recipeListService: RecipeListService) { }
+              private recipeListService: RecipeListService,
+              private errorService: ErrorService) { }
 
   authorized(): Observable<User> {
     const subject: Subject<User> = new Subject();
@@ -32,7 +34,7 @@ export class AuthService {
         }
         subject.error(error);
       }
-    ) ;
+    );
     return subject;
   }
 

@@ -222,8 +222,11 @@
             <strong>Note: If the barcode isn't scanning, you can enter in the barcode manually.</strong>
           </p>
 
+          <label for="scanProductSku">Product SKU</label>
+          <input id="scanProductSku" [(ngModel)]="scanData.productSku" name="scanProductSku" class="form-control" placeholder="Product SKU">
+
           <label for="scanProductBar">Product BatchID</label>
-          <input id="scanProductBar" [(ngModel)]="scanData.batchId" name="scanProductBar" class="form-control" placeholder="Product Barcode">
+          <input id="scanProductBar" [(ngModel)]="scanData.batchId" name="scanProductBar" class="form-control" placeholder="Product BatchID">
 
           <label for="scanEmployeeName">Associate Name</label>
           <input id="scanEmployeeName" [(ngModel)]="scanData.associateName" name="scanEmployee" class="form-control" placeholder="Associate Name" readonly>
@@ -259,6 +262,10 @@
         </tr>
         </thead>
         <tbody>
+        <tr>
+          <td style="font-weight: bold">Product SKU</td>
+          <td>{{scanData.productSku}}</td>
+        </tr>
         <tr>
           <td style="font-weight: bold">Product BatchID</td>
           <td>{{scanData.batchId}}</td>
