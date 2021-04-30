@@ -89,22 +89,12 @@ export class HeaderComponent implements OnInit {
     }, 500);
   }
 
+  addUser(): void {
+    console.log('addUser');
+  }
+
   logout(): void {
     this.auth.logout();
-  }
-
-  eraseIdbData() {
-    this.idbService.eraseIdbData();
-  }
-
-  isAdmin(): boolean {
-    if (this.appAssociate === undefined) {
-      return false;
-    } else if (this.appAssociate.roles === undefined || this.appAssociate.roles.length === 0) {
-      return false;
-    } else {
-      return (this.appAssociate.roles.indexOf(GlobalConstants.rolesNameAdmin) >= 0) && isDevMode();
-    }
   }
 
   openHelp(content) {
