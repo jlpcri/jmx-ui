@@ -48,5 +48,7 @@ jmx-ui:
   amv-data-api-username: jmx-ui
   # password = 'password'
   amv-data-api-password: XsHwXxWp8c+dSDVPTOK4wg0nJXMmuR4U5q2VyEUrnIQYCuiO
+  end-session-endpoint: https://login.microsoftonline.com/common/oauth2/v2.0/logout?post_logout_redirect_uri=
+  app-base-url: http://localhost:4200/jmx-ui
 
 

@@ -11,6 +11,7 @@ import java.util.List;
 @NoArgsConstructor
 public class UserModel {
     String id;
+    String username;
     String name;
     String firstName;
     String lastName;

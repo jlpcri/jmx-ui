@@ -10,18 +10,17 @@
       <div class="col-header col-md-4 d-flex justify-content-end align-items-center">
         <div ngbDropdown class="d-inline-block" role="group">
           <button class="btn btn-account" id="dropdownMenu" ngbDropdownToggle *ngIf="appAssociate; else notLogin">{{appAssociate.name}}</button>
-          <ng-container *ngIf="associateList.length > 1">
+          <ng-container>
             <div ngbDropdownMenu aria-labelledby="dropdownMenu" >
               <ng-container *ngFor="let item of associateList">
                 <button ngbDropdownItem (click)="switchAppUser(item)" *ngIf="item.name !== appAssociate.name">{{item.name}}</button>
               </ng-container>
               <div class="dropdown-divider"></div>
-              <button ngbDropdownItem (click)="addUser()">Add User</button>
               <button ngbDropdownItem (click)="logout()">Sign Out</button>
             </div>
           </ng-container>
         </div>
-        &nbsp;&nbsp;<a href="#" class="site-subtitle" (click)="logout()"><span class="fas fa-sign-out-alt"></span></a>
+        &nbsp;&nbsp;<a style="cursor: pointer;" class="site-subtitle" (click)="logout()"><span class="fas fa-sign-out-alt"></span></a>
       </div>
 
       <ng-template #notLogin>

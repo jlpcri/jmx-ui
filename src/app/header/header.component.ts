@@ -1,4 +1,4 @@
-import {Component, ElementRef, Injectable, isDevMode, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injectable, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
@@ -87,10 +87,6 @@ export class HeaderComponent implements OnInit {
         }
       );
     }, 500);
-  }
-
-  addUser(): void {
-    console.log('addUser');
   }
 
   logout(): void {
@@ -184,6 +180,19 @@ export class HeaderComponent implements OnInit {
   switchAppUser(user) {
     this.saveAppProperty(GlobalConstants.appPropertyUser, user);
     this.appAssociate = user;
+    const redirectUrl = 'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?' +
+      'client_id=c44b4083-3bb0-49c1-b47d-974e53cbdf3c' +
+      '&response_type=code%20id_token' +
+      '&scope=https%3A%2F%2Fmanagement.core.windows.net%2F%2Fuser_impersonation%20openid%20email%20profile' +
+      '&state=OpenIdConnect.AuthenticationProperties%3D2YYcbzhxjqJFt8OiC273JyNyLYaq6vmiCV5P' +
+      '-PAaMuJnlep9sJbqu1HqYbQdfbhaVwoi1b1RcnNblX6JE8gUcPBU-omzovrXtd55naGPLyAgj7tYYhVxs5LoNh2evyxH' +
+      '&response_mode=form_post' +
+      '&nonce=637554159583720610.ZDY4ZmU5MWItZjE4Yy00NjczLTgyYWItMDhiMzcwMTFiN2UxNWFlYTNmNDktYjQ5Yi00N2Y4LTk0MWItYjFjZmVhNjA4NGNm' +
+      '&redirect_uri=https%3A%2F%2Fportal.azure.com%2Fsignin%2Findex%2F' +
+      '&site_id=501430' +
+      '&login_hint=' + user.username +
+      '&client-request-id=0c5a8a73-35e7-405a-b4fe-13bcf7fd9f11&x-client-SKU=ID_NET45&x-client-ver=5.3.0.0';
+    window.open(redirectUrl, '_blank');
   }
 
   refreshIdbData() {
