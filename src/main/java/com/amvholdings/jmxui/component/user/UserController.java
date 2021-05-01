@@ -27,6 +27,7 @@ public class UserController {
                 .username(username)
                 .name(auth.getName())
                 .roles(roles)
+                .signed(true)
                 .build();
     }
 

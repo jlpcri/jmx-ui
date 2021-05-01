@@ -10,6 +10,7 @@ import {ProgressService} from '../progress-bar/shared/progress.service';
 import {Subject} from 'rxjs';
 import {NgConnection} from 'ng-connection';
 import * as moment from 'moment';
+import {User} from '../shared/user.model';
 
 @Component({
   selector: 'app-header',
@@ -30,6 +31,7 @@ export class HeaderComponent implements OnInit {
 
   appAssociate = GlobalConstants.appAssociate;
   associateList = [];
+  currentUser: User;
 
   networkStatus: boolean;
 
@@ -55,6 +57,7 @@ export class HeaderComponent implements OnInit {
           user => {
             this.appAssociate.name = user.name;
             this.appAssociate.roles = user.roles;
+            this.currentUser = user;
           }
         );
       } else {
@@ -62,6 +65,7 @@ export class HeaderComponent implements OnInit {
         this.getAppProperty(GlobalConstants.appPropertyUser).subscribe(
           user => {
             this.appAssociate = user;
+            this.currentUser = user;
           }
         );
       }
@@ -90,7 +94,13 @@ export class HeaderComponent implements OnInit {
   }
 
   logout(): void {
-    this.auth.logout();
+    this.currentUser.signed = false;
+    setTimeout(() => {
+      this.recipeListService.saveUsersToIdb(this.currentUser);
+    }, 500);
+    setTimeout(() => {
+      this.auth.logout();
+    }, 1000);
   }
 
   openHelp(content) {
@@ -179,7 +189,6 @@ export class HeaderComponent implements OnInit {
 
   switchAppUser(user) {
     this.saveAppProperty(GlobalConstants.appPropertyUser, user);
-    this.appAssociate = user;
     const redirectUrl = 'https://login.microsoftonline.com/organizations/oauth2/v2.0/authorize?' +
       'client_id=c44b4083-3bb0-49c1-b47d-974e53cbdf3c' +
       '&response_type=code%20id_token' +
@@ -191,7 +200,8 @@ export class HeaderComponent implements OnInit {
       '&redirect_uri=https%3A%2F%2Fportal.azure.com%2Fsignin%2Findex%2F' +
       '&site_id=501430' +
       '&login_hint=' + user.username +
-      '&client-request-id=0c5a8a73-35e7-405a-b4fe-13bcf7fd9f11&x-client-SKU=ID_NET45&x-client-ver=5.3.0.0';
+      '&client-request-id=0c5a8a73-35e7-405a-b4fe-13bcf7fd9f11&x-client-SKU=ID_NET45' +
+      '&x-client-ver=5.3.0.0';
     window.open(redirectUrl, '_blank');
   }
 

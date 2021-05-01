@@ -17,4 +17,5 @@ public class UserModel {
     String lastName;
     String authUri;
     List<String> roles;
+    boolean signed;
 }

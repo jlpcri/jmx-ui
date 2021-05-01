@@ -135,7 +135,7 @@ export class RecipeListService {
       username: user.username,
       name: user.name,
       roles: user.roles,
-      signedIn: true
+      signed: user.signed
     });
 
   }

@@ -6,5 +6,5 @@ export class User {
   lastName: string;
   authUri: string;
   roles: string[];
-  signedIn: boolean;
+  signed: boolean;
 }
