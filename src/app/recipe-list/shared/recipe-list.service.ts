@@ -132,10 +132,8 @@ export class RecipeListService {
 
   saveUsersToIdb(user: User) {
     this.idbService.syncUsers({
-      username: user.username,
       name: user.name,
-      roles: user.roles,
-      signed: user.signed
+      roles: user.roles
     });
 
   }
