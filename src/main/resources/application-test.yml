@@ -7,5 +7,5 @@ zuul:
 
 jmx-ui:
   amv-data-api-password: pYP8pydhqRWcGJwXWfmRlmgMNN+nPVSrqCRgU2gidDaWNpOo5J7KKZxKOgxgUYK/
-  app-base-url: https://amvtest.amvholdings.com/jmx-ui
+  app-base-url: https://amvtest.amvholdings.com/jmx-ui/
 
