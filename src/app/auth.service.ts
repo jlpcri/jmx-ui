@@ -1,9 +1,8 @@
-import { Injectable } from '@angular/core';
+import {Injectable} from '@angular/core';
 import {User} from './shared/user.model';
 import {HttpClient} from '@angular/common/http';
 import {Observable, of, Subject} from 'rxjs';
 import {RecipeListService} from './recipe-list/shared/recipe-list.service';
-import {ErrorService} from './error/error.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,8 +12,7 @@ export class AuthService {
   private user: User = null;
 
   constructor(private http: HttpClient,
-              private recipeListService: RecipeListService,
-              private errorService: ErrorService) { }
+              private recipeListService: RecipeListService) { }
 
   authorized(): Observable<User> {
     const subject: Subject<User> = new Subject();
@@ -41,9 +39,9 @@ export class AuthService {
   logout(): void {
     this.http.get('/jmx-ui/logout').subscribe(
       resp => {
-        location.href = '/jmx-ui/login/login.html';
+        location.href = '/jmx-ui/logout';
       }, error => {
-        location.href = '/jmx-ui/login/login.html';
+        location.href = '/jmx-ui/logout';
       }
     );
   }

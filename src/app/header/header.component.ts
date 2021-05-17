@@ -1,4 +1,4 @@
-import {Component, ElementRef, Injectable, isDevMode, OnInit, ViewChild} from '@angular/core';
+import {Component, ElementRef, Injectable, OnInit, ViewChild} from '@angular/core';
 import {AuthService} from '../auth.service';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
@@ -10,6 +10,7 @@ import {ProgressService} from '../progress-bar/shared/progress.service';
 import {Subject} from 'rxjs';
 import {NgConnection} from 'ng-connection';
 import * as moment from 'moment';
+import {User} from '../shared/user.model';
 
 @Component({
   selector: 'app-header',
@@ -30,6 +31,7 @@ export class HeaderComponent implements OnInit {
 
   appAssociate = GlobalConstants.appAssociate;
   associateList = [];
+  currentUser: User;
 
   networkStatus: boolean;
 
@@ -55,6 +57,7 @@ export class HeaderComponent implements OnInit {
           user => {
             this.appAssociate.name = user.name;
             this.appAssociate.roles = user.roles;
+            this.currentUser = user;
           }
         );
       } else {
@@ -62,6 +65,7 @@ export class HeaderComponent implements OnInit {
         this.getAppProperty(GlobalConstants.appPropertyUser).subscribe(
           user => {
             this.appAssociate = user;
+            this.currentUser = user;
           }
         );
       }
@@ -90,21 +94,12 @@ export class HeaderComponent implements OnInit {
   }
 
   logout(): void {
-    this.auth.logout();
-  }
-
-  eraseIdbData() {
-    this.idbService.eraseIdbData();
-  }
-
-  isAdmin(): boolean {
-    if (this.appAssociate === undefined) {
-      return false;
-    } else if (this.appAssociate.roles === undefined || this.appAssociate.roles.length === 0) {
-      return false;
-    } else {
-      return (this.appAssociate.roles.indexOf(GlobalConstants.rolesNameAdmin) >= 0) && isDevMode();
-    }
+    setTimeout(() => {
+      this.recipeListService.saveUsersToIdb(this.currentUser);
+    }, 500);
+    setTimeout(() => {
+      this.auth.logout();
+    }, 1000);
   }
 
   openHelp(content) {
@@ -179,7 +174,6 @@ export class HeaderComponent implements OnInit {
     this.idbService.saveAppPropertyToIdb(property, value).subscribe(
       data => {
         if (property === GlobalConstants.appPropertyLocation) {
-          // this.appLocation = data;
           window.location.reload();
         } else {
           this.appAssociate = data;
@@ -189,11 +183,6 @@ export class HeaderComponent implements OnInit {
         this.errorService.add(error);
       }
     );
-  }
-
-  switchAppUser(user) {
-    this.saveAppProperty(GlobalConstants.appPropertyUser, user);
-    this.appAssociate = user;
   }
 
   refreshIdbData() {

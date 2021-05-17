@@ -16,6 +16,7 @@ public class UserController {
                 .map(Object::toString)
                 .map(role -> role.replaceFirst("^ROLE_",""))
                 .collect(Collectors.toList());
+
         return UserModel.builder()
                 .name(auth.getName())
                 .roles(roles)

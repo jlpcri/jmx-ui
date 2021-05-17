@@ -16,4 +16,6 @@ public class Config {
     String amvDataApiUsername;
     String amvDataApiPassword;
     String encryptionKey;
+    String endSessionEndpoint;
+    String appBaseUrl;
 }
