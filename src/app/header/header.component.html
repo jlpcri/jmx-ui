@@ -38,7 +38,10 @@
   <div class="modal-body">
     <ol>
       <li>
-        Select a search option to look up a recipe. The default option is <strong>Search Recipe Names</strong> but select <strong>Search Recipe Ingredients</strong> if you wish to search for ingredients instead.
+        Select your store location first.
+      </li>
+      <li>
+        You have two options to look up a recipe. <strong>Search by Juice</strong> and <strong>Search By Ingredients</strong>.
       </li>
       <li>
         In the search field, start typing to find the recipe you are looking for. Recipes that match your search will be displayed below the search field. When you find the recipe you are looking for, click on the recipe name.
@@ -53,7 +56,17 @@
         Once you’ve selected your recipe, bottle size, and nicotine strength, the recipe ingredients will display in the table below the recipe info. Each ingredient has a color that corresponds to the same color on the e-liquids bottle to help you visualize the ratio of ingredients used in the recipe.
       </li>
       <li>
-        When you are ready to print the label, use the search field below the ingredients table to search for the location you are creating the label for. Once you have found your location and have verified that the recipe info is correct, click the <strong>Export Label</strong> button to create PDF of the label that you can print.
+        When you are ready to print the label, click the <strong>PRINT LABEL</strong> button to print.
+      </li>
+      <li>
+        <dl>
+          <dt>Common Error Messages:</dt>
+          <dd>- Error: Fetch API Locations: undefined</dd>
+          <dd>- Any juice search comes back "Not Found"</dd>
+          <dt>Steps to resolve issues:</dt>
+          <dd>- Try to use incognito window to validate</dd>
+          <dd>- <a href="https://amvholdings.atlassian.net/browse/GURU-2917" target="blank">Open chrome dev tools, remove local IndexedDB</a></dd>
+        </dl>
       </li>
     </ol>
   </div>
