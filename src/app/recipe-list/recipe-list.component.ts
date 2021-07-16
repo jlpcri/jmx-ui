@@ -378,11 +378,11 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
         // scanCode: (01)***********002(10)25852
         if (this.scanData.scanCode) {
-          let tmpScanCode = this.scanData.scanCode.split(/[\s(*)]+/);
+          const tmpScanCode = this.scanData.scanCode.split(/[\s(*)]+/);
 
           if (tmpScanCode.length > 4) {
-            this.scanData.productSku = tmpScanCode[2]
-            this.scanData.batchId = tmpScanCode[4]
+            this.scanData.productSku = tmpScanCode[2];
+            this.scanData.batchId = tmpScanCode[4];
           }
         }
 
