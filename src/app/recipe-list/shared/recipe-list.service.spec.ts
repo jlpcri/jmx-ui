@@ -5,6 +5,7 @@ import {RecipeListModel} from './recipe-list.model';
 import {ApiService} from '../../api/api.service';
 import {Observable, of} from 'rxjs';
 import {HttpParams} from '@angular/common/http';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 
 describe('RecipListService', () => {
   let service: RecipeListService;
@@ -14,6 +15,7 @@ describe('RecipListService', () => {
     const apiSpy = jasmine.createSpyObj('ApiService', ['get']);
 
     TestBed.configureTestingModule({
+      imports: [HttpClientTestingModule],
       providers: [
         RecipeListService,
         { provide: ApiService, useValue: apiSpy }

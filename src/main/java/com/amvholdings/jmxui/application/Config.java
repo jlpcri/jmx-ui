@@ -18,4 +18,6 @@ public class Config {
     String encryptionKey;
     String endSessionEndpoint;
     String appBaseUrl;
+    String appDataSource = "erplySource";
+    String appDataSourceSystemName;
 }

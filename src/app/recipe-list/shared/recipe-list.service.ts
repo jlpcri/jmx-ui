@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {HttpParams} from '@angular/common/http';
+import {HttpClient, HttpParams} from '@angular/common/http';
 import {IndexedDatabaseService} from '../../shared/indexed-database.service';
 import {ApiService} from '../../api/api.service';
 import {Observable, Subject} from 'rxjs';
@@ -9,18 +9,22 @@ import {RecipeModel} from './recipe.model';
 import {LocationModel, LocationResponseListModel} from '../../shared/location.model';
 import {ErrorService} from '../../error/error.service';
 import {User} from '../../shared/user.model';
+import {SourceDataModel} from './sourcedata.model';
 
 @Injectable({
   providedIn: 'root'
 })
 
 export class RecipeListService {
+  private sourceData: SourceDataModel = null;
+
   constructor(private api: ApiService,
               private progress: ProgressService,
               private idbService: IndexedDatabaseService,
-              private errorService: ErrorService) { }
+              private errorService: ErrorService,
+              private http: HttpClient) { }
 
-  private retrieveAllRecipes(): Observable<RecipeModel[]> {
+  private retrieveAllRecipes(sourceName: string): Observable<RecipeModel[]> {
     let allRecipes: RecipeModel[] = [];
     const allRecipesSubject: Subject<any> = new Subject<any>();
     this.progress.loading = true;
@@ -31,7 +35,7 @@ export class RecipeListService {
 
     const options = {
       params: new HttpParams()
-        .set('sourceSystem', 'amvpos')
+        .set('sourceSystem', sourceName)
         .set('status', 'active')
         .set('afterId', '' + afterId)
         .set('size', '3000')
@@ -66,20 +70,27 @@ export class RecipeListService {
 
   saveRecipesToIdb() {
     this.progress.loading = true;
-    this.retrieveAllRecipes().subscribe(
+    this.http.get<SourceDataModel>('/jmx-ui/sourceData').subscribe(
       data => {
-        this.progress.progressMessage = 'Saving Recipes...';
-        this.idbService.syncRecipes(data).subscribe(
-          products => {
-            console.log(products.length + ' products saved to idb');
-            this.progress.loading = false;
-          }, error => {
-            this.errorService.add(error);
-            this.progress.loading = false;
-          }
-        );
+        this.sourceData = data;
       }
     );
+    setTimeout( () => {
+      this.retrieveAllRecipes(this.sourceData.value).subscribe(
+        data => {
+          this.progress.progressMessage = 'Saving Recipes...';
+          this.idbService.syncRecipes(data).subscribe(
+            products => {
+              console.log(products.length + ' products saved to idb');
+              this.progress.loading = false;
+            }, error => {
+              this.errorService.add(error);
+              this.progress.loading = false;
+            }
+          );
+        }
+      );
+    }, 500);
   }
 
   retrieveLocations() {
