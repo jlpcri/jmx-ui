@@ -23,5 +23,10 @@
     "target": "http://localhost:8200",
     "secure": false,
     "changeOrigin": false
+  },
+  "/jmx-ui/sourceData": {
+    "target": "http://localhost:8200",
+    "secure": false,
+    "changeOrigin": false
   }
 }

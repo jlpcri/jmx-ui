@@ -8,3 +8,4 @@ zuul:
 jmx-ui:
   amv-data-api-password: 6AKRgu0wLPQP28Qhn9QQK7m69B1XrM/PqEMMPZTqZFll8/5wT36FIW5LXCZherYT
   app-base-url: https://amvprod.amvholdings.com/jmx-ui/
+  app-data-source-system-name: amvpos
