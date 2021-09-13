@@ -188,6 +188,8 @@ export class IndexedDatabaseService {
     let nicQuantity;
     let nicColor;
 
+    let recipeNicFlag = false;
+
     const tx = this.db.transaction([this.objectStoreName], GlobalConstants.idbReadOnly);
     const store = tx.objectStore(this.objectStoreName);
     const index = store.index(indexName);
@@ -207,6 +209,7 @@ export class IndexedDatabaseService {
             nicIngredients = item.name;
             nicQuantity = item.quantity;
             nicColor = 'nicotine';
+            recipeNicFlag = true;
           } else {
             tmpColor = (colorIdx % colorTotal).toString();
             recipes.push({
@@ -221,13 +224,15 @@ export class IndexedDatabaseService {
         }
       }
 
-      recipes.push({
-        ingredients: nicIngredients,
-        quantity: nicQuantity,
-        percentage: 0,
-        color: nicColor
-      });
-      quantitySum += parseFloat(nicQuantity);
+      if (recipeNicFlag === true) {
+        recipes.push({
+          ingredients: nicIngredients,
+          quantity: nicQuantity,
+          percentage: 0,
+          color: nicColor
+        });
+        quantitySum += parseFloat(nicQuantity);
+      }
 
       for (const item of recipes) {
         if (item.ingredients.toLowerCase().indexOf('bottle') < 0) {
