@@ -192,7 +192,13 @@
             <tbody>
             <tr *ngFor="let recipe of recipes">
               <td class="d-flex"><span class="fas fa-circle ing-icon ing-color-{{recipe.color}}"></span> <span class="d-flex">{{recipe.ingredients}}</span></td>
-              <td>{{recipe.color === 'bottle' ? recipe.quantity : recipe.quantity + ' mL'}}</td>
+              <td>
+                <p *ngIf="recipe.color === 'bottle'">{{recipe.quantity}}</p>
+                <p *ngIf="recipe.color !== 'bottle'
+                && !(recipe.ingredients.indexOf('KOT,') >= 0 && recipe.ingredients.indexOf('Concentrate 850ml') >= 0)">{{recipe.quantity + ' mL'}}</p>
+                <p *ngIf="recipe.color !== 'bottle'
+                && (recipe.ingredients.indexOf('KOT,') >= 0 && recipe.ingredients.indexOf('Concentrate 850ml') >= 0)">{{recipe.quantity / 0.75 | number}} Pumps</p>
+              </td>
               <td>{{recipe.color === 'bottle' ? '' : recipe.percentage | percent }}</td>
             </tr>
             </tbody>
