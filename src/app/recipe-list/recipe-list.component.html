@@ -197,7 +197,7 @@
                 <p *ngIf="recipe.color !== 'bottle'
                 && !(recipe.ingredients.indexOf('KOT,') >= 0 && recipe.ingredients.indexOf('Concentrate 850ml') >= 0)">{{recipe.quantity + ' mL'}}</p>
                 <p *ngIf="recipe.color !== 'bottle'
-                && (recipe.ingredients.indexOf('KOT,') >= 0 && recipe.ingredients.indexOf('Concentrate 850ml') >= 0)">{{recipe.quantity / 0.75 | number}} Pumps</p>
+                && (recipe.ingredients.indexOf('KOT,') >= 0 && recipe.ingredients.indexOf('Concentrate 850ml') >= 0)">{{recipe.quantity  * 850 / 0.75 | number: '1.0-0'}} Pumps</p>
               </td>
               <td>{{recipe.color === 'bottle' ? '' : recipe.percentage | percent }}</td>
             </tr>
