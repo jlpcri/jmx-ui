@@ -195,9 +195,14 @@
               <td>
                 <p *ngIf="recipe.color === 'bottle'">{{recipe.quantity}}</p>
                 <p *ngIf="recipe.color !== 'bottle'
-                && !(recipe.ingredients.indexOf('KOT,') >= 0 && recipe.ingredients.indexOf('Concentrate 850ml') >= 0)">{{recipe.quantity + ' mL'}}</p>
+                && !(recipe.ingredients.toLowerCase().indexOf('kot,') >= 0 && recipe.ingredients.toLowerCase().indexOf('concentrate') >= 0)">
+                  {{recipe.quantity + ' mL'}}</p>
                 <p *ngIf="recipe.color !== 'bottle'
-                && (recipe.ingredients.indexOf('KOT,') >= 0 && recipe.ingredients.indexOf('Concentrate 850ml') >= 0)">{{recipe.quantity  * 850 / 0.75 | number: '1.0-0'}} Pumps</p>
+                && (recipe.ingredients.toLowerCase().indexOf('kot,') >= 0 && recipe.ingredients.toLowerCase().indexOf('concentrate') >= 0) && recipe.ingredients.toLowerCase().indexOf('850ml') >= 0">
+                  {{recipe.quantity  * 850 / 0.75 | number: '1.0-0'}} Pumps</p>
+                <p *ngIf="recipe.color !== 'bottle'
+                && (recipe.ingredients.toLowerCase().indexOf('kot,') >= 0 && recipe.ingredients.toLowerCase().indexOf('concentrate') >= 0) && recipe.ingredients.toLowerCase().indexOf('960ml') >= 0">
+                  {{recipe.quantity  * 960 / 0.75 | number: '1.0-0'}} Pumps</p>
               </td>
               <td>{{recipe.color === 'bottle' ? '' : recipe.percentage | percent }}</td>
             </tr>
