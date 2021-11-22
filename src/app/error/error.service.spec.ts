@@ -42,6 +42,7 @@ describe('ErrorService', () => {
 
     tick();
     // Result promise resolves as it will when close button is clicked
+    mockModalRef.result = Promise.resolve();
     expect(service.errors).toEqual([]);
     expect(service.modalRef).toBeNull();
   }));

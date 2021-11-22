@@ -13,4 +13,13 @@ describe('ProgressService', () => {
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
+
+  it('should set progressValue', () => {
+    service.progressValue = 12;
+    const percent = 33;
+    service.progressPercent = percent;
+
+    expect(service.progressValue).toEqual(percent);
+
+  });
 });

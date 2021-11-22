@@ -14,6 +14,19 @@ repositories {
   mavenCentral()
 }
 
+sourceSets {
+  test {
+    java {
+      srcDirs = ['src/test/groovy']
+    }
+  }
+  main {
+    groovy {
+      srcDirs = []
+    }
+  }
+}
+
 bootJar {
   mainClassName = 'com.amvholdings.jmxui.application.Main'
 }
@@ -27,6 +40,10 @@ dependencies {
     implementation 'org.springframework.security:spring-security-oauth2-jose'
     implementation 'org.springframework.cloud:spring-cloud-starter-netflix-zuul:2.2+'
     annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.spockframework:spock-core:1.2-groovy-2.4'
+    testImplementation 'cglib:cglib:3.2+'
+    testImplementation 'org.objenesis:objenesis:3.0+'
 }
 
 node {
