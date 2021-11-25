@@ -16,7 +16,7 @@ import {SourceDataModel} from './sourcedata.model';
 })
 
 export class RecipeListService {
-  private sourceData: SourceDataModel = null;
+  sourceData: SourceDataModel = null;
 
   constructor(private api: ApiService,
               private progress: ProgressService,
@@ -24,7 +24,7 @@ export class RecipeListService {
               private errorService: ErrorService,
               private http: HttpClient) { }
 
-  private retrieveAllRecipes(sourceName: string): Observable<RecipeModel[]> {
+  retrieveAllRecipes(sourceName: string): Observable<RecipeModel[]> {
     let allRecipes: RecipeModel[] = [];
     const allRecipesSubject: Subject<any> = new Subject<any>();
     this.progress.loading = true;

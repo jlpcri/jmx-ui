@@ -9,8 +9,11 @@ import {HeaderComponent} from '../header/header.component';
 import {Subject} from 'rxjs';
 import {NgxSpinnerService} from 'ngx-spinner';
 import {ErrorService} from '../error/error.service';
-import createSpyObj = jasmine.createSpyObj;
 import {ApiService} from '../api/api.service';
+import {User} from '../shared/user.model';
+import {LocationModel} from '../shared/location.model';
+import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
+import createSpyObj = jasmine.createSpyObj;
 
 describe('RecipeListComponent', () => {
   let component: RecipeListComponent;
@@ -22,6 +25,7 @@ describe('RecipeListComponent', () => {
   let recipeListService: RecipeListService;
   let headerComponent: HeaderComponent;
   let apiService: ApiService;
+  let modalService: NgbModal;
 
   beforeEach(async(() => {
     errorService = jasmine.createSpyObj('ErrorService', ['add']);
@@ -45,6 +49,7 @@ describe('RecipeListComponent', () => {
     recipeListService = fixture.debugElement.injector.get(RecipeListService);
     headerComponent = fixture.debugElement.injector.get(HeaderComponent);
     apiService = fixture.debugElement.injector.get(ApiService);
+    modalService = fixture.debugElement.injector.get(NgbModal);
     fixture.detectChanges();
   });
 
@@ -52,22 +57,51 @@ describe('RecipeListComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('select event - true', () => {
+  it('init get app property from idb', (done) => {
+    const subject = new Subject();
+    subject.next({
+      name: 'name', storeLocation: 'storeLocation'
+    });
+    spyOn(idbService, 'getAppPropertyFromIdb').and.returnValue(subject);
+    setTimeout(() => {
+      expect(idbService.getAppPropertyFromIdb).toHaveBeenCalled();
+      done();
+    }, 500);
+  });
+
+  it('select event - true',  () => {
     const subject = new Subject();
     subject.next(true);
     spyOn(headerComponent, 'isRefreshMoreThanOneDay').and.returnValue(subject);
+    const flag$ = headerComponent.isRefreshMoreThanOneDay();
+    spyOn(headerComponent, 'refreshObjectStores');
+
     component.selectEvent({name: 'name', labelKey: 'label'});
 
     expect(headerComponent.isRefreshMoreThanOneDay).toHaveBeenCalled();
+    flag$.subscribe(flag => {
+      expect(flag).toBe(true);
+      expect(headerComponent.refreshObjectStores).toHaveBeenCalled();
+    },
+      () => {
+      expect(headerComponent.refreshObjectStores).toHaveBeenCalled();
+      });
+
   });
 
   it('select event - false', () => {
     const subject = new Subject();
     subject.next(false);
     spyOn(headerComponent, 'isRefreshMoreThanOneDay').and.returnValue(subject);
-    component.selectEvent({name: 'name', labelKey: 'label'});
+    const flag$ = headerComponent.isRefreshMoreThanOneDay();
+    spyOn(component, 'selectEventFetchData');
 
+    component.selectEvent({name: 'name', labelKey: 'label'});
     expect(headerComponent.isRefreshMoreThanOneDay).toHaveBeenCalled();
+    flag$.subscribe(flag => {
+      expect(flag).toBe(false);
+      expect(component.selectEventFetchData).toHaveBeenCalled();
+    });
   });
 
   it('select event fetch data', () => {
@@ -80,35 +114,51 @@ describe('RecipeListComponent', () => {
       }
     ]);
     spyOn(idbService, 'getProductSizeNicStrength').withArgs('label').and.returnValue(subject);
+    const data$ = idbService.getProductSizeNicStrength('label');
+    spyOn(component, 'getRecipeContents');
+    spyOn(console, 'log');
 
     component.selectEventFetchData({name: 'name', labelKey: 'label'});
-    expect(spinner.show).toBeTruthy();
+
     expect(idbService.getProductSizeNicStrength).toHaveBeenCalled();
-    expect(spinner.hide).toBeTruthy();
+    data$.subscribe(() => {
+      expect(component.getRecipeContents).toHaveBeenCalled();
+      expect(spinner.hide).toHaveBeenCalled();
+    },
+      () => {
+      expect(errorService.add).toHaveBeenCalled();
+      expect(spinner.hide).toHaveBeenCalled();
+      },
+      () => {
+      expect(console.log).toHaveBeenCalledWith('getProductSizeNicStrength');
+      });
   });
 
-  it('on change select', () => {
+  it('on change search', () => {
     const subject = new Subject();
     subject.next([
       { label: 'blueberry juice', labelKey: 'blueberry-juice'}, 'error'
     ]);
 
     spyOn(idbService, 'getProductNameList').and.returnValue(subject);
+    const name$ = idbService.getProductNameList('name');
+
     component.onChangeSearch('prime');
     expect(idbService.getProductNameList).toHaveBeenCalled();
-    expect(component.isLoadingNameListFirst).toEqual(true);
+    name$.subscribe(() => {
+      expect(component.isLoadingNameListFirst).toBe(false);
+    },
+      () => {
+      expect(errorService.add).toHaveBeenCalled();
+      });
   });
 
-  it('on change select - empty', () => {
-    const subject = new Subject();
-    subject.next([
-      { label: 'blueberry juice', labelKey: 'blueberry-juice'}, 'error'
-    ]);
+  it('on change search - empty', () => {
+    spyOn(idbService, 'getProductNameList');
 
-    spyOn(idbService, 'getProductNameList').and.returnValue(subject);
     component.onChangeSearch('');
     expect(idbService.getProductNameList).not.toHaveBeenCalled();
-    expect(component.isLoadingNameListFirst).toEqual(false);
+    expect(component.isLoadingNameListFirst).toBe(false);
   });
 
   it('on input cleared', () => {
@@ -126,9 +176,17 @@ describe('RecipeListComponent', () => {
       { label: 'blueberry juice', labelKey: 'blueberry-juice'}
     ]);
     spyOn(idbService, 'getProductNameListByComponent').and.returnValue(subject);
+    const name$ = idbService.getProductNameListByComponent('prime');
 
     component.selectEventSecond('prime');
+
     expect(idbService.getProductNameListByComponent).toHaveBeenCalled();
+    name$.subscribe(() => {
+      expect(component.isLoadingNameListFirst).toBe(false);
+      setTimeout(() => {
+        expect(component.autocompleteFirst.focus).toHaveBeenCalled();
+      }, 1000);
+    });
   });
 
   it('on change search second', () => {
@@ -138,10 +196,33 @@ describe('RecipeListComponent', () => {
       name: 'name'
     });
     spyOn(idbService, 'getComponentNameList').and.returnValue(subject);
+    const name$ = idbService.getComponentNameList('prime');
 
     component.onChangeSearchSecond('prime');
+
     expect(idbService.getComponentNameList).toHaveBeenCalled();
-    expect(component.isLoadingNameListSecond).toEqual(true);
+    name$.subscribe(() => {
+      expect(component.notExistInArray).toHaveBeenCalled();
+      expect(component.isLoadingNameListSecond).toBe(false);
+    },
+      () => {
+      expect(errorService.add).toHaveBeenCalled();
+      });
+  });
+
+  it('on change search second - error in nameList', () => {
+    const subject = new Subject();
+    subject.next('error');
+    spyOn(idbService, 'getComponentNameList').and.returnValue(subject);
+    const name$ = idbService.getComponentNameList('prime');
+
+    component.onChangeSearchSecond('prime');
+
+    expect(idbService.getComponentNameList).toHaveBeenCalled();
+    name$.subscribe(() => {
+        expect(component.notExistInArray).not.toHaveBeenCalled();
+        expect(component.isLoadingNameListSecond).toBe(false);
+      });
   });
 
   it('on change search second - empty', () => {
@@ -179,16 +260,26 @@ describe('RecipeListComponent', () => {
     expect(recipeListService.saveLocationsToIdb).toHaveBeenCalled();
   });
 
-  it('not exist in array', () => {
+  it('not exist in array - true', () => {
     const arr = [
-      { key: 'name', value: 'blueberry'},
-      { key: 'name', value: 'strawberry'},
-      { key: 'name', value: 'blackberry'}
+      { id: 0, name: 'Blueberry lemon 960ml 0mg'},
+      { id: 1, name: 'Strawberry 960ml 0mg'}
     ];
     const key = 'name';
-    const value = 'berry';
+    const value = 'Strawberry Daiquiri 960ml 0mg';
 
     expect(component.notExistInArray(arr, key, value)).toEqual(true);
+  });
+
+  it('not exist in array - false', () => {
+    const arr = [
+      { id: 0, name: 'Blueberry lemon 960ml 0mg'},
+      { id: 1, name: 'Strawberry 960ml 0mg'}
+    ];
+    const key = 'name';
+    const value = 'Strawberry 960ml 0mg';
+
+    expect(component.notExistInArray(arr, key, value)).toEqual(false);
   });
 
   it('change size', () => {
@@ -197,17 +288,12 @@ describe('RecipeListComponent', () => {
       3: ['6', '3', '0']
     };
     component.strengthRadioButtons = ['0', '3', '6'];
-    const size = '3';
-    spyOn(component.productSizeStrengths[size], 'sort');
-    // todo: cannot read from undefined
-    // component.strengthRadioButtons[0].and.returnValue('0');
+    component.nicStrengthSelected = '0';
     spyOn(component, 'getRecipeContents');
 
-    // component.changeSize('3');
-    component.strengthRadioButtons = component.productSizeStrengths[size].sort();
-    // nicStrengthSelected = component.strengthRadioButtons[0];
+    component.changeSize('3');
 
-    // expect(component.getRecipeContents).toHaveBeenCalled();
+    expect(component.getRecipeContents).toHaveBeenCalled();
   });
 
   it('change strength', () => {
@@ -238,15 +324,42 @@ describe('RecipeListComponent', () => {
       name: 'amv center',
       storeLocation: 'amvholdings'
     });
+    const searchName = 'berry';
     spyOn(idbService, 'getRecipesFromIdb').and.returnValue(subject);
+    const recipes$ = idbService.getRecipesFromIdb('product', searchName);
     spyOn(idbService, 'getProductPrintData').and.returnValue(subjectPrintData);
+    const printData$ = idbService.getProductPrintData(searchName);
     spyOn(idbService, 'getAppPropertyFromIdb').and.returnValue(subjectAppProperty);
-
+    const appProperty$ = idbService.getAppPropertyFromIdb('location');
 
     component.getRecipeContents(labelKey, size, strength);
+
     expect(idbService.getRecipesFromIdb).toHaveBeenCalled();
+    recipes$.subscribe((recipes) => {
+      expect(component.recipes).toBe(recipes);
+      },
+      () => {
+      expect(errorService.add).toHaveBeenCalled();
+      });
     expect(idbService.getProductPrintData).toHaveBeenCalled();
+    printData$.subscribe((data) => {
+      expect(component.printData.name).toBe(data.name);
+      expect(component.printData.sku).toBe(data.sku);
+      expect(component.printData.size).toBe(data.size);
+      expect(component.printData.strength).toBe(data.strength);
+    },
+      () => {
+      expect(errorService.add).toHaveBeenCalled();
+      });
     expect(idbService.getAppPropertyFromIdb).toHaveBeenCalled();
+    appProperty$.subscribe((location) => {
+      expect(component.printData.name).toBe(location.name);
+      expect(component.printData.storeLocation).toBe(location.storeLocation);
+    },
+      () => {},
+      () => {
+      expect(window.location.reload).toHaveBeenCalled();
+      });
   });
 
   it('reset size strength recipes', () => {
@@ -259,40 +372,103 @@ describe('RecipeListComponent', () => {
     const subject = new Subject();
     subject.next(true);
     spyOn(headerComponent, 'isRefreshMoreThanOneDay').and.returnValue(subject);
+    const flag$ = headerComponent.isRefreshMoreThanOneDay();
+    spyOn(headerComponent, 'refreshObjectStores');
 
     component.openBottleScan();
+
     expect(headerComponent.isRefreshMoreThanOneDay).toHaveBeenCalled();
+    flag$.subscribe((flag) => {
+      expect(flag).toBe(true);
+      expect(headerComponent.refreshObjectStores).toHaveBeenCalled();
+    },
+      () => {},
+      () => {
+      expect(headerComponent.refreshObjectStores).toHaveBeenCalled();
+      });
   });
 
   it('open bottle scan - false', () => {
     const subject = new Subject();
     subject.next(false);
     spyOn(headerComponent, 'isRefreshMoreThanOneDay').and.returnValue(subject);
+    const flag$ = headerComponent.isRefreshMoreThanOneDay();
+    spyOn(component, 'openBottleScanUser');
 
     component.openBottleScan();
+
     expect(headerComponent.isRefreshMoreThanOneDay).toHaveBeenCalled();
+    flag$.subscribe((flag) => {
+      expect(flag).toBe(false);
+      expect(component.openBottleScanUser).toHaveBeenCalled();
+    });
   });
 
   it('open bottle scan user', () => {
+    const user: User = {
+      id: 1,
+      name: 'John Doe',
+      firstName: 'John',
+      lastName: 'Doe',
+      authUri: '',
+      roles: ['jmx']
+    };
     const subject = new Subject();
-    subject.next();
+    subject.next(user);
     spyOn(headerComponent, 'getAppProperty').and.returnValue(subject);
+    const user$ = headerComponent.getAppProperty('user');
 
     component.openBottleScanUser();
+
     expect(headerComponent.getAppProperty).toHaveBeenCalled();
+    user$.subscribe((userR) => {
+      expect(component.user).toBe(userR);
+      expect(component.openBottleScanLocation).toHaveBeenCalled();
+    },
+      () => {},
+      () => {
+      expect(errorService.add).toHaveBeenCalled();
+      });
   });
 
   it('open bottle scan location', () => {
-    const content = 'content';
+    component.scanData.scanCode = '(01)***********002(10)25852';
+    const location: LocationModel = {
+      name: 'amv headquarter',
+      storeLocation: '144th street omaha NE'
+    };
     const subject = new Subject();
-    subject.next({
-      name: 'amv center'
-    });
+    subject.next(location);
     spyOn(idbService, 'getAppPropertyFromIdb').and.returnValue(subject);
-    // spyOn(modalService, {open: modalServiceRef});
-    component.openBottleScanLocation(content);
+    const location$ = idbService.getAppPropertyFromIdb('location');
+    const inputData = {};
+    const modalServiceRef = {
+      componentInstance: {},
+      result: Promise.resolve(inputData)
+    };
+    const modalServiceSpy = createSpyObj('NgbModal', {open: modalServiceRef});
+    const result$ = modalServiceSpy.open();
+
+    component.openBottleScanLocation('content');
 
     expect(idbService.getAppPropertyFromIdb).toHaveBeenCalled();
+    location$.subscribe((locationR) => {
+      expect(component.scanData.locationName).toBe(locationR.name);
+      expect(component.scanData.productSku).toBe('25852');
+      expect(component.scanData.batchId).toBe('002');
+    },
+      () => {
+      expect(window.location.reload).toHaveBeenCalled();
+      });
+    result$.result.then(() => {
+      expect(component.isScanDataValid).toHaveBeenCalled();
+      expect(component.openBottleScan).toHaveBeenCalled();
+      expect(component.openBottleScanConfirmation).toHaveBeenCalled();
+    },
+      (reason) => {
+      expect(component.closeResult).toContain(reason);
+      expect(component.isShowAlert).toBe(false);
+      });
   });
 
   it('open bottle scan confirmation', () => {
@@ -309,14 +485,20 @@ describe('RecipeListComponent', () => {
       result: Promise.resolve(postData)
     };
     const modalServiceSpy = createSpyObj('NgbModal', { open: modalServiceRef});
+    const result$ = modalServiceSpy.open();
 
     component.openBottleScanConfirmation(postData);
-    fixture.detectChanges();
-    expect(component).toBeTruthy();
-    expect(modalServiceSpy.open).toHaveBeenCalledTimes(0);
+
+    result$.result.then(() => {
+      expect(component.postBottleScanData).toHaveBeenCalled();
+    },
+      (reason) => {
+      expect(component.closeResult).toContain(reason);
+      });
+
   });
 
-  it('ost bottle scan data', () => {
+  it('post bottle scan data', () => {
     const postData = {
       associateName: 'Username',
       batchId: '25852',
@@ -332,19 +514,40 @@ describe('RecipeListComponent', () => {
     const subjectBottleScan = new Subject();
     subjectBottleScan.next(postData);
     spyOn(apiService, 'post').and.returnValue(subject);
+    const data$ = apiService.post('/bottleScanEvents', postData);
     spyOn(idbService, 'getBottleScan').and.returnValue(subjectBottleScan);
+    const scan$ = idbService.getBottleScan('bottleScanCommit');
 
     component.postBottleScanData(postData);
+
     expect(apiService.post).toHaveBeenCalled();
+    data$.subscribe(() => {
+      expect(idbService.addBottleScan).toHaveBeenCalled();
+    },
+      () => {
+      expect(errorService.add).toHaveBeenCalled();
+      expect(idbService.addBottleScan).toHaveBeenCalled();
+      });
     expect(idbService.getBottleScan).toHaveBeenCalled();
+    scan$.subscribe(() => {
+      expect(apiService.post).toHaveBeenCalled();
+      data$.subscribe(() => {
+        expect(idbService.updateBottleScan).toHaveBeenCalled();
+      },
+        () => {
+        expect(errorService.add).toHaveBeenCalled();
+        });
+    });
   });
 
   it('is scan data valid', () => {
-    const data = {
-      field: 'name'
-    };
+    const data = [
+      { batchId: '1234' },
+      { batchId: ''}
+    ];
 
-    expect(component.isScanDataValid(data)).toEqual(true);
+    expect(component.isScanDataValid(data[0])).toEqual(true);
+    expect(component.isScanDataValid(data[1])).toEqual(false);
   });
 
   it('refresh idb data', () => {
