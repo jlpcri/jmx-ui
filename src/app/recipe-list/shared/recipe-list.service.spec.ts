@@ -13,7 +13,7 @@ import {ProgressService} from '../../progress-bar/shared/progress.service';
 import {ErrorService} from '../../error/error.service';
 import {SourceDataModel} from './sourcedata.model';
 
-describe('RecipListService', () => {
+describe('RecipeListService', () => {
   let service: RecipeListService;
   let apiService: ApiService;
   let idbService: IndexedDatabaseService;
@@ -51,9 +51,7 @@ describe('RecipListService', () => {
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
-        // { provide: ApiService, userValue: apiService},
         ProgressService,
-        // { provide: IndexedDatabaseService, userValue: idbService},
         { provide: ErrorService, userValue: errService},
         HttpClient
       ]
@@ -104,7 +102,7 @@ describe('RecipListService', () => {
     expect(apiService.get).toHaveBeenCalled();
     sourceData$.subscribe((data) => {
       expect(data).toBe(sourceData);
-      expect(service.sourceData).toEqual(data);
+      expect(service.sourceData).toEqual(data as SourceDataModel);
     });
     setTimeout(() => {
       expect(service.retrieveAllRecipes).toHaveBeenCalled();
@@ -120,7 +118,7 @@ describe('RecipListService', () => {
           expect(progressService.loading).toBe(false);
           });
       });
-    }, 500);
+    }, 2000);
   });
 
   it('retrieve locations', () => {
@@ -131,7 +129,7 @@ describe('RecipListService', () => {
     };
     const subject = new Subject();
     subject.next(locationList);
-    spyOn(apiService, 'get').and.returnValue(subject);
+    spyOn(apiService, 'get').withArgs('/locations', options).and.returnValue(subject);
     const resp$ = apiService.get('/locations', options);
 
     service.retrieveLocations();
@@ -186,7 +184,7 @@ describe('RecipListService', () => {
   });
 
 
-  it('sav users to idb', () => {
+  it('save users to idb', () => {
     spyOn(idbService, 'syncUsers');
     const user: User = {
       id: 1,

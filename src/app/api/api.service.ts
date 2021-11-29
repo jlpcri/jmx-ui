@@ -12,7 +12,7 @@ export class ApiService {
 
   constructor(private http: HttpClient) { }
 
-  private static errorHandler(error: HttpErrorResponse) {
+  public static errorHandler(error: HttpErrorResponse) {
     let message = 'API Error: ';
     if (error.error instanceof ErrorEvent) {
       message += error.error.message;
