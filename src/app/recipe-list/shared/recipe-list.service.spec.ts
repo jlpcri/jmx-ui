@@ -118,7 +118,7 @@ describe('RecipeListService', () => {
           expect(progressService.loading).toBe(false);
           });
       });
-    }, 2000);
+    }, 1000);
   });
 
   it('retrieve locations', () => {
@@ -149,9 +149,8 @@ describe('RecipeListService', () => {
     spyOn(idbService, 'getLocationsObjectStoreCount').and.returnValue(subject);
     const count$ = idbService.getLocationsObjectStoreCount();
 
-    service.retrieveLocations();
-
     service.saveLocationsToIdb();
+
     expect(idbService.getLocationsObjectStoreCount).toHaveBeenCalled();
     count$.subscribe((count) => {
       expect(count).toBe(10);
@@ -170,9 +169,8 @@ describe('RecipeListService', () => {
     const locations$ = service.retrieveLocations();
     spyOn(idbService, 'syncLocations');
 
-    service.retrieveLocations();
-
     service.saveLocationsToIdb();
+
     expect(idbService.getLocationsObjectStoreCount).toHaveBeenCalled();
     count$.subscribe((count) => {
       expect(count).toBe(0);

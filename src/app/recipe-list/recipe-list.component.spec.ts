@@ -27,6 +27,15 @@ describe('RecipeListComponent', () => {
   let apiService: ApiService;
   let modalService: NgbModal;
 
+  const user: User = {
+    id: 12,
+    firstName: 'John',
+    lastName: 'Doe',
+    name: 'John Doe',
+    authUri: '',
+    roles: ['jmx']
+  };
+
   beforeEach(async(() => {
     errorService = jasmine.createSpyObj('ErrorService', ['add']);
     TestBed.configureTestingModule({
@@ -45,7 +54,7 @@ describe('RecipeListComponent', () => {
     fixture = TestBed.createComponent(RecipeListComponent);
     component = fixture.componentInstance;
     idbService = fixture.debugElement.injector.get(IndexedDatabaseService);
-    spyOn(idbService, 'syncUsers');
+    // spyOn(idbService, 'syncUsers').withArgs(user);
     recipeListService = fixture.debugElement.injector.get(RecipeListService);
     headerComponent = fixture.debugElement.injector.get(HeaderComponent);
     apiService = fixture.debugElement.injector.get(ApiService);
@@ -182,17 +191,17 @@ describe('RecipeListComponent', () => {
     subject.next([
       { label: 'blueberry juice', labelKey: 'blueberry-juice'}
     ]);
-    spyOn(idbService, 'getProductNameListByComponent').and.returnValue(subject);
+    spyOn(idbService, 'getProductNameListByComponent').withArgs('prime').and.returnValue(subject);
     const name$ = idbService.getProductNameListByComponent('prime');
 
-    component.selectEventSecond('prime');
+    component.selectEventSecond({name: 'prime'});
 
     expect(idbService.getProductNameListByComponent).toHaveBeenCalled();
     name$.subscribe(() => {
       expect(component.isLoadingNameListFirst).toBe(false);
       setTimeout(() => {
         expect(component.autocompleteFirst.focus).toHaveBeenCalled();
-      }, 1000);
+      }, 1500);
     });
   });
 
@@ -254,6 +263,7 @@ describe('RecipeListComponent', () => {
   });
 
   it('save recipes to idb', () => {
+    spyOn(recipeListService, 'retrieveAllRecipes').withArgs('value');
     spyOn(recipeListService, 'saveRecipesToIdb');
     component.saveRecipesToIdb();
 
@@ -279,7 +289,7 @@ describe('RecipeListComponent', () => {
   it('not exist in array - true', () => {
     const arr = [
       { id: 0, name: 'Blueberry lemon 960ml 0mg'},
-      { id: 1, name: 'Strawberry 960ml 0mg'}
+      // { id: 1, name: 'Strawberry 960ml 0mg'}
     ];
     const key = 'name';
     const value = 'Strawberry Daiquiri 960ml 0mg';
@@ -289,7 +299,7 @@ describe('RecipeListComponent', () => {
 
   it('not exist in array - false', () => {
     const arr = [
-      { id: 0, name: 'Blueberry lemon 960ml 0mg'},
+      // { id: 0, name: 'Blueberry lemon 960ml 0mg'},
       { id: 1, name: 'Strawberry 960ml 0mg'}
     ];
     const key = 'name';
@@ -421,14 +431,6 @@ describe('RecipeListComponent', () => {
   });
 
   it('open bottle scan user', () => {
-    const user: User = {
-      id: 1,
-      name: 'John Doe',
-      firstName: 'John',
-      lastName: 'Doe',
-      authUri: '',
-      roles: ['jmx']
-    };
     const subject = new Subject();
     subject.next(user);
     spyOn(headerComponent, 'getAppProperty').and.returnValue(subject);
@@ -479,8 +481,8 @@ describe('RecipeListComponent', () => {
       expect(window.location.reload).toHaveBeenCalled();
       });
     result$.result.then(() => {
-      // expect(component.isScanDataValid).toHaveBeenCalled();
-      // expect(component.openBottleScan).toHaveBeenCalled();
+      expect(component.isScanDataValid).toHaveBeenCalled();
+      expect(component.openBottleScan).toHaveBeenCalled();
       expect(component.openBottleScanConfirmation).toHaveBeenCalled();
     },
       (reason) => {
@@ -509,7 +511,7 @@ describe('RecipeListComponent', () => {
     component.openBottleScanConfirmation(postData);
 
     result$.result.then(() => {
-      // expect(component.postBottleScanData).toHaveBeenCalled();
+      expect(component.postBottleScanData).toHaveBeenCalled();
     },
       (reason) => {
       expect(component.closeResult).toContain(reason);
