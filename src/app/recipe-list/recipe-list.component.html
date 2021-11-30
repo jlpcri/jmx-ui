@@ -345,6 +345,7 @@
   <div class="ml-auto">
     <button class="btn btn-secondary-custom btn-lg" style="position: absolute; right: 0; bottom: -2rem;"
     [disabled]="printData.name.length === 0"
+    [printStyle]="{ table: { 'width': '1.20in', 'margin-bottom' : '0px' }, p: { 'width': '1.20in', 'font-size': '0.5rem', 'margin-top' : '0px' }, td : { 'font-size': '0.5rem'}, h3 : { 'margin-bottom' : '0px' }, img : { 'width' : '100%' } }"
     printSectionId="printLabelTable"
     ngxPrint>PRINT LABEL</button>
   </div>
