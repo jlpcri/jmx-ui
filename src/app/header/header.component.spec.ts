@@ -1,8 +1,8 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {async, ComponentFixture, fakeAsync, flush, TestBed, tick} from '@angular/core/testing';
 
 import {HeaderComponent} from './header.component';
 import {AuthService} from '../auth.service';
-import {Subject} from 'rxjs';
+import {of, Subject} from 'rxjs';
 import {User} from '../shared/user.model';
 import {HttpClient} from '@angular/common/http';
 import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
@@ -74,45 +74,44 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('onInit network status true', () => {
+  it('onInit network status true', fakeAsync(() => {
     component.networkStatus = true;
     const subjectUser = new Subject<User>();
     subjectUser.next(user);
     spyOn(authService, 'authorized').and.returnValue(subjectUser);
     const user$ = authService.authorized();
 
-    setTimeout(() => {
-      expect(authService.authorized).toHaveBeenCalled();
-      user$.subscribe((userR) => {
-        expect(component.appAssociate.name).toBe(userR.name);
-        expect(component.currentUser).toBe(userR);
-      });
-    }, 1500);
+    tick(1000);
+    expect(authService.authorized).toHaveBeenCalled();
+    user$.subscribe((userR) => {
+      expect(component.appAssociate.name).toBe(userR.name);
+      expect(component.currentUser).toBe(userR);
+    });
 
     const subjectLocation = new Subject();
     subjectLocation.next(location);
     spyOn(component, 'getAppProperty').and.returnValue(subjectLocation);
     const location$ = component.getAppProperty('location');
-    setTimeout(() => {
-      expect(component.getAppProperty).toHaveBeenCalled();
-      location$.subscribe( (data) => {
-        expect(component.appLocation).toBe(data as LocationModel);
-      });
-    }, 2000);
+    tick(1000);
+    expect(component.getAppProperty).toHaveBeenCalled();
+    location$.subscribe( (data) => {
+      expect(component.appLocation).toBe(data as LocationModel);
+    });
 
     const subjectAssocList = new Subject();
     subjectAssocList.next(user);
     spyOn(idbService, 'getLocationsOrUsersFromIdb').and.returnValue(subjectAssocList);
     const assocList$ = idbService.getLocationsOrUsersFromIdb('users');
-    setTimeout(() => {
-      expect(idbService.getLocationsOrUsersFromIdb).toHaveBeenCalled();
-      assocList$.subscribe((data) => {
-        expect(component.associateList).toContain(data as User);
-      });
-    }, 2500);
-  });
+    tick(1000);
+    expect(idbService.getLocationsOrUsersFromIdb).toHaveBeenCalled();
+    assocList$.subscribe((data) => {
+      expect(component.associateList).toContain(data as User);
+    });
 
-  it('onInit network status false', () => {
+    flush();
+  }));
+
+  it('onInit network status false', fakeAsync(() => {
     component.networkStatus = false;
     const subject = new Subject();
     subject.next(user);
@@ -120,41 +119,41 @@ describe('HeaderComponent', () => {
     const user$ = component.getAppProperty('user');
     spyOn(console, 'log');
 
-    setTimeout(() => {
-      // expect(console.log).toHaveBeenCalled();
-      expect(component.getAppProperty).toHaveBeenCalled();
-      user$.subscribe((userR) => {
-        expect(component.appAssociate).toBe(userR as User);
-        expect(component.currentUser).toBe(userR as User);
-      });
-    }, 3000);
-  });
+    tick(1000);
 
-  it('should log out', () => {
-    spyOn(recipeListService, 'saveUsersToIdb').withArgs(user);
+    // expect(console.log).toHaveBeenCalled();
+    expect(component.getAppProperty).toHaveBeenCalled();
+    user$.subscribe((userR) => {
+      expect(component.appAssociate).toBe(userR as User);
+      expect(component.currentUser).toBe(userR as User);
+    });
+  }));
+
+  it('should log out', fakeAsync(() => {
+    spyOn(recipeListService, 'saveUsersToIdb');
     spyOn(authService, 'logout');
 
     component.logout();
 
-    setTimeout(() => {
-      expect(recipeListService.saveUsersToIdb).toHaveBeenCalled();
-    }, 1000);
-    setTimeout(() => {
-      expect(authService.logout).toHaveBeenCalled();
-    }, 1500);
+    tick(500);
+    expect(recipeListService.saveUsersToIdb).toHaveBeenCalled();
 
-  });
+    tick(1000);
+    expect(authService.logout).toHaveBeenCalled();
+
+    flush();
+  }));
 
   it('open help modal', () => {
     const modalService = fixture.debugElement.injector.get(NgbModal);
-    spyOn(modalService, 'open');
+    spyOn(modalService, 'open').withArgs('content', {scrollable: true, size: 'lg'});
 
     component.openHelp('content');
 
     expect(modalService.open).toHaveBeenCalled();
   });
 
-  it('should open app location - return location empty', () => {
+  it('should open app location - return location empty', fakeAsync(() => {
     const modalServiceRef = {
       componentInstance: {},
       result: Promise.resolve('')
@@ -171,9 +170,11 @@ describe('HeaderComponent', () => {
     component.openAppLocation();
 
     expect(modalService.open).toHaveBeenCalled();
+    tick();
+    expect(component.openAppLocation).toHaveBeenCalled();
+
     result$.result.then((locationR) => {
       expect(locationR).toBe('');
-      expect(component.openAppLocation).toHaveBeenCalled();
     },
       (reason) => {
       expect(component.closeResult).toContain(reason);
@@ -184,7 +185,7 @@ describe('HeaderComponent', () => {
       });
       expect(component.isShowAlert).toBe(false);
       });
-  });
+  }));
 
   it('should open app location - return location is object', () => {
     const modalServiceRef = {

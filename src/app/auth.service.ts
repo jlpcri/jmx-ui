@@ -9,7 +9,7 @@ import {RecipeListService} from './recipe-list/shared/recipe-list.service';
 })
 export class AuthService {
 
-  private user: User = null;
+  user: User = null;
 
   constructor(private http: HttpClient,
               private recipeListService: RecipeListService) { }

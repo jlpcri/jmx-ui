@@ -1,4 +1,4 @@
-import {async, ComponentFixture, TestBed} from '@angular/core/testing';
+import {async, ComponentFixture, fakeAsync, TestBed, tick} from '@angular/core/testing';
 
 import {ErrorTestComponent} from './error-test.component';
 import {ErrorService} from './error.service';
@@ -29,14 +29,12 @@ describe('ErrorTestComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should show message', () => {
+  it('should show message', fakeAsync(() => {
     component.showMessage();
 
     expect(errorServiceSpy.add).toHaveBeenCalledTimes(1);
 
-    jasmine.clock().install();
-    jasmine.clock().tick(500);
-    jasmine.clock().uninstall();
-    expect(errorServiceSpy.add).toHaveBeenCalledTimes(1);
-  });
+    tick(5000);
+    expect(errorServiceSpy.add).toHaveBeenCalledTimes(2);
+  }));
 });

@@ -1,67 +1,69 @@
-import { TestBed } from '@angular/core/testing';
+import {fakeAsync, flush, TestBed} from '@angular/core/testing';
 
-import { ApiService } from './api.service';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {ApiService} from './api.service';
+import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import {HttpParams} from '@angular/common/http';
-import {any} from 'codelyzer/util/function';
-import {Observable, of} from 'rxjs';
-import {RecipeListModel} from '../recipe-list/shared/recipe-list.model';
+import {User} from '../shared/user.model';
 
 describe('ApiService', () => {
   let service: ApiService;
-  let apiServiceSpy: jasmine.SpyObj<ApiService>;
-  const baseUrl = '/jmx-ui/api';
-  const requestUrl = '/recipes';
-  const httpParams = new HttpParams().set('sourceSystem', 'amvpos').set('status', 'active');
-  const requestOptions = {
-    params: httpParams
-  };
-  const recipeList: RecipeListModel = {
-    totalRecipes: 0,
-    recipes: []
-  };
+  let httpMock: HttpTestingController;
+
+  const options = {params: new HttpParams()};
 
   beforeEach(() => {
-    const apiSpy = jasmine.createSpyObj('ApiService', ['get', 'post']);
     TestBed.configureTestingModule({
       imports: [ HttpClientTestingModule ],
-      providers: [
-        {provide: ApiService, useValue: apiSpy}
-      ]
+      providers: [ApiService]
     });
     service = TestBed.inject(ApiService);
-    apiServiceSpy = TestBed.inject(ApiService) as jasmine.SpyObj<ApiService>;
+    httpMock = TestBed.inject(HttpTestingController);
+  });
+
+  afterEach(() => {
+    httpMock.verify();
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should get data', () => {
+  it('should get data', fakeAsync(() => {
+    const dummyUser: User = {
+      id: 12,
+      firstName: 'John',
+      lastName: 'Doe',
+      name: 'John Doe',
+      authUri: '',
+      roles: ['jmx']
+    };
+    // const options = {params: new HttpParams()};
 
-
-    service.get(requestUrl, requestOptions);
-
-    apiServiceSpy.get.and.callFake((url: string, options: {params: HttpParams}): Observable<any> => {
-      expect(url).toBe(baseUrl + requestUrl);
-      expect(options.params.get('sourceSystem')).toBe('amvpos');
-      expect(options.params.get('status')).toBe('active');
-
-      return of(recipeList);
+    service.get('/user/user-info', options).subscribe(data => {
+      expect(data).toBe(dummyUser);
     });
 
-    expect(service).toBeTruthy();
-  });
+    const req = httpMock.expectOne('/jmx-ui/api/user/user-info');
+    expect(req.request.method).toBe('GET');
+    flush();
+  }));
 
-  it ('should post data', () => {
-    service.post(requestUrl, any);
+  it ('should post data', fakeAsync(() => {
+      const postData = {
+        associateName: 'Username',
+        batchId: '25852',
+        eventTimestamp: '2021-11-23T12:47:47-06:00',
+        locationName: 'Alohma Council Bluffs',
+        productName: 'product',
+        productSku: '0002'
+      };
 
-    apiServiceSpy.post.and.callFake((url: string): Observable<any> => {
-      expect(url).toBe(baseUrl + requestUrl);
+      service.post('/bottleScanEvents', options).subscribe(data => {
+        expect(data).toEqual(postData);
+      });
 
-      return of(recipeList);
-    });
-
-    expect(service).toBeTruthy();
-  });
+      const req = httpMock.expectOne('/jmx-ui/api/bottleScanEvents');
+      expect(req.request.method).toBe('POST');
+      flush();
+  }));
 });
