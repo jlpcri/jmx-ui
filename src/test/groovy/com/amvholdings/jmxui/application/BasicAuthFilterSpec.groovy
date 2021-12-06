@@ -1,7 +1,12 @@
 package com.amvholdings.jmxui.application
 
 import com.amvholdings.jmxui.component.crypto.CryptoDomain
+import com.netflix.zuul.context.RequestContext
+import org.mockito.Mockito
 import spock.lang.Specification
+
+import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 class BasicAuthFilterSpec extends Specification {
   Config config = new Config(
@@ -43,5 +48,25 @@ class BasicAuthFilterSpec extends Specification {
 
     and:
     result
+  }
+
+  def 'run'() {
+    given:
+    def request = Mockito.mock(HttpServletRequest.class)
+    def response = Mockito.mock(HttpServletResponse.class)
+    RequestContext.getCurrentContext().request = request
+    RequestContext.getCurrentContext().response = response
+    RequestContext.getCurrentContext().setResponseGZipped(true)
+
+
+    when:
+    def result = basicAuthFilter.run()
+
+    then:
+    1* cryptoDomain.decryptString('password')
+    0 * _
+
+    and:
+    !result
   }
 }

@@ -1,18 +1,20 @@
-import {fakeAsync, flush, TestBed, tick} from '@angular/core/testing';
+import {HttpClient, HttpErrorResponse, HttpResponse} from '@angular/common/http';
 import {AuthService} from './auth.service';
-import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
 import {RecipeListService} from './recipe-list/shared/recipe-list.service';
-import {of, Subject} from 'rxjs';
+import {fakeAsync, flush, TestBed, tick} from '@angular/core/testing';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {User} from './shared/user.model';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {of, throwError} from 'rxjs';
 
-describe('AuthService', () => {
-  let service: AuthService;
-  let httpMock: HttpTestingController;
+
+describe('Auth service', () => {
+  let httpClient: HttpClient;
+  let httpClientSpy: jasmine.SpyObj<HttpClient>;
+  let authService: AuthService;
   let recipeListService: RecipeListService;
-  const user: User = null;
+  let recipeListServiceSpy: jasmine.SpyObj<RecipeListService>;
 
-  const userData: User = {
+  const expectedUser: User = {
     id: 12,
     firstName: 'John',
     lastName: 'Doe',
@@ -22,60 +24,80 @@ describe('AuthService', () => {
   };
 
   beforeEach(() => {
+    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
+    recipeListServiceSpy = jasmine.createSpyObj('RecipeListService', ['saveUsersToIdb']);
     TestBed.configureTestingModule({
-      imports: [ HttpClientTestingModule ],
-      providers: [ RecipeListService ]
+      imports: [HttpClientTestingModule],
+      providers: [
+        AuthService,
+        { provide: HttpClient, userValue: httpClientSpy},
+        { provide: RecipeListService, userValue: recipeListServiceSpy}
+      ]
     });
-    service = TestBed.inject(AuthService);
-    httpMock = TestBed.inject(HttpTestingController);
+    // authService = TestBed.inject(AuthService);
+    httpClient = TestBed.inject(HttpClient);
     recipeListService = TestBed.inject(RecipeListService);
+    authService = new AuthService(httpClientSpy, recipeListServiceSpy);
   });
 
-  afterEach(() => {
-    httpMock.verify();
+  it('should create service', () => {
+    expect(authService).toBeTruthy();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
+  it('authorized - current user exist', () => {
+    authService.user = expectedUser;
+
+    authService.authorized().subscribe(
+      user => {
+        expect(user).toEqual(expectedUser);
+      }
+    );
   });
 
-  it('authorized - user exist', () => {
-    service.user = userData;
+  it('authorized - get user', fakeAsync(() => {
+    httpClientSpy.get.and.returnValue(of(expectedUser));
 
-    service.authorized().subscribe(userR => {
-      expect(userR).toEqual(userData);
-    });
-
-    httpMock.expectNone('/jmx-ui/user/user-info');
-
-  });
-
-  it('authorized', fakeAsync(() => {
-    spyOn(recipeListService, 'saveUsersToIdb');
-
-    const dummyUser = userData;
-    service.authorized().subscribe(userR => {
-      expect(userR).toEqual(dummyUser);
-      tick(1000);
+    authService.authorized().subscribe(user => {
+      expect(authService.user).toEqual(expectedUser);
+      tick();
       expect(recipeListService.saveUsersToIdb).toHaveBeenCalled();
     });
 
-    const req = httpMock.expectOne('/jmx-ui/user/user-info');
-    expect(req.request.method).toBe('GET');
-
     flush();
   }));
 
-  it('authorized - error url', fakeAsync(() => {
-    service.authorized().subscribe(() => {}, err => {
-      expect(err).toBe({url: 'context.html'});
+  it('authorized - get user error', fakeAsync(() => {
+    const errorResponse = new HttpErrorResponse({
+      error: 'test 404 error',
+      status: 404,
+      statusText: 'Not Found',
+      url: 'http://error.html'
     });
 
-    const req = httpMock.expectOne('/jmx-ui/user/user-info');
-    expect(req.request.method).toBe('GET');
-    expect(location.href).toContain('context.html');
-    flush();
+    httpClientSpy.get.and.returnValue(throwError(errorResponse));
+
+    authService.authorized().subscribe(() => {},
+      () => {
+      location.href = 'localhost:9876';
+    });
+
   }));
 
+  xit('logout - success', fakeAsync(() => {
+    const resp = new HttpResponse();
+
+    httpClientSpy.get.and.returnValue(of(resp));
+
+    authService.logout();
+
+  }));
+
+  xit('logout - error', fakeAsync(() => {
+    const resp = new HttpResponse();
+
+    httpClientSpy.get.and.returnValue(throwError(resp));
+
+    authService.logout();
+  }));
 
 });

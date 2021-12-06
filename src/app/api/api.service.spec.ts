@@ -1,69 +1,82 @@
-import {fakeAsync, flush, TestBed} from '@angular/core/testing';
-
-import {ApiService} from './api.service';
-import {HttpClientTestingModule, HttpTestingController} from '@angular/common/http/testing';
-import {HttpParams} from '@angular/common/http';
 import {User} from '../shared/user.model';
+import {ApiService} from './api.service';
+import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {fakeAsync, TestBed} from '@angular/core/testing';
+import {HttpClientTestingModule} from '@angular/common/http/testing';
+import {of} from 'rxjs';
+
 
 describe('ApiService', () => {
-  let service: ApiService;
-  let httpMock: HttpTestingController;
+  let apiService: ApiService;
+  let httpClient: HttpClient;
+  let httpClientSpy: jasmine.SpyObj<HttpClient>;
 
-  const options = {params: new HttpParams()};
+
+  const expectedUser: User = {
+    id: 12,
+    firstName: 'John',
+    lastName: 'Doe',
+    name: 'John Doe',
+    authUri: '',
+    roles: ['jmx']
+  };
+
+  const postData = {
+    associateName: 'Username',
+    batchId: '25852',
+    eventTimestamp: '2021-11-23T12:47:47-06:00',
+    locationName: 'Alohma Council Bluffs',
+    productName: 'product',
+    productSku: '0002'
+  };
 
   beforeEach(() => {
+    httpClientSpy = jasmine.createSpyObj('HttpClient', ['get', 'post']);
     TestBed.configureTestingModule({
-      imports: [ HttpClientTestingModule ],
-      providers: [ApiService]
+      imports: [HttpClientTestingModule],
+      providers: [
+        { provide: HttpClient, useValue: httpClientSpy}
+      ]
     });
-    service = TestBed.inject(ApiService);
-    httpMock = TestBed.inject(HttpTestingController);
+    httpClient = TestBed.inject(HttpClient);
+    apiService = new ApiService(httpClient);
   });
 
-  afterEach(() => {
-    httpMock.verify();
+  it('should create service', () => {
+    expect(apiService).toBeTruthy();
   });
 
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+  it('apiService get', fakeAsync(() => {
+    httpClientSpy.get.and.returnValue(of(expectedUser));
 
-  it('should get data', fakeAsync(() => {
-    const dummyUser: User = {
-      id: 12,
-      firstName: 'John',
-      lastName: 'Doe',
-      name: 'John Doe',
-      authUri: '',
-      roles: ['jmx']
-    };
-    // const options = {params: new HttpParams()};
-
-    service.get('/user/user-info', options).subscribe(data => {
-      expect(data).toBe(dummyUser);
-    });
-
-    const req = httpMock.expectOne('/jmx-ui/api/user/user-info');
-    expect(req.request.method).toBe('GET');
-    flush();
+    apiService.get('url', {params: new HttpParams()});
   }));
 
-  it ('should post data', fakeAsync(() => {
-      const postData = {
-        associateName: 'Username',
-        batchId: '25852',
-        eventTimestamp: '2021-11-23T12:47:47-06:00',
-        locationName: 'Alohma Council Bluffs',
-        productName: 'product',
-        productSku: '0002'
-      };
+  it('apiService - post', () => {
+    httpClientSpy.post.and.returnValue(of(postData));
 
-      service.post('/bottleScanEvents', options).subscribe(data => {
-        expect(data).toEqual(postData);
-      });
+    apiService.post('url', postData);
+  });
 
-      const req = httpMock.expectOne('/jmx-ui/api/bottleScanEvents');
-      expect(req.request.method).toBe('POST');
-      flush();
-  }));
+  it('error handler', () => {
+    const errorResponse = new HttpErrorResponse({
+      error: 'test 404 error',
+      status: 404,
+      statusText: 'Not Found',
+      url: 'http://error.html'
+    });
+
+    ApiService.errorHandler(errorResponse);
+  });
+
+  it('error handler - ErrorEvent', () => {
+    const errorResponse = new HttpErrorResponse({
+      error: new ErrorEvent('errorEvent', {message: 'not found'}),
+      status: 404,
+      statusText: 'Not Found',
+      url: 'http://error.html'
+    });
+
+    ApiService.errorHandler(errorResponse);
+  });
 });
