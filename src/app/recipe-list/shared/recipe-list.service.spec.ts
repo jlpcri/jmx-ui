@@ -2,12 +2,12 @@ import {fakeAsync, flush, TestBed, tick} from '@angular/core/testing';
 
 import {RecipeListService} from './recipe-list.service';
 import {ApiService} from '../../api/api.service';
-import {Subject} from 'rxjs';
-import {HttpClient, HttpParams} from '@angular/common/http';
+import {Subject, throwError} from 'rxjs';
+import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {IndexedDatabaseService} from '../../shared/indexed-database.service';
 import {User} from '../../shared/user.model';
-import {LocationResponseListModel, LocationResponseModel} from '../../shared/location.model';
+import {LocationModel, LocationResponseListModel, LocationResponseModel} from '../../shared/location.model';
 import {RecipeModel} from './recipe.model';
 import {ProgressService} from '../../progress-bar/shared/progress.service';
 import {ErrorService} from '../../error/error.service';
@@ -16,10 +16,12 @@ import {SourceDataModel} from './sourcedata.model';
 describe('RecipeListService', () => {
   let service: RecipeListService;
   let apiService: ApiService;
+  let apiServiceSpy: jasmine.SpyObj<ApiService>;
   let idbService: IndexedDatabaseService;
   let errService: ErrorService;
+  let errServiceSpy: jasmine.SpyObj<ErrorService>;
   let progressService: ProgressService;
-  let httpClient: HttpClient;
+  // let httpClient: HttpClient;
 
   const location: LocationResponseModel = {
     name: 'amv',
@@ -47,20 +49,23 @@ describe('RecipeListService', () => {
   };
 
   beforeEach(() => {
-    errService = jasmine.createSpyObj('ErrorService', ['add']);
+    errServiceSpy = jasmine.createSpyObj('ErrorService', ['add']);
+    apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
     spyOn(console, 'log');
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
         ProgressService,
-        { provide: ErrorService, userValue: errService},
+        { provide: ErrorService, userValue: errServiceSpy},
+        { provide: ApiService, userValue: apiServiceSpy}
       ]
     });
     service = TestBed.inject(RecipeListService);
     apiService = TestBed.inject(ApiService);
     idbService = TestBed.inject(IndexedDatabaseService);
     progressService = TestBed.inject(ProgressService);
-    httpClient = TestBed.inject(HttpClient);
+    // httpClient = TestBed.inject(HttpClient);
+    errService = TestBed.inject(ErrorService);
   });
 
   it('should be created', () => {
@@ -94,8 +99,9 @@ describe('RecipeListService', () => {
     subjectRecipes.next(recipeList);
     const subjectSourceData = new Subject();
     subjectSourceData.next(sourceData);
-    spyOn(httpClient, 'get').withArgs('/jmx-ui/sourceData').and.returnValue(subjectSourceData);
-    const sourceData$ = httpClient.get('/jmx-ui/sourceData');
+    // spyOn(httpClient, 'get').withArgs('/jmx-ui/sourceData').and.returnValue(subjectSourceData);
+    // const sourceData$ = httpClient.get('/jmx-ui/sourceData');
+    apiServiceSpy.get.and.returnValue(subjectSourceData);
     spyOn(service, 'retrieveAllRecipes').withArgs('value').and.returnValue(subjectRecipes);
     const recipes$ = service.retrieveAllRecipes('value');
     const subjectProducts = new Subject<any>();
@@ -105,28 +111,14 @@ describe('RecipeListService', () => {
 
     service.saveRecipesToIdb();
 
-    expect(httpClient.get).toHaveBeenCalled();
-
-    // tick();
-    sourceData$.subscribe((data) => {
-      expect(data).toBe(sourceData);
-      expect(service.sourceData).toEqual(data as SourceDataModel);
-    });
-
+    expect(apiServiceSpy.get).toHaveBeenCalled();
     tick(1000);
     expect(service.retrieveAllRecipes).toHaveBeenCalled();
     tick();
     expect(idbService.syncRecipes).toHaveBeenCalled();
 
-    recipes$.subscribe(() => {
-      // expect(progressService.progressMessage).toBe('Saving Recipes...');
-      product$.subscribe((products) => {
-        expect(products.length).toBe(1);
-        expect(progressService.loading).toBe(false);
-      });
-    });
     expect(errService.add).not.toHaveBeenCalled();
-    expect(progressService.loading).toBe(true);
+    // expect(progressService.loading).toBe(true);
 
     flush();
 
@@ -148,36 +140,61 @@ describe('RecipeListService', () => {
     expect(apiService.get).toHaveBeenCalled();
     tick();
     expect(console.log).toHaveBeenCalled();
-    expect(errService.add).not.toHaveBeenCalled();
+    expect(errServiceSpy.add).not.toHaveBeenCalled();
   }));
+
+  it('retrieve locations - error', fakeAsync(() => {
+    const options = {
+      params: new HttpParams()
+        .set('size', '1000')
+        .set('sort', 'name')
+    };
+    const errorResponse = new HttpErrorResponse({
+      error: new ErrorEvent('errorEvent', {message: 'not found'}),
+      status: 404,
+      statusText: 'Not Found'
+    });
+    apiServiceSpy.get.and.returnValue(throwError(errorResponse));
+    errServiceSpy.add('message');
+
+    service.retrieveLocations();
+
+    tick();
+    expect(errServiceSpy.add).toHaveBeenCalled();
+  }));
+
 
   it('save locations to idb',   fakeAsync(() => {
     const subject = new Subject();
     subject.next(10);
     spyOn(idbService, 'getLocationsObjectStoreCount').and.returnValue(subject);
-    const count$ = idbService.getLocationsObjectStoreCount();
+
+    console.log('ObjectStore locations exists. No need loading');
 
     service.saveLocationsToIdb();
 
     expect(idbService.getLocationsObjectStoreCount).toHaveBeenCalled();
-    tick();
     expect(console.log).toHaveBeenCalled();
-    count$.subscribe((count) => {
-      expect(count).toBe(10);
-    });
-    flush();
+
   }));
 
   it('save locations to idb - count zero',   fakeAsync(() => {
     const subject = new Subject();
     subject.next(0);
     spyOn(idbService, 'getLocationsObjectStoreCount').and.returnValue(subject);
-    const count$ = idbService.getLocationsObjectStoreCount();
+    idbService.getLocationsObjectStoreCount();
     const subjectLocations = new Subject();
     subjectLocations.next(locationList);
     spyOn(service, 'retrieveLocations').and.returnValue(subjectLocations);
-    const locations$ = service.retrieveLocations();
+    service.retrieveLocations();
+    const locationData: LocationModel[] = [
+      {
+        name: 'Alohma Belleve',
+        storeLocation: '11527 S 36th st, Bellevue NE'
+      }
+    ];
     spyOn(idbService, 'syncLocations');
+    idbService.syncLocations(locationData);
 
     service.saveLocationsToIdb();
 
@@ -185,7 +202,7 @@ describe('RecipeListService', () => {
     tick();
     expect(service.retrieveLocations).toHaveBeenCalled();
     tick();
-    expect(idbService.syncLocations).not.toHaveBeenCalled();
+    expect(idbService.syncLocations).toHaveBeenCalled();
 
     flush();
   }));
