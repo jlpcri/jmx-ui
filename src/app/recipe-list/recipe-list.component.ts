@@ -13,6 +13,8 @@ import * as moment from 'moment';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../api/api.service';
 import {HeaderComponent} from '../header/header.component';
+import {FormControl, FormControlDirective} from '@angular/forms';
+import {AutocompleteComponent} from 'angular-ng-autocomplete';
 
 @Component({
   selector: 'app-recipe-list',
@@ -59,7 +61,7 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   @Input() public scanData = GlobalConstants.scanDataInitial;
   @ViewChild('bottleScanModal') bottleScanModal: ElementRef;
   @ViewChild('confirmModal') confirmModal: ElementRef;
-  @ViewChild('autocompleteFirst') autocompleteFirst;
+  @ViewChild('autocompleteFirst') autocompleteFirst: ElementRef;
 
   constructor(private recipeListService: RecipeListService,
               private idbService: IndexedDatabaseService,
@@ -195,16 +197,17 @@ export class RecipeListComponent implements OnInit, OnDestroy {
   selectEventSecond(item: any) {
     this.firstNameList = [];
     this.isLoadingNameListFirst = true;
+
     this.idbService.getProductNameListByComponent(item.name)
       .subscribe(
-        nameList => {
+        name => {
           this.firstNameList.push({
-            name: nameList.label,
-            labelKey: nameList.labelKey
+            name: name.label,
+            labelKey: name.labelKey
           });
           this.isLoadingNameListFirst = false;
           setTimeout(() => {
-            this.autocompleteFirst.focus();
+            this.autocompleteFirst.nativeElement.focus();
           }, 1000);
         });
   }
@@ -217,14 +220,15 @@ export class RecipeListComponent implements OnInit, OnDestroy {
     if (search.length > 0) {
       this.idbService.getComponentNameList(search)
         .subscribe(
-          nameList => {
-            if ('error' in nameList) {
+          name => {
+            if (name === 'error') {
               this.isLoadingNameListSecond = false;
             } else {
-              if (this.notExistInArray(this.secondNameList, 'name', nameList.name)) {
+
+              if (!this.secondNameList.some(item => item.name === name.name)) {
                 this.secondNameList.push({
-                  id: nameList.id,
-                  name: nameList.name
+                  id: name.id,
+                  name: name.name
                 });
               }
               this.isLoadingNameListSecond = false;
@@ -253,16 +257,6 @@ export class RecipeListComponent implements OnInit, OnDestroy {
 
   saveLocationsToIdb(): void {
     this.recipeListService.saveLocationsToIdb();
-  }
-
-  notExistInArray(arr: any, key: string, value: string) {
-    const obj = arr.find(x => x[key] === value);
-    for (const objKey in obj) {
-      if (obj.hasOwnProperty(objKey)) {
-        return false;
-      }
-    }
-    return true;
   }
 
   changeSize(size: string) {

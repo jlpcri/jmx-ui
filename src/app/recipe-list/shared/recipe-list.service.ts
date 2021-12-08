@@ -70,32 +70,33 @@ export class RecipeListService {
 
   saveRecipesToIdb() {
     this.progress.loading = true;
-    this.http.get<SourceDataModel>('/jmx-ui/sourceData').subscribe(
+    const params = new HttpParams();
+    this.api.getRoot<SourceDataModel>('/sourceData', {params}).subscribe(
       data => {
         this.sourceData = data;
+
+        // Run this only once source data is available
+        this.retrieveAllRecipes(this.sourceData.value).subscribe(
+          recipeData => {
+            this.progress.progressMessage = 'Saving Recipes...';
+            this.idbService.syncRecipes(recipeData).subscribe(
+              products => {
+                console.log(products.length + ' products saved to idb');
+                this.progress.loading = false;
+              }, error => {
+                this.errorService.add(error);
+                this.progress.loading = false;
+              }
+            );
+          }
+        );
       }
     );
-    setTimeout( () => {
-      this.retrieveAllRecipes(this.sourceData.value).subscribe(
-        data => {
-          this.progress.progressMessage = 'Saving Recipes...';
-          this.idbService.syncRecipes(data).subscribe(
-            products => {
-              console.log(products.length + ' products saved to idb');
-              this.progress.loading = false;
-            }, error => {
-              this.errorService.add(error);
-              this.progress.loading = false;
-            }
-          );
-        }
-      );
-    }, 500);
   }
 
   retrieveLocations() {
     const allLocations: LocationModel[] = [];
-    const allLocationsSubject: Subject<any> = new Subject<any>();
+    const allLocations$ = new Subject<LocationModel[]>();
     let fullAddr = '';
     const options = {
       params: new HttpParams()
@@ -116,13 +117,13 @@ export class RecipeListService {
           });
         }
         console.log('loaded ' + allLocations.length + ' locations');
-        allLocationsSubject.next(allLocations);
+        allLocations$.next(allLocations);
       },
       error => {
         this.errorService.add('Fetch API Locations: ' + error.message);
       }
     );
-    return allLocationsSubject;
+    return allLocations$;
   }
 
   saveLocationsToIdb() {

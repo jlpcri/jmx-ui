@@ -9,6 +9,7 @@ import {catchError} from 'rxjs/operators';
 export class ApiService {
 
   baseUrl = '/jmx-ui/api';
+  rootUrl = '/jmx-ui';
 
   constructor(private http: HttpClient) { }
 
@@ -32,4 +33,7 @@ export class ApiService {
     return this.http.post<T>(this.baseUrl + url, postData).pipe(catchError(ApiService.errorHandler));
   }
 
+  getRoot<T>(url: string, options: {params: HttpParams}): Observable<T> {
+    return this.http.get<T>(this.rootUrl + url, options).pipe(catchError(ApiService.errorHandler));
+  }
 }

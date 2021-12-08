@@ -15,13 +15,10 @@ import {SourceDataModel} from './sourcedata.model';
 
 describe('RecipeListService', () => {
   let service: RecipeListService;
-  let apiService: ApiService;
-  let apiServiceSpy: jasmine.SpyObj<ApiService>;
-  let idbService: IndexedDatabaseService;
-  let errService: ErrorService;
-  let errServiceSpy: jasmine.SpyObj<ErrorService>;
-  let progressService: ProgressService;
-  // let httpClient: HttpClient;
+  let apiService: jasmine.SpyObj<ApiService>;
+  let idbService: jasmine.SpyObj<IndexedDatabaseService>;
+  let errService: jasmine.SpyObj<ErrorService>;
+  let progressService: jasmine.SpyObj<ProgressService>;
 
   const location: LocationResponseModel = {
     name: 'amv',
@@ -39,7 +36,7 @@ describe('RecipeListService', () => {
     state: 'NE',
     zipCode: '68112'
   };
-  const locationList: LocationResponseListModel = {
+  const locationResponseList: LocationResponseListModel = {
     content: [
       location, location1
     ],
@@ -47,32 +44,46 @@ describe('RecipeListService', () => {
       totalElements: 1
     }
   };
+  const locationList: LocationModel[] = [
+    {
+      name: 'amv',
+      storeLocation: 'address line 1 , omaha NE, 68112'
+    },
+    {
+      name: 'kurevapes',
+      storeLocation: ''
+    }
+  ];
 
   beforeEach(() => {
-    errServiceSpy = jasmine.createSpyObj('ErrorService', ['add']);
-    apiServiceSpy = jasmine.createSpyObj('ApiService', ['get']);
+    // Create service spies.  Either list method names or get full list from service class.
+    errService = jasmine.createSpyObj('ErrorService', ['add']);
+    apiService = jasmine.createSpyObj('ApiService', ['get', 'getRoot']);
+    idbService = jasmine.createSpyObj('IndexedDatabaseService', Object.getOwnPropertyNames(IndexedDatabaseService.prototype));
+    progressService = jasmine.createSpyObj('ProgressService', Object.getOwnPropertyNames(ProgressService.prototype));
+    // Keep real console available
     spyOn(console, 'log');
+
+    // Include all created spies under providers.
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
       providers: [
-        ProgressService,
-        { provide: ErrorService, userValue: errServiceSpy},
-        { provide: ApiService, userValue: apiServiceSpy}
+        { provide: ErrorService, useValue: errService },
+        { provide: ApiService, useValue: apiService },
+        { provide: IndexedDatabaseService, useValue: idbService },
+        { provide: ProgressService, useValue: progressService }
       ]
     });
+
+    // Real service under test.
     service = TestBed.inject(RecipeListService);
-    apiService = TestBed.inject(ApiService);
-    idbService = TestBed.inject(IndexedDatabaseService);
-    progressService = TestBed.inject(ProgressService);
-    // httpClient = TestBed.inject(HttpClient);
-    errService = TestBed.inject(ErrorService);
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  xit('save recipes to idb', fakeAsync(() => {
+  it('saves recipes to idb', () => {
     const recipe: RecipeModel = {
       id: 12,
       name: 'name',
@@ -90,126 +101,117 @@ describe('RecipeListService', () => {
       name: 'amvpos',
       value: 'value'
     };
-    const options = {
-      params: new HttpParams()
-        .set('size', '1000')
-        .set('sort', 'name')
-    };
-    const subjectRecipes = new Subject<any>();
-    subjectRecipes.next(recipeList);
-    const subjectSourceData = new Subject();
-    subjectSourceData.next(sourceData);
-    // spyOn(httpClient, 'get').withArgs('/jmx-ui/sourceData').and.returnValue(subjectSourceData);
-    // const sourceData$ = httpClient.get('/jmx-ui/sourceData');
-    apiServiceSpy.get.and.returnValue(subjectSourceData);
-    spyOn(service, 'retrieveAllRecipes').withArgs('value').and.returnValue(subjectRecipes);
-    const recipes$ = service.retrieveAllRecipes('value');
-    const subjectProducts = new Subject<any>();
-    subjectProducts.next({length: 1});
-    spyOn(idbService, 'syncRecipes').and.returnValue(subjectProducts);
-    const product$ = idbService.syncRecipes(recipeList);
 
+    const recipes$ = new Subject<RecipeModel[]>();
+    const sourceData$ = new Subject<SourceDataModel>();
+    const products$ = new Subject<any>();
+
+    apiService.getRoot.and.returnValue(sourceData$);
+    idbService.syncRecipes.and.returnValue(products$);
+
+    // use spyOn for service under test to replace only this method
+    spyOn(service, 'retrieveAllRecipes').withArgs('value').and.returnValue(recipes$);
+
+    // run method under test
     service.saveRecipesToIdb();
 
-    expect(apiServiceSpy.get).toHaveBeenCalled();
-    tick(1000);
-    expect(service.retrieveAllRecipes).toHaveBeenCalled();
-    tick();
+    // Progress set to loading because nothing has happened yet
+    expect(progressService.loading).toBe(true);
+
+    // Trigger observables in exact order they are called in the code to simulate async
+    // Must happen after code is run because the subscriptions need to exist
+    sourceData$.next(sourceData);
+    recipes$.next(recipeList);
+    products$.next({length: 1});
+
+    // If everything happened correctly, no longer loading
+    expect(progressService.loading).toBe(false);
+
+    // Check other behavior of method under test
+    expect(apiService.getRoot).toHaveBeenCalledWith('/sourceData', jasmine.anything());
+    expect(service.retrieveAllRecipes).toHaveBeenCalledWith('value');
     expect(idbService.syncRecipes).toHaveBeenCalled();
-
     expect(errService.add).not.toHaveBeenCalled();
-    // expect(progressService.loading).toBe(true);
+  });
 
-    flush();
-
-  }));
-
-  it('retrieve locations', fakeAsync(() => {
+  it('retrieve locations', () => {
     const options = {
       params: new HttpParams()
         .set('size', '1000')
         .set('sort', 'name')
     };
-    const subject = new Subject();
-    subject.next(locationList);
-    spyOn(apiService, 'get').withArgs('/locations', options).and.returnValue(subject);
-    const resp$ = apiService.get('/locations', options);
+    const locations$ = new Subject<LocationResponseListModel>();
 
-    service.retrieveLocations();
+    apiService.get.withArgs('/locations', options).and.returnValue(locations$);
 
-    expect(apiService.get).toHaveBeenCalled();
-    tick();
+    // Call code and subscribe to check result
+    let result;
+    service.retrieveLocations().subscribe(
+      data => {
+        result = data;
+      }
+    );
+
+    locations$.next(locationResponseList);
+
+    // With methods that might be reused with other arguments to do something completely
+    // different, check arguments when possible
+    expect(apiService.get).toHaveBeenCalledWith('/locations', options);
     expect(console.log).toHaveBeenCalled();
-    expect(errServiceSpy.add).not.toHaveBeenCalled();
-  }));
+    expect(errService.add).not.toHaveBeenCalled();
+    // Verify result that will be sent to code subscribing to the output observable
+    expect(result).toEqual(locationList);
+  });
 
-  it('retrieve locations - error', fakeAsync(() => {
-    const options = {
-      params: new HttpParams()
-        .set('size', '1000')
-        .set('sort', 'name')
-    };
+  it('retrieve locations - error', () => {
     const errorResponse = new HttpErrorResponse({
       error: new ErrorEvent('errorEvent', {message: 'not found'}),
       status: 404,
       statusText: 'Not Found'
     });
-    apiServiceSpy.get.and.returnValue(throwError(errorResponse));
-    errServiceSpy.add('message');
+    apiService.get.and.returnValue(throwError(errorResponse));
 
     service.retrieveLocations();
 
-    tick();
-    expect(errServiceSpy.add).toHaveBeenCalled();
-  }));
+    expect(errService.add).toHaveBeenCalled();
+  });
 
 
-  it('save locations to idb',   fakeAsync(() => {
-    const subject = new Subject();
-    subject.next(10);
-    spyOn(idbService, 'getLocationsObjectStoreCount').and.returnValue(subject);
+  it('save locations to idb - locations store exists', () => {
+    const count$ = new Subject();
 
-    console.log('ObjectStore locations exists. No need loading');
+    idbService.getLocationsObjectStoreCount.and.returnValue(count$);
 
     service.saveLocationsToIdb();
+
+    count$.next(10);
 
     expect(idbService.getLocationsObjectStoreCount).toHaveBeenCalled();
     expect(console.log).toHaveBeenCalled();
+    // Check negatives when a branch should not have run
+    expect(idbService.syncLocations).not.toHaveBeenCalled();
+  });
 
-  }));
+  it('save locations to idb - locations store does not exist', () => {
+    const count$ = new Subject();
 
-  it('save locations to idb - count zero',   fakeAsync(() => {
-    const subject = new Subject();
-    subject.next(0);
-    spyOn(idbService, 'getLocationsObjectStoreCount').and.returnValue(subject);
-    idbService.getLocationsObjectStoreCount();
-    const subjectLocations = new Subject();
-    subjectLocations.next(locationList);
-    spyOn(service, 'retrieveLocations').and.returnValue(subjectLocations);
-    service.retrieveLocations();
-    const locationData: LocationModel[] = [
-      {
-        name: 'Alohma Belleve',
-        storeLocation: '11527 S 36th st, Bellevue NE'
-      }
-    ];
-    spyOn(idbService, 'syncLocations');
-    idbService.syncLocations(locationData);
+    idbService.getLocationsObjectStoreCount.and.returnValue(count$);
+
+    const locations$ = new Subject<LocationModel[]>();
+    spyOn(service, 'retrieveLocations').and.returnValue(locations$);
 
     service.saveLocationsToIdb();
 
-    expect(idbService.getLocationsObjectStoreCount).toHaveBeenCalled();
-    tick();
-    expect(service.retrieveLocations).toHaveBeenCalled();
-    tick();
-    expect(idbService.syncLocations).toHaveBeenCalled();
+    count$.next(0);
+    locations$.next(locationList);
 
-    flush();
-  }));
+    expect(idbService.getLocationsObjectStoreCount).toHaveBeenCalled();
+    expect(service.retrieveLocations).toHaveBeenCalled();
+    expect(idbService.syncLocations).toHaveBeenCalled();
+  });
 
 
   it('save users to idb', () => {
-    spyOn(idbService, 'syncUsers');
     const user: User = {
       id: 1,
       name: 'John Doe',
@@ -221,7 +223,10 @@ describe('RecipeListService', () => {
 
     service.saveUsersToIdb(user);
 
-    expect(idbService.syncUsers).toHaveBeenCalled();
+    expect(idbService.syncUsers).toHaveBeenCalledWith({
+      name: 'John Doe',
+      roles: ['jmx']
+    });
   });
 
 });
