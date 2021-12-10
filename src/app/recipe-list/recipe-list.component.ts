@@ -13,8 +13,6 @@ import * as moment from 'moment';
 import {NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ApiService} from '../api/api.service';
 import {HeaderComponent} from '../header/header.component';
-import {FormControl, FormControlDirective} from '@angular/forms';
-import {AutocompleteComponent} from 'angular-ng-autocomplete';
 
 @Component({
   selector: 'app-recipe-list',

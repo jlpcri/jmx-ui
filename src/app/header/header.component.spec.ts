@@ -1,38 +1,29 @@
+import {HeaderComponent} from './header.component';
+import {async, ComponentFixture, fakeAsync, flush, TestBed, tick} from '@angular/core/testing';
 import {AuthService} from '../auth.service';
 import {RecipeListService} from '../recipe-list/shared/recipe-list.service';
 import {IndexedDatabaseService} from '../shared/indexed-database.service';
-import {ModalDismissReasons, NgbModal, NgbModule} from '@ng-bootstrap/ng-bootstrap';
+import {ModalDismissReasons, NgbModal} from '@ng-bootstrap/ng-bootstrap';
 import {ErrorService} from '../error/error.service';
 import {ProgressService} from '../progress-bar/shared/progress.service';
-import {fakeAsync, flush, TestBed, tick} from '@angular/core/testing';
-import {HeaderComponent} from './header.component';
-import {HttpClientTestingModule} from '@angular/common/http/testing';
-import {of, Subject} from 'rxjs';
 import {User} from '../shared/user.model';
-import {LocationModel} from '../shared/location.model';
-import {HttpResponse} from '@angular/common/http';
+import {Subject} from 'rxjs';
 import * as moment from 'moment';
+import {GlobalConstants} from '../shared/GlobalConstants';
+import createSpyObj = jasmine.createSpyObj;
 
 
 describe('HeaderComponent', () => {
-  let fixture;
-  let component;
-  let componentSpy: jasmine.SpyObj<HeaderComponent>;
-  let authService: AuthService;
-  let authServiceSpy: jasmine.SpyObj<AuthService>;
-  let recipeListService: RecipeListService;
-  let recipeListServiceSpy: jasmine.SpyObj<RecipeListService>;
-  let idbService: IndexedDatabaseService;
-  let idbServiceSpy: jasmine.SpyObj<IndexedDatabaseService>;
-  let modalService: NgbModal;
-  let modalServiceSpy: jasmine.SpyObj<NgbModal>;
-  let errorService: ErrorService;
-  let errorServiceSpy: jasmine.SpyObj<ErrorService>;
-  let progressService: ProgressService;
-  let progressServiceStub: Partial<ProgressService>;
+  let component: HeaderComponent;
+  let fixture: ComponentFixture<HeaderComponent>;
+  let authService: jasmine.SpyObj<AuthService>;
+  let recipeListService: jasmine.SpyObj<RecipeListService>;
+  let idbService: jasmine.SpyObj<IndexedDatabaseService>;
+  let modalService: jasmine.SpyObj<NgbModal>;
+  let errorService: jasmine.SpyObj<ErrorService>;
+  let progressService: jasmine.SpyObj<ProgressService>;
 
-
-  const expectedUser: User = {
+  const testUser: User = {
     id: 12,
     firstName: 'John',
     lastName: 'Doe',
@@ -40,138 +31,64 @@ describe('HeaderComponent', () => {
     authUri: '',
     roles: ['jmx']
   };
-  const expectedLocation: LocationModel = {
+  const testLocation = {
     name: 'kurevapes',
     storeLocation: '144th street omaha ne'
   };
-  let mockModalRef = {
-    componentInstance: {
-      errors: []
-    },
-    result: Promise.resolve(expectedLocation)
-  };
 
-  beforeEach(() => {
-    authServiceSpy = jasmine.createSpyObj('AuthService', ['authorized']);
-    recipeListServiceSpy = jasmine.createSpyObj('RecipeListService',
-      ['saveUsersToIdb', 'saveRecipesToIdb']);
-    idbServiceSpy = jasmine.createSpyObj('IndexedDatabaseService',
-      ['getLocationsOrUsersFromIdb']);
-    modalServiceSpy = jasmine.createSpyObj('NgbModal', {open: mockModalRef});
-    errorServiceSpy = jasmine.createSpyObj('ErrorService', ['add']);
-    progressServiceStub = {
-      loading: false,
-      progressValue: 0,
-      progressMessage: 'Loading Data ...',
-      height: '2rem'
-    };
-    componentSpy = jasmine.createSpyObj('HeaderComponent', [
-      'isAppConfigInputError', 'getAppProperty', 'openAppLocation'
-    ]);
+  beforeEach(async(() => {
+    spyOn(console, 'log');
+    authService = jasmine.createSpyObj('AuthService', ['authorized', 'logout']);
+    recipeListService = jasmine.createSpyObj('RecipeListService', Object.getOwnPropertyNames(RecipeListService.prototype));
+    idbService = jasmine.createSpyObj('IndexedDatabaseService', Object.getOwnPropertyNames(IndexedDatabaseService.prototype));
+    modalService = jasmine.createSpyObj('NgbModal', ['open']);
+    errorService = jasmine.createSpyObj('ErrorService', ['add']);
+    progressService = jasmine.createSpyObj('ProgressService', Object.getOwnPropertyNames(ProgressService.prototype));
 
     TestBed.configureTestingModule({
       declarations: [HeaderComponent],
-      imports: [
-        HttpClientTestingModule, NgbModule
-      ],
       providers: [
-        { provide: AuthService, userValue: authServiceSpy },
-        { provide: RecipeListService, userValue: recipeListServiceSpy},
-        { provide: IndexedDatabaseService, userValue: idbServiceSpy},
-        { provide: NgbModal, userValue: modalServiceSpy},
-        { provide: ErrorService, userValue: errorServiceSpy},
-        { provide: ProgressService, userValue: progressServiceStub},
-        { provide: HeaderComponent, userValue: componentSpy},
+        { provide: AuthService, useValue: authService },
+        { provide: RecipeListService, useValue: recipeListService },
+        { provide: IndexedDatabaseService, useValue: idbService },
+        { provide: NgbModal, useValue: modalService },
+        { provide: ErrorService, useValue: errorService },
+        { provide: ProgressService, useValue: progressService }
       ]
-    }).compileComponents();
+    })
+      .compileComponents();
+  }));
 
+  beforeEach(() => {
     fixture = TestBed.createComponent(HeaderComponent);
     component = fixture.componentInstance;
-    authService = TestBed.inject(AuthService);
-    recipeListService = TestBed.inject(RecipeListService);
-    idbService = TestBed.inject(IndexedDatabaseService);
-    modalService = TestBed.inject(NgbModal);
-    errorService = TestBed.inject(ErrorService);
-    progressService = TestBed.inject(ProgressService);
-
   });
 
   it('should be created', () => {
     expect(component).toBeTruthy();
   });
 
-  xit('ngOnInit', fakeAsync(() => {
-    component.networkStatus = true;
-
-    authServiceSpy.authorized.and.returnValue(of(expectedUser));
-
-    // @ts-ignore
-    idbServiceSpy.getLocationsOrUsersFromIdb.withArgs('user').and.returnValue(of(expectedUser));
-    // @ts-ignore
-    idbServiceSpy.getLocationsOrUsersFromIdb.withArgs('location').and.returnValue(of(expectedLocation));
-    const subject = new Subject();
-    subject.next(expectedLocation);
-    componentSpy.getAppProperty.and.returnValue(subject);
-    mockModalRef = modalService.open('content');
-
-    const httpClientSpy = jasmine.createSpyObj('HttpClient', ['get']);
-    const resp = new HttpResponse();
-
-    component.ngOnInit();
-
-    tick(500);
-    authService.authorized();
-
-    tick(1000);
-    component.getAppProperty('location');
-
-    tick(1500);
-    idbService.getLocationsOrUsersFromIdb('user');
-    idbService.getLocationsOrUsersFromIdb('location');
-
-    tick(2000);
-    recipeListService.saveUsersToIdb(expectedUser);
-
-    tick(2500);
+  it('logout', fakeAsync(() => {
+    recipeListService.saveUsersToIdb(testUser);
     authService.logout();
-    httpClientSpy.get.and.returnValue(of(resp));
-
-
-    flush();
-
-  }));
-
-  xit('should logout', fakeAsync(() => {
-    component.currentUser = expectedUser;
-    component.appLocation = expectedLocation;
-    idbService.objectStoreName = 'recipes';
-    recipeListServiceSpy.saveUsersToIdb.withArgs(expectedUser);
-    // idbServiceSpy.syncUsers.withArgs(expectedUser);
-    // componentSpy.isAppConfigInputError.and.returnValue(true);
 
     component.logout();
 
     tick(500);
-    recipeListService.saveUsersToIdb(expectedUser);
-
-    tick(1000);
-    authService.logout();
+    expect(recipeListService.saveUsersToIdb).toHaveBeenCalled();
+    tick(500);
+    expect(authService.logout).toHaveBeenCalled();
 
     flush();
   }));
 
-  it('is app config input error', () => {
-    const loc = 'test';
-
-    component.isAppConfigInputError(loc);
-  });
-
   it('open help modal', () => {
-    modalServiceSpy.open('content');
+    const content = 'content';
+    modalService.open(content);
 
-    component.openHelp('content');
+    component.openHelp(content);
 
-    expect(modalServiceSpy.open).toHaveBeenCalled();
+    expect(modalService.open).toHaveBeenCalled();
   });
 
   it('select event', () => {
@@ -180,14 +97,12 @@ describe('HeaderComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('open app location', fakeAsync(() => {
-    modalServiceSpy.open('content');
-    // modalServiceSpy.open('content');
+  it('is app config input error', () => {
+    component.appLocation.name = 'name';
+    const result = component.isAppConfigInputError('Kurevapes');
 
-    component.openAppLocation();
-
-    expect(modalServiceSpy.open).toHaveBeenCalled();
-  }));
+    expect(result).toEqual(true);
+  });
 
   it('get dismiss reason', () => {
     let reason;
@@ -202,112 +117,129 @@ describe('HeaderComponent', () => {
   });
 
   it('get app property', () => {
-    const subjectReturn = new Subject<any>();
-    const subject = new Subject();
-    subject.next(location);
-    spyOn(idbService, 'getAppPropertyFromIdb').withArgs('location').and.returnValue(subject);
-    const appProperty$ = idbService.getAppPropertyFromIdb('location');
-    progressService.loading = false;
+    GlobalConstants.appPropertyLocation = 'location';
+    const property$ = new Subject();
+    idbService.getAppPropertyFromIdb.and.returnValue(property$);
+
+    component.getAppProperty('location');
+    property$.next(testLocation);
+
+    expect(idbService.getAppPropertyFromIdb).toHaveBeenCalledWith('location');
+  });
+
+  it('get app property- error', () => {
+    const property$ = new Subject();
+    idbService.getAppPropertyFromIdb.and.returnValue(property$);
     spyOn(component, 'openAppLocation');
 
     component.getAppProperty('location');
+    property$.error(new Error());
 
-    expect(idbService.getAppPropertyFromIdb).toHaveBeenCalled();
-    appProperty$.subscribe((value) => {
-        subjectReturn.next(value);
-      },
-      () => {},
-      () => {
-        expect(component.openAppLocation).toHaveBeenCalled();
-      });
+    expect(idbService.getAppPropertyFromIdb).toHaveBeenCalledWith('location');
+    expect(component.openAppLocation).toHaveBeenCalled();
   });
 
-  it('save app property - location', () => {
-    const property = 'location';
-    const subject = new Subject();
-    subject.next(location);
-    spyOn(idbService, 'saveAppPropertyToIdb').withArgs(property, location).and.returnValue(subject);
-    const appProperty$ = idbService.saveAppPropertyToIdb(property, location);
+  it('save app property', () => {
+    const data$ = new Subject();
+    idbService.saveAppPropertyToIdb.and.returnValue(data$);
 
-    component.saveAppProperty(property, location);
-    appProperty$.subscribe(() => {
-        // expect(window.location.reload).toHaveBeenCalled();
-        expect(component).toBeTruthy();
-      },
-      () => {
-        expect(errorService.add).toHaveBeenCalled();
-      });
+    component.saveAppProperty('user', testUser);
+    data$.next(testUser);
+
+    expect(idbService.saveAppPropertyToIdb).toHaveBeenCalledWith('user', testUser);
   });
 
-  it('save app property - user', () => {
-    const property = 'user';
-    const subject = new Subject();
-    subject.next(expectedUser);
-    spyOn(idbService, 'saveAppPropertyToIdb').withArgs(property, expectedUser).and.returnValue(subject);
-    const appProperty$ = idbService.saveAppPropertyToIdb(property, expectedUser);
+  it('save app property - error', () => {
+    const data$ = new Subject();
+    idbService.saveAppPropertyToIdb.and.returnValue(data$);
 
-    component.saveAppProperty(property, expectedUser);
-    appProperty$.subscribe((data) => {
-      expect(component.appAssociate).toBe(data as User);
-    });
+    component.saveAppProperty('user', testUser);
+    data$.error(new Error());
+
+    expect(idbService.saveAppPropertyToIdb).toHaveBeenCalledWith('user', testUser);
   });
 
   it('refresh idb data', () => {
-    const subject = new Subject();
-    subject.next(true);
-    spyOn(component, 'isRefreshMoreThanOneDay').and.returnValue(subject);
-    const flag$ = component.isRefreshMoreThanOneDay();
+    const flag$ = new Subject();
+    spyOn(component, 'isRefreshMoreThanOneDay').and.returnValue(flag$);
     spyOn(component, 'refreshObjectStores');
 
     component.refreshIdbData();
+    flag$.next(true);
 
     expect(component.isRefreshMoreThanOneDay).toHaveBeenCalled();
-    flag$.subscribe((flag) => {
-      expect(flag).toBe(true);
-      expect(component.refreshObjectStores).toHaveBeenCalled();
-    });
+    expect(component.refreshObjectStores).toHaveBeenCalled();
+  });
+
+  it('refresh idb data - false', () => {
+    const flag$ = new Subject();
+    spyOn(component, 'isRefreshMoreThanOneDay').and.returnValue(flag$);
+    spyOn(component, 'refreshObjectStores');
+
+    component.refreshIdbData();
+    flag$.next(false);
+
+    expect(component.isRefreshMoreThanOneDay).toHaveBeenCalled();
+    expect(component.refreshObjectStores).not.toHaveBeenCalled();
   });
 
   it('is refresh more than one day', () => {
     const lastUpdate = moment();
-    const subjectReturn = new Subject();
-    const subject = new Subject();
-    subject.next(lastUpdate);
-    spyOn(idbService, 'getAppPropertyFromIdb').withArgs('idbLastUpdate').and.returnValue(subject);
-    const update$ = idbService.getAppPropertyFromIdb('idbLastUpdate');
+    const lastUpdate$ = new Subject();
+    idbService.getAppPropertyFromIdb.and.returnValue(lastUpdate$);
 
     component.isRefreshMoreThanOneDay();
 
+    lastUpdate$.next(lastUpdate);
+
     expect(idbService.getAppPropertyFromIdb).toHaveBeenCalled();
-    update$.subscribe(() => {
-        subjectReturn.next(false);
-      },
-      (error) => {
-        subjectReturn.next(error);
-      });
+
+  });
+
+  it('is refresh more than one day - error', () => {
+    const lastUpdate$ = new Subject();
+    idbService.getAppPropertyFromIdb.and.returnValue(lastUpdate$);
+
+    component.isRefreshMoreThanOneDay();
+
+    lastUpdate$.error(new Error());
+
+    expect(idbService.getAppPropertyFromIdb).toHaveBeenCalled();
+
   });
 
   it('refresh object stores', () => {
-    const subject = new Subject();
-    subject.next('message');
-    spyOn(idbService, 'clearObjectStoreData').and.returnValue(subject);
-    const msg$ = idbService.clearObjectStoreData('recipes');
-    spyOn(console, 'log');
-    spyOn(recipeListService, 'saveRecipesToIdb');
+    const msg$ = new Subject();
+    idbService.clearObjectStoreData.and.returnValue(msg$);
 
     component.refreshObjectStores();
+    msg$.next('message');
 
     expect(idbService.clearObjectStoreData).toHaveBeenCalled();
-    msg$.subscribe((msg) => {
-        expect(console.log).toHaveBeenCalled();
-        expect(console.log.toString).toContain(msg);
-        expect(recipeListService.saveRecipesToIdb).toHaveBeenCalled();
-      },
-      (error) => {
-        expect(console.log).toHaveBeenCalled();
-        expect(console.log.toString).toContain(error);
-      });
+    expect(recipeListService.saveRecipesToIdb).toHaveBeenCalled();
   });
 
+  it('refresh object stores - error', () => {
+    const msg$ = new Subject();
+    idbService.clearObjectStoreData.and.returnValue(msg$);
+
+    component.refreshObjectStores();
+    msg$.error(new Error());
+
+    expect(idbService.clearObjectStoreData).toHaveBeenCalled();
+    expect(recipeListService.saveRecipesToIdb).not.toHaveBeenCalled();
+  });
+
+  it('open app location', () => {
+    component.locationSelect = 'kurevapes';
+
+    const modalServiceRef = createSpyObj('NgbModalRef', {}, {result: Promise.resolve(testLocation)});
+    modalService.open.and.returnValue(modalServiceRef);
+    spyOn(component, 'isAppConfigInputError').withArgs(testLocation).and.returnValue(true);
+
+    component.openAppLocation();
+
+    expect(component.isShowAlert).toEqual(false);
+  });
 
 });

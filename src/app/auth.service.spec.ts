@@ -4,7 +4,7 @@ import {RecipeListService} from './recipe-list/shared/recipe-list.service';
 import {fakeAsync, flush, TestBed, tick} from '@angular/core/testing';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {User} from './shared/user.model';
-import {of, throwError} from 'rxjs';
+import {of, Subject, throwError} from 'rxjs';
 
 
 describe('Auth service', () => {
@@ -30,8 +30,8 @@ describe('Auth service', () => {
       imports: [HttpClientTestingModule],
       providers: [
         AuthService,
-        { provide: HttpClient, userValue: httpClientSpy},
-        { provide: RecipeListService, userValue: recipeListServiceSpy}
+        { provide: HttpClient, useValue: httpClientSpy},
+        { provide: RecipeListService, useValue: recipeListServiceSpy}
       ]
     });
     // authService = TestBed.inject(AuthService);
@@ -83,21 +83,30 @@ describe('Auth service', () => {
 
   }));
 
-  xit('logout - success', fakeAsync(() => {
+  it('logout - success', fakeAsync(() => {
     const resp = new HttpResponse();
-
-    httpClientSpy.get.and.returnValue(of(resp));
+    const resp$ = new Subject();
+    httpClientSpy.get.and.returnValue(resp$);
 
     authService.logout();
+    resp$.next(resp);
+    location.href = 'localhost:9876';
+
+    expect(httpClientSpy.get).toHaveBeenCalled();
 
   }));
 
-  xit('logout - error', fakeAsync(() => {
-    const resp = new HttpResponse();
+  it('logout - error', fakeAsync(() => {
+    const resp$ = new Subject();
 
-    httpClientSpy.get.and.returnValue(throwError(resp));
+    httpClientSpy.get.and.returnValue(resp$);
 
     authService.logout();
+    resp$.error(new Error());
+    location.href = 'localhost:9876';
+
+    expect(httpClientSpy.get).toHaveBeenCalled();
+
   }));
 
 });

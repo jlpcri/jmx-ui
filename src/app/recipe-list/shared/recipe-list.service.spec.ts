@@ -1,9 +1,9 @@
-import {fakeAsync, flush, TestBed, tick} from '@angular/core/testing';
+import {TestBed} from '@angular/core/testing';
 
 import {RecipeListService} from './recipe-list.service';
 import {ApiService} from '../../api/api.service';
 import {Subject, throwError} from 'rxjs';
-import {HttpClient, HttpErrorResponse, HttpParams} from '@angular/common/http';
+import {HttpErrorResponse, HttpParams} from '@angular/common/http';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {IndexedDatabaseService} from '../../shared/indexed-database.service';
 import {User} from '../../shared/user.model';
@@ -54,6 +54,26 @@ describe('RecipeListService', () => {
       storeLocation: ''
     }
   ];
+  const recipe: RecipeModel = {
+    id: 12,
+    name: 'name',
+    sku: '123',
+    label: 'label',
+    labelKey: 'label-key',
+    bottleSize: 10,
+    nicStrength: 3,
+    key: 'key',
+    ingredients: [{name: 'name', sku: '3322', quantity: 1}],
+    saltNic: true
+  };
+  const recipeList: RecipeModel[] = [recipe];
+  const sourceData: SourceDataModel = {
+    name: 'amvpos',
+    value: 'value'
+  };
+  const recipes$ = new Subject<RecipeModel[]>();
+  const sourceData$ = new Subject<SourceDataModel>();
+  const products$ = new Subject<any>();
 
   beforeEach(() => {
     // Create service spies.  Either list method names or get full list from service class.
@@ -84,28 +104,6 @@ describe('RecipeListService', () => {
   });
 
   it('saves recipes to idb', () => {
-    const recipe: RecipeModel = {
-      id: 12,
-      name: 'name',
-      sku: '123',
-      label: 'label',
-      labelKey: 'label-key',
-      bottleSize: 10,
-      nicStrength: 3,
-      key: 'key',
-      ingredients: [{name: 'name', sku: '3322', quantity: 1}],
-      saltNic: true
-    };
-    const recipeList: RecipeModel[] = [recipe];
-    const sourceData: SourceDataModel = {
-      name: 'amvpos',
-      value: 'value'
-    };
-
-    const recipes$ = new Subject<RecipeModel[]>();
-    const sourceData$ = new Subject<SourceDataModel>();
-    const products$ = new Subject<any>();
-
     apiService.getRoot.and.returnValue(sourceData$);
     idbService.syncRecipes.and.returnValue(products$);
 
@@ -122,7 +120,7 @@ describe('RecipeListService', () => {
     // Must happen after code is run because the subscriptions need to exist
     sourceData$.next(sourceData);
     recipes$.next(recipeList);
-    products$.next({length: 1});
+    products$.next(recipeList);
 
     // If everything happened correctly, no longer loading
     expect(progressService.loading).toBe(false);
@@ -131,7 +129,36 @@ describe('RecipeListService', () => {
     expect(apiService.getRoot).toHaveBeenCalledWith('/sourceData', jasmine.anything());
     expect(service.retrieveAllRecipes).toHaveBeenCalledWith('value');
     expect(idbService.syncRecipes).toHaveBeenCalled();
-    expect(errService.add).not.toHaveBeenCalled();
+    // expect(errService.add).toHaveBeenCalled();
+  });
+
+  it('saves recipes to idb - syncRecipes error', () => {
+    apiService.getRoot.and.returnValue(sourceData$);
+    idbService.syncRecipes.and.returnValue(products$);
+
+    // use spyOn for service under test to replace only this method
+    spyOn(service, 'retrieveAllRecipes').withArgs('value').and.returnValue(recipes$);
+
+    // run method under test
+    service.saveRecipesToIdb();
+
+    // Progress set to loading because nothing has happened yet
+    expect(progressService.loading).toBe(true);
+
+    // Trigger observables in exact order they are called in the code to simulate async
+    // Must happen after code is run because the subscriptions need to exist
+    sourceData$.next(sourceData);
+    recipes$.next(recipeList);
+    products$.error(new Error());
+
+    // If everything happened correctly, no longer loading
+    expect(progressService.loading).toBe(false);
+
+    // Check other behavior of method under test
+    expect(apiService.getRoot).toHaveBeenCalledWith('/sourceData', jasmine.anything());
+    expect(service.retrieveAllRecipes).toHaveBeenCalledWith('value');
+    expect(idbService.syncRecipes).toHaveBeenCalled();
+    expect(errService.add).toHaveBeenCalled();
   });
 
   it('retrieve locations', () => {
@@ -227,6 +254,39 @@ describe('RecipeListService', () => {
       name: 'John Doe',
       roles: ['jmx']
     });
+  });
+
+  xit('retrieve all recipes - totalRecipes 1', () => {
+    const resp$ = new Subject();
+    apiService.get.and.returnValue(resp$);
+
+    service.retrieveAllRecipes('amvpos');
+
+    resp$.next({recipes: recipeList, totalRecipes: 1});
+
+    expect(apiService.get).toHaveBeenCalled();
+  });
+
+  it('retrieve all recipes - totalRecipes 2', () => {
+    const resp$ = new Subject();
+    apiService.get.and.returnValue(resp$);
+
+    service.retrieveAllRecipes('amvpos');
+
+    resp$.next({recipes: recipeList, totalRecipes: 2});
+
+    expect(apiService.get).toHaveBeenCalled();
+  });
+
+  it('retrieve all recipes - error', () => {
+    const resp$ = new Subject();
+    apiService.get.and.returnValue(resp$);
+
+    service.retrieveAllRecipes('amvpos');
+
+    resp$.error(new Error());
+
+    expect(apiService.get).toHaveBeenCalled();
   });
 
 });

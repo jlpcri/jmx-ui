@@ -87,6 +87,7 @@
             "tsConfig": "tsconfig.spec.json",
             "karmaConfig": "karma.conf.js",
             "codeCoverage": true,
+            "codeCoverageExclude": ["**/*/indexed-database.service.ts"],
             "assets": [
               "src/favicon.ico",
               "src/assets"

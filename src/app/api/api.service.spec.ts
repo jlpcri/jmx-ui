@@ -54,7 +54,7 @@ describe('ApiService', () => {
     expect(httpClientSpy.post).toHaveBeenCalledWith('/jmx-ui/api/url', postData);
   });
 
-  xit('error handler', () => {
+  it('error handler', () => {
     const errorResponse = new HttpErrorResponse({
       error: 'test 404 error',
       status: 404,
@@ -65,7 +65,7 @@ describe('ApiService', () => {
     ApiService.errorHandler(errorResponse);
   });
 
-  xit('error handler - ErrorEvent', () => {
+  it('error handler - ErrorEvent', () => {
     const errorResponse = new HttpErrorResponse({
       error: new ErrorEvent('errorEvent', {message: 'not found'}),
       status: 404,

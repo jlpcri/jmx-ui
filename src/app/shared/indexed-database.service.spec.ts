@@ -2,12 +2,12 @@ import {IndexedDatabaseService} from './indexed-database.service';
 import {TestBed} from '@angular/core/testing';
 import {HttpClientTestingModule} from '@angular/common/http/testing';
 import {MessageService} from './message.service';
-import {any} from 'codelyzer/util/function';
 import {GlobalConstants} from './GlobalConstants';
+import {RecipeModel} from '../recipe-list/shared/recipe.model';
 
 describe('IndexedDatabaseService', () => {
   let service: IndexedDatabaseService;
-  let msgServiceSpy: MessageService;
+  let messageService: jasmine.SpyObj<MessageService>;
 
   let db: any;
 
@@ -107,15 +107,14 @@ describe('IndexedDatabaseService', () => {
   }
 
   beforeEach(() => {
-    const msgSpy = jasmine.createSpyObj('MessageService', ['error', 'warn', 'info']);
+    messageService = jasmine.createSpyObj('MessageService', ['error', 'warn', 'info']);
     TestBed.configureTestingModule({
       imports: [ HttpClientTestingModule ],
       providers: [
-        { provide: MessageService, userValue: msgSpy }
+        { provide: MessageService, useValue: messageService }
       ]
     });
     service = TestBed.inject(IndexedDatabaseService);
-    msgServiceSpy = TestBed.inject(MessageService) as jasmine.SpyObj<MessageService>;
 
     setupDB(dbExisted => {
       if (!dbExisted) {
@@ -132,12 +131,17 @@ describe('IndexedDatabaseService', () => {
   });
 
   it('idbService init', () => {
-    spyOn(service, 'init').and.callFake((callback) => {
-      expect(typeof callback).toBe('function');
-      callback(true);
+
+
+    service.init(dbExisted => {
+      if (!dbExisted) {
+        console.log('Init test DB created');
+      } else {
+        console.log('Init test DB existed.');
+      }
     });
 
-    service.init(any);
+    expect(service).toBeTruthy();
   });
 
 });
